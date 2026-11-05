@@ -2,12 +2,15 @@
 - [x] 2568 sets: all 4 subjects ป.6 + ม.3
 - [x] 2567 sets (exam Feb 2568): all 8 (answers taken from answer sheets in the files)
 - [x] 2566 sets (exam Feb 2567): all 8
-- [ ] ไทย ม.3 2568 totals 70 points — check whether the writing section is missing from the file
+- [ ] ไทย ม.3 2568 totals 70 points — the file has only parts 1–2 (29 questions); waiting for the writing part
 - [x] 2565 sets (exam Feb 2566): all 8
 - [ ] Year 2564 — all 8 sets, waiting for files
 - [x] Flow: level → subject → year → exam
 - [x] School accounts: teacher/student sign-up with OBEC 10-digit code, teacher page with school progress
-- [ ] Students who sign in should also see attempts from other devices (dashboard still reads this device only)
+- [x] Signed-in students see attempts from every device
+- [x] Teacher: per-student page (strands, weak topics, history) and essay grading; students see scores
+- [x] Timer on diagnostic/practice/retest
+- [x] Teacher reset tested; 5 tries per 15 min limit; duplicate-name hint
 - [x] Diagnostic test, per-strand learning pages, retest, personal dashboard (stored on device)
 - [x] Lesson summaries for all 4 subjects
 - [x] Past-exam analysis page per level+subject (topics per question, most frequent topics, what to tutor); diagnostic favours frequent topics

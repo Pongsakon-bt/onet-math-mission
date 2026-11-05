@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BarChart3, Shuffle } from "lucide-react";
+import { BarChart3, Clock, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExamRunner } from "./ExamRunner";
 import { buildExam, pickIds, poolFor, withPassageGroups } from "@/data/pool";
@@ -27,12 +27,12 @@ type Props = {
 export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, strand, all }: Props) {
   const pool = useMemo(() => poolFor(level, subject), [level, subject]);
   const setKey = `preonet-set-${sid}`;
-  const [state, setState] = useState<{ ids: string[]; round: number; saved: boolean } | null>(null);
+  const [state, setState] = useState<{ ids: string[]; round: number; saved: boolean; start?: number } | null>(null);
 
   const newSet = (round: number) => {
     const seen = new Set(loadAttempts().filter((a) => a.level === level && a.subject === subject).flatMap((a) => a.items.map((i) => i.qid)));
     const ids = all ? withPassageGroups(pool, pool.filter((q) => q.strand === strand).map((q) => q.id)) : pickIds(pool, subject, perStrand, strand, seen, topicFrequency(level, subject));
-    const s = { ids, round, saved: false };
+    const s = { ids, round, saved: false, start: Date.now() };
     localStorage.setItem(setKey, JSON.stringify(s));
     localStorage.removeItem(`exam-answers-${sid}-${round}`);
     setState(s);
@@ -57,7 +57,7 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
     setSubmitted(sub);
     if (sub && !state.saved) {
       const id = `${sid}-${state.round}-${Date.now()}`;
-      saveAttempt(kind, id, exam, answers, title, { back: window.location.pathname + window.location.search });
+      saveAttempt(kind, id, exam, answers, title, { back: window.location.pathname + window.location.search, ...(state.start ? { ms: Date.now() - state.start } : {}) });
       const s = { ...state, saved: true };
       localStorage.setItem(setKey, JSON.stringify(s));
       setState(s);
@@ -85,7 +85,19 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
           </div>
         </div>
       )}
+      {!submitted && state.start && <Elapsed start={state.start} />}
       <ExamRunner key={state.round} exam={exam} storageKey={`${sid}-${state.round}`} onStatus={onStatus} />
     </>
+  );
+}
+
+function Elapsed({ start }: { start: number }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const sec = Math.max(0, Math.floor((now - start) / 1000));
+  return (
+    <div className="pointer-events-none fixed left-1/2 top-1.5 z-30 -translate-x-1/2 flex items-center gap-1 rounded-lg bg-secondary px-2 py-1 font-display text-sm tabular-nums [@media(max-height:500px)]:hidden">
+      <Clock className="h-4 w-4" /> {Math.floor(sec / 60)}:{String(sec % 60).padStart(2, "0")}
+    </div>
   );
 }

@@ -17,6 +17,8 @@ export type Attempt = {
   ms?: number;
 };
 
+export type EssayAnswer = { qid: string; no: string; prompt: string; max_points: number; answer: string };
+
 const KEY = "preonet-attempts";
 const STUDIED = "preonet-studied";
 
@@ -34,8 +36,21 @@ export function saveAttempt(kind: AttemptKind, id: string, exam: Exam, answers: 
   const attempt: Attempt = { id, kind, level: exam.level, subject: exam.subject, label, at: Date.now(), items, ...extra };
   list.push(attempt);
   localStorage.setItem(KEY, JSON.stringify(list));
+  // Written answers go to the teacher for grading (only when signed in).
+  const essays: EssayAnswer[] = exam.questions
+    .filter((q) => q.type === "essay" && String(answers[q.id] ?? "").trim())
+    .map((q) => ({ qid: q.id, no: String(q.no), prompt: q.prompt, max_points: q.points, answer: String(answers[q.id]).trim() }));
   // Also store it in the student's account when signed in, so their teacher can see it.
-  void import("./session").then((m) => m.uploadAttempt(attempt)).catch(() => {});
+  void import("./session").then((m) => m.uploadAttempt(attempt, essays)).catch(() => {});
+}
+
+/** Merge attempts from the account into this device (by id), so every device shows the same history. */
+export function mergeAttempts(remote: Attempt[]) {
+  const map = new Map(loadAttempts().map((a) => [a.id, a]));
+  for (const a of remote) if (!map.has(a.id)) map.set(a.id, a);
+  const list = [...map.values()].sort((a, b) => a.at - b.at);
+  localStorage.setItem(KEY, JSON.stringify(list));
+  return list;
 }
 
 export function loadStudied(): string[] {

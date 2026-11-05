@@ -65,6 +65,51 @@ export type Database = {
         }
         Relationships: []
       }
+      essay_answers: {
+        Row: {
+          answer: string
+          attempt_id: string
+          comment: string | null
+          created_at: string
+          graded_at: string | null
+          graded_by: string | null
+          max_points: number
+          no: string
+          prompt: string
+          qid: string
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          answer?: string
+          attempt_id: string
+          comment?: string | null
+          created_at?: string
+          graded_at?: string | null
+          graded_by?: string | null
+          max_points?: number
+          no?: string
+          prompt?: string
+          qid: string
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          attempt_id?: string
+          comment?: string | null
+          created_at?: string
+          graded_at?: string | null
+          graded_by?: string | null
+          max_points?: number
+          no?: string
+          prompt?: string
+          qid?: string
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -96,6 +141,24 @@ export type Database = {
             referencedColumns: ["code"]
           },
         ]
+      }
+      reset_attempts: {
+        Row: {
+          at: string
+          id: number
+          key: string
+        }
+        Insert: {
+          at?: string
+          id?: never
+          key: string
+        }
+        Update: {
+          at?: string
+          id?: never
+          key?: string
+        }
+        Relationships: []
       }
       schools: {
         Row: {

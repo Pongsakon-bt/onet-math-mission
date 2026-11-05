@@ -28,7 +28,7 @@ function ForgotPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBusy(true);
+    setBusy(true); setMsg(null);
     const res = await resetTeacherPassword({ data: f });
     setBusy(false);
     setMsg(res.ok ? { ok: true, text: "ตั้งรหัสผ่านใหม่แล้ว เข้าสู่ระบบด้วยรหัสผ่านใหม่ได้เลย" } : { ok: false, text: res.error });

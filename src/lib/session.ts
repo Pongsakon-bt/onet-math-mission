@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Role } from "./account-id";
-import { loadAttempts, type Attempt } from "./progress";
+import { loadAttempts, mergeAttempts, type Attempt, type EssayAnswer } from "./progress";
 
 export type Account = { id: string; first: string; last: string; school: string; schoolName: string; role: Role };
 
@@ -39,10 +39,30 @@ const toRow = (uid: string, a: Attempt) => ({
 });
 
 /** Copy one attempt to the signed-in student's account (no-op when signed out). */
-export async function uploadAttempt(a: Attempt) {
+export async function uploadAttempt(a: Attempt, essays: EssayAnswer[] = []) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return;
   await supabase.from("attempts").upsert(toRow(session.user.id, a));
+  if (essays.length) {
+    await supabase.from("essay_answers").upsert(
+      essays.map((e) => ({ ...e, attempt_id: a.id, user_id: session.user.id })),
+      { onConflict: "attempt_id,qid", ignoreDuplicates: true },
+    );
+  }
+}
+
+type AttemptRow = { id: string; kind: string; level: string; subject: string; label: string; at: string; ms: number | null; items: unknown };
+export const fromRow = (r: AttemptRow): Attempt => ({
+  id: r.id, kind: r.kind as Attempt["kind"], level: r.level as Attempt["level"], subject: r.subject as Attempt["subject"],
+  label: r.label, at: new Date(r.at).getTime(), items: (r.items ?? []) as Attempt["items"], ...(r.ms ? { ms: r.ms } : {}),
+});
+
+/** Signed-in: pull this account's attempts from every device into local storage. Returns null when signed out. */
+export async function syncMyAttempts(): Promise<Attempt[] | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return null;
+  const { data } = await supabase.from("attempts").select("id, kind, level, subject, label, at, ms, items").eq("user_id", session.user.id).limit(2000);
+  return mergeAttempts((data ?? []).map(fromRow));
 }
 
 /** After sign-in: upload every attempt stored on this device so the teacher can see earlier work. */
