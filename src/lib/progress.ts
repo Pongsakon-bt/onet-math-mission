@@ -31,8 +31,11 @@ export function saveAttempt(kind: AttemptKind, id: string, exam: Exam, answers: 
     return { qid: q.id, no: q.no, strand: base, topic: q.topic, correct: isCorrect(q, answers[q.id]), points: q.points };
   });
   const list = loadAttempts().filter((a) => a.id !== id);
-  list.push({ id, kind, level: exam.level, subject: exam.subject, label, at: Date.now(), items, ...extra });
+  const attempt: Attempt = { id, kind, level: exam.level, subject: exam.subject, label, at: Date.now(), items, ...extra };
+  list.push(attempt);
   localStorage.setItem(KEY, JSON.stringify(list));
+  // Also store it in the student's account when signed in, so their teacher can see it.
+  void import("./session").then((m) => m.uploadAttempt(attempt)).catch(() => {});
 }
 
 export function loadStudied(): string[] {
