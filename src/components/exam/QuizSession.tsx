@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BarChart3, Shuffle } from "lucide-react";
+import { BarChart3, Clock, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExamRunner } from "./ExamRunner";
 import { buildExam, pickIds, poolFor, withPassageGroups } from "@/data/pool";
@@ -85,7 +85,19 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
           </div>
         </div>
       )}
+      {!submitted && state.start && <Elapsed start={state.start} />}
       <ExamRunner key={state.round} exam={exam} storageKey={`${sid}-${state.round}`} onStatus={onStatus} />
     </>
+  );
+}
+
+function Elapsed({ start }: { start: number }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const sec = Math.max(0, Math.floor((now - start) / 1000));
+  return (
+    <div className="pointer-events-none fixed right-3 top-1.5 z-30 flex items-center gap-1 rounded-lg bg-secondary px-2 py-1 font-display text-sm tabular-nums [@media(max-height:500px)]:hidden">
+      <Clock className="h-4 w-4" /> {Math.floor(sec / 60)}:{String(sec % 60).padStart(2, "0")}
+    </div>
   );
 }
