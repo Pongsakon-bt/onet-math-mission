@@ -195,7 +195,7 @@ function isAnswered(q: Question, v: unknown) {
   if (v === undefined || v === "") return false;
   if (q.type === "truefalse") return Object.keys(v as object).length === q.items.length;
   if (q.type === "multi") return (v as number[]).length > 0;
-  if (q.type === "order") return (v as number[]).length === q.items.length;
+  if (q.type === "order") return (v as number[]).length === q.answer.length;
   if (q.type === "essay") return String(v).trim().length > 0;
   return true;
 }
@@ -246,7 +246,7 @@ function OrderInput({ q, value, onChange, submitted }: { q: Extract<Question, { 
   return (
     <div className="space-y-2">
       <div className="flex min-h-12 flex-wrap gap-1.5 rounded-xl border-2 border-dashed border-primary/40 bg-background p-2">
-        {value.length === 0 && <span className="text-sm text-muted-foreground">แตะชิ้นด้านล่างตามลำดับ</span>}
+        {value.length === 0 && <span className="text-sm text-muted-foreground">แตะชิ้นด้านล่างตามลำดับ ({q.answer.length} ชิ้น)</span>}
         {value.map((n, i) => (
           <button key={n} disabled={submitted} onClick={() => onChange(value.filter((x) => x !== n))}
             className={cn("rounded-lg border-2 px-2 py-1 text-sm",
@@ -257,7 +257,7 @@ function OrderInput({ q, value, onChange, submitted }: { q: Extract<Question, { 
       </div>
       {!submitted && (
         <div className="flex flex-wrap gap-1.5">
-          {q.items.map((t, i) => !value.includes(i + 1) && (
+          {value.length < q.answer.length && q.items.map((t, i) => !value.includes(i + 1) && (
             <button key={i} onClick={() => onChange([...value, i + 1])}
               className="rounded-lg border border-border bg-secondary px-2 py-1 text-sm hover:bg-accent">
               <span className="mr-1 text-xs text-muted-foreground">({i + 1})</span>{t}
