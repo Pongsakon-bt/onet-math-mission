@@ -60,7 +60,7 @@ function AnalysisPage() {
               ))}
             </ol>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              <Button size="lg" asChild><Link to="/diagnostic/$level/$subject" params={{ level, subject }}><ClipboardCheck /> วัดความรู้พื้นฐานจากเรื่องที่ออกบ่อย</Link></Button>
+              <Button size="lg" asChild><Link to="/diagnostic/$level/$subject" params={{ level, subject }} search={{ strand: undefined }}><ClipboardCheck /> วัดความรู้พื้นฐานจากเรื่องที่ออกบ่อย</Link></Button>
             </div>
           </section>
 
