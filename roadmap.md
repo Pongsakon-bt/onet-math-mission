@@ -8,4 +8,5 @@
 - [x] Flow: level → subject → year → exam
 - [ ] Later: school accounts, student join by code, dashboard
 - [x] Diagnostic test, per-strand learning pages, retest, personal dashboard (stored on device)
-- [ ] Lesson summaries for ไทย / อังกฤษ / วิทย์ (math done)
+- [x] Lesson summaries for all 4 subjects
+- [x] Past-exam analysis page per level+subject (topics per question, most frequent topics, what to tutor); diagnostic favours frequent topics
