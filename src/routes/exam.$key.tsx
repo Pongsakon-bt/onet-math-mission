@@ -49,6 +49,7 @@ export const Route = createFileRoute("/exam/$key")({
 function ExamPage() {
   const { key } = Route.useLoaderData();
   const exam = catalog[key]!;
+  const navigate = useNavigate();
   const sKey = `exam-time-${key}`;
   const [time, setTime] = useState<{ start: number; end?: number } | null>(null);
   const [started, setStarted] = useState(false);
