@@ -54,7 +54,7 @@ export const registerAccount = createServerFn({ method: "POST" })
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({ email, password: data.password, email_confirm: true });
     if (error || !created.user) {
       const dup = /already|registered|exists/i.test(error?.message ?? "");
-      return { ok: false as const, error: dup ? "มีบัญชีชื่อนี้ในโรงเรียนนี้แล้ว ลองเข้าสู่ระบบ" : "สมัครไม่สำเร็จ ลองใหม่อีกครั้ง" };
+      return { ok: false as const, error: dup ? "มีบัญชีชื่อนี้ในโรงเรียนนี้แล้ว ถ้าเป็นของคุณให้เข้าสู่ระบบ ถ้าเป็นคนละคนที่ชื่อซ้ำ ให้เติมชื่อเล่นต่อท้ายชื่อ เช่น \"สมชาย (ต้น)\"" : "สมัครไม่สำเร็จ ลองใหม่อีกครั้ง" };
     }
     const id = created.user.id;
     const p = await supabaseAdmin.from("profiles").insert({ id, first_name: data.first, last_name: data.last, school_code: data.school });
@@ -82,6 +82,12 @@ export const resetTeacherPassword = createServerFn({ method: "POST" })
     if (data.password.length < MIN_PASSWORD) return { ok: false as const, error: `รหัสผ่านต้องมีอย่างน้อย ${MIN_PASSWORD} ตัว` };
     if (!isSchoolCode(data.school) || data.recovery.length !== 8) return fail;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // At most 5 tries per teacher name + school in 15 minutes, so the 8-digit code cannot be guessed.
+    const key = `teacher:${data.school}:${data.first.toLowerCase()}|${data.last.toLowerCase()}`;
+    const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const { count } = await supabaseAdmin.from("reset_attempts").select("id", { count: "exact", head: true }).eq("key", key).gte("at", since);
+    if ((count ?? 0) >= 5) return { ok: false as const, error: "ลองผิดหลายครั้งเกินไป กรุณารอ 15 นาทีแล้วลองใหม่" };
+    await supabaseAdmin.from("reset_attempts").insert({ key });
     const email = await accountEmail("teacher", data.first, data.last, data.school);
     const { data: prof } = await supabaseAdmin.from("profiles").select("id").eq("school_code", data.school).eq("first_name", data.first).eq("last_name", data.last);
     for (const p of prof ?? []) {
