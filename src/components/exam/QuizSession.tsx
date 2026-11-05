@@ -4,6 +4,7 @@ import { BarChart3, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExamRunner } from "./ExamRunner";
 import { buildExam, pickIds, poolFor } from "@/data/pool";
+import { topicFrequency } from "@/data/analysis";
 import type { Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
 import { loadAttempts, saveAttempt, strandScores, levelOf, type AttemptKind } from "@/lib/progress";
@@ -29,7 +30,7 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
 
   const newSet = (round: number) => {
     const seen = new Set(loadAttempts().filter((a) => a.level === level && a.subject === subject).flatMap((a) => a.items.map((i) => i.qid)));
-    const ids = all ? pool.filter((q) => q.strand === strand).map((q) => q.id) : pickIds(pool, subject, perStrand, strand, seen);
+    const ids = all ? pool.filter((q) => q.strand === strand).map((q) => q.id) : pickIds(pool, subject, perStrand, strand, seen, topicFrequency(level, subject));
     const s = { ids, round, saved: false };
     localStorage.setItem(setKey, JSON.stringify(s));
     localStorage.removeItem(`exam-answers-${sid}-${round}`);

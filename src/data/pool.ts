@@ -1,6 +1,7 @@
 import { catalog, type Level } from "./catalog";
 import type { Exam, Question, Subject } from "./exam-types";
 import { strandOf, strandsFor } from "./strands";
+import { baseTopic } from "./analysis";
 
 export type PoolQuestion = Question & { strand: string; fromYear: number };
 
@@ -26,11 +27,13 @@ function shuffle<T>(a: T[]): T[] {
 }
 
 /** Pick `perStrand` questions per strand (or only the given strand), preferring ids not in `seen`. */
-export function pickIds(pool: PoolQuestion[], subject: Subject, perStrand: number, onlyStrand?: string, seen: Set<string> = new Set()) {
+export function pickIds(pool: PoolQuestion[], subject: Subject, perStrand: number, onlyStrand?: string, seen: Set<string> = new Set(), freq?: Map<string, number>) {
   const names = onlyStrand ? [onlyStrand] : strandsFor(subject);
+  const f = (q: PoolQuestion) => freq?.get(baseTopic(q.topic)) ?? 0;
   return names.flatMap((n) => {
     const qs = pool.filter((q) => q.strand === n);
-    const fresh = shuffle(qs.filter((q) => !seen.has(q.id)));
+    // Frequently tested topics (appear in more years) come first; random order within the same frequency.
+    const fresh = shuffle(qs.filter((q) => !seen.has(q.id))).sort((a, b) => f(b) - f(a));
     const old = shuffle(qs.filter((q) => seen.has(q.id)));
     return [...fresh, ...old].slice(0, perStrand).map((q) => q.id);
   });
