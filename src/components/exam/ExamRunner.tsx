@@ -70,7 +70,7 @@ export function ExamRunner({ exam, storageKey }: { exam: Exam; storageKey: strin
             <div className="mb-2 flex items-center gap-2">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary font-display text-primary-foreground">{q.no}</span>
               <p className="min-w-0 truncate text-xs text-muted-foreground">{q.topic} · {q.points} คะแนน</p>
-              {submitted && <Verdict ok={isCorrect(q, answers[q.id])} />}
+              {submitted && (q.type === "essay" ? <span className="ml-auto shrink-0 rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold">รอครูตรวจ</span> : <Verdict ok={isCorrect(q, answers[q.id])} />)}
             </div>
             {q.passage && (
               <div className="mb-3 whitespace-pre-line rounded-xl border border-border bg-secondary/50 p-3 text-sm leading-relaxed sm:text-base">
@@ -85,9 +85,14 @@ export function ExamRunner({ exam, storageKey }: { exam: Exam; storageKey: strin
           <section className="flex min-w-0 shrink-0 flex-col gap-3 md:min-h-0 landscape:min-h-0 md:overflow-y-auto landscape:overflow-y-auto md:border-l md:pl-4 landscape:border-l landscape:pl-4 border-border">
             {q.promptAfter && <p className="font-semibold leading-relaxed sm:text-lg"><Rich text={q.promptAfter} /></p>}
             <p className="text-xs font-medium text-muted-foreground">
-              {q.type === "mcq" ? "แตะเลือก 1 คำตอบ" : q.type === "multi" ? "เลือกได้มากกว่า 1 คำตอบ" : q.type === "numeric" ? "กดตัวเลขคำตอบ" : "ตอบ ใช่ / ไม่ใช่ ทุกข้อย่อย"}
+              {q.type === "order" ? "แตะเรียงลำดับทีละชิ้น" : q.type === "essay" ? "พิมพ์คำตอบ (ครูเป็นผู้ตรวจ)" : q.type === "mcq" ? "แตะเลือก 1 คำตอบ" : q.type === "multi" ? "เลือกได้มากกว่า 1 คำตอบ" : q.type === "numeric" ? "กดตัวเลขคำตอบ" : "ตอบ ใช่ / ไม่ใช่ ทุกข้อย่อย"}
             </p>
             {q.type === "mcq" && <McqInput q={q} value={answers[q.id] as number | undefined} onChange={setAns} submitted={submitted} />}
+            {q.type === "order" && <OrderInput q={q} value={(answers[q.id] as number[]) ?? []} onChange={setAns} submitted={submitted} />}
+            {q.type === "essay" && (
+              <textarea value={(answers[q.id] as string) ?? ""} onChange={(e) => setAns(e.target.value)} disabled={submitted}
+                rows={6} placeholder="พิมพ์คำตอบที่นี่..." className="w-full rounded-xl border-2 border-border bg-background p-3 text-sm focus:border-primary focus:outline-none" />
+            )}
             {q.type === "multi" && <MultiInput q={q} value={(answers[q.id] as number[]) ?? []} onChange={setAns} submitted={submitted} />}
             {q.type === "numeric" && <NumericInput q={q} value={(answers[q.id] as string) ?? ""} onChange={setAns} submitted={submitted} />}
             {q.type === "truefalse" && <TrueFalseInput q={q} value={(answers[q.id] as Record<string, boolean>) ?? {}} onChange={setAns} submitted={submitted} />}
@@ -190,6 +195,8 @@ function isAnswered(q: Question, v: unknown) {
   if (v === undefined || v === "") return false;
   if (q.type === "truefalse") return Object.keys(v as object).length === q.items.length;
   if (q.type === "multi") return (v as number[]).length > 0;
+  if (q.type === "order") return (v as number[]).length === q.items.length;
+  if (q.type === "essay") return String(v).trim().length > 0;
   return true;
 }
 
@@ -231,6 +238,34 @@ function McqInput({ q, value, onChange, submitted }: { q: Extract<Question, { ty
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function OrderInput({ q, value, onChange, submitted }: { q: Extract<Question, { type: "order" }>; value: number[]; onChange: (v: number[]) => void; submitted: boolean }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex min-h-12 flex-wrap gap-1.5 rounded-xl border-2 border-dashed border-primary/40 bg-background p-2">
+        {value.length === 0 && <span className="text-sm text-muted-foreground">แตะชิ้นด้านล่างตามลำดับ</span>}
+        {value.map((n, i) => (
+          <button key={n} disabled={submitted} onClick={() => onChange(value.filter((x) => x !== n))}
+            className={cn("rounded-lg border-2 px-2 py-1 text-sm",
+              submitted ? (q.answer[i] === n ? "border-success bg-success/10" : "border-destructive bg-destructive/10") : "border-primary bg-primary/5")}>
+            <b className="mr-1 text-primary">{i + 1}.</b>{q.items[n - 1]}
+          </button>
+        ))}
+      </div>
+      {!submitted && (
+        <div className="flex flex-wrap gap-1.5">
+          {q.items.map((t, i) => !value.includes(i + 1) && (
+            <button key={i} onClick={() => onChange([...value, i + 1])}
+              className="rounded-lg border border-border bg-secondary px-2 py-1 text-sm hover:bg-accent">
+              <span className="mr-1 text-xs text-muted-foreground">({i + 1})</span>{t}
+            </button>
+          ))}
+        </div>
+      )}
+      {submitted && <p className="text-sm">ลำดับที่ถูก: {q.answer.join(", ")}</p>}
     </div>
   );
 }
@@ -330,6 +365,9 @@ function HintBox({ q, submitted }: { q: Question; submitted: boolean }) {
       <details className="rounded-xl bg-highlight/20 p-3 text-sm">
         <summary className="flex cursor-pointer items-center gap-2 font-semibold"><BookOpen className="h-4 w-4" /> ดูวิธีทำ (หลังส่งคำตอบ)</summary>
         <ol className="mt-2 space-y-1.5">
+          {q.type === "essay" && q.rubric?.map((s, i) => (
+            <li key={`r${i}`} className="flex gap-2"><span>•</span><span><Rich text={s} /></span></li>
+          ))}
           {q.steps.map((s, i) => (
             <li key={i} className="flex gap-2"><span className="font-bold">{i + 1}.</span><span><Rich text={s} /></span></li>
           ))}
