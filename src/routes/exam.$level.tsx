@@ -36,13 +36,13 @@ function ExamPage() {
   const { level } = Route.useLoaderData();
   const exam = exams[level];
   return (
-    <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background">
+      <div className="shrink-0 border-b border-border bg-background [@media(max-height:500px)]:hidden">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-1.5 sm:px-4">
           <Link to="/" className="font-display text-lg text-primary">โจทย์คณิต<span className="text-highlight-strong">.</span></Link>
-          <div className="text-right">
-            <p className="font-semibold leading-tight">{exam.title}</p>
-            <p className="text-xs text-muted-foreground">{exam.code} · {exam.examDate}</p>
+          <div className="min-w-0 text-right">
+            <p className="truncate text-sm font-semibold leading-tight">{exam.title}</p>
+            <p className="hidden text-xs text-muted-foreground sm:block">{exam.code} · {exam.examDate}</p>
           </div>
         </div>
       </div>

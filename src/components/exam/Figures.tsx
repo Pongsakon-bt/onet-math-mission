@@ -9,7 +9,7 @@ export function FigureView({ figure }: { figure: Figure }) {
           src={figure.src}
           alt={figure.alt}
           loading="lazy"
-          className="mx-auto w-full rounded-md border border-border bg-card mix-blend-multiply"
+          className="mx-auto max-h-[34dvh] w-auto max-w-full rounded-md border border-border bg-card object-contain mix-blend-multiply md:max-h-[52dvh] landscape:max-h-[60dvh]"
           style={{ maxWidth: figure.maxWidth ?? 420 }}
         />
       );
@@ -69,7 +69,7 @@ function LineVisitors() {
   return (
     <div className="mx-auto max-w-xl">
       <p className="mb-1 text-center text-sm font-semibold">จำนวนผู้เข้าชมพิพิธภัณฑ์แห่งหนึ่งเป็นเวลา 7 วัน</p>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="กราฟเส้นจำนวนผู้เข้าชม">
+      <svg viewBox={`0 0 ${W} ${H}`} className="mx-auto max-h-[34dvh] w-full md:max-h-[50dvh] landscape:max-h-[58dvh]" role="img" aria-label="กราฟเส้นจำนวนผู้เข้าชม">
         {[200, 205, 210, 215, 220, 225, 230].map((v) => (
           <g key={v}>
             <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke="var(--border)" />
@@ -109,7 +109,7 @@ function Pie({ title, data }: { title: string; data: { label: string; value: num
   return (
     <div className="mx-auto max-w-md">
       <p className="mb-1 text-center text-sm font-semibold">{title}</p>
-      <svg viewBox="0 0 300 300" className="mx-auto w-full max-w-xs" role="img" aria-label={title}>
+      <svg viewBox="0 0 300 300" className="mx-auto max-h-[30dvh] w-full max-w-xs md:max-h-[44dvh] landscape:max-h-[52dvh]" role="img" aria-label={title}>
         {data.map((d, i) => {
           const a0 = (acc / total) * Math.PI * 2 - Math.PI / 2;
           acc += d.value;
@@ -159,7 +159,7 @@ function BarFlu() {
   return (
     <div className="mx-auto max-w-2xl">
       <p className="mb-1 text-sm text-muted-foreground">จำนวนคนป่วยต่อประชากรแสนคน</p>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="แผนภูมิแท่งอัตราผู้ป่วยไข้หวัดใหญ่">
+      <svg viewBox={`0 0 ${W} ${H}`} className="mx-auto max-h-[34dvh] w-full md:max-h-[50dvh] landscape:max-h-[58dvh]" role="img" aria-label="แผนภูมิแท่งอัตราผู้ป่วยไข้หวัดใหญ่">
         {[0, 500, 1000, 1500, 2000, 2500, 3000].map((v) => (
           <g key={v}>
             <line x1={L} x2={W} y1={y(v)} y2={y(v)} stroke="var(--border)" />
