@@ -40,6 +40,7 @@ function TeacherPage() {
   const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
   const [rows, setRows] = useState<Row[]>([]);
+  const [pending, setPending] = useState<Map<string, number>>(new Map());
   const [level, setLevel] = useState<Level>("p6");
   const [subject, setSubject] = useState<Subject>("math");
 
@@ -54,6 +55,10 @@ function TeacherPage() {
       const sids = new Set((roles ?? []).map((r) => r.user_id));
       setStudents((profs ?? []).filter((p) => sids.has(p.id)).map((p) => ({ id: p.id, first: p.first_name, last: p.last_name, created: p.created_at })));
       setRows(((att ?? []) as unknown as Row[]).filter((r) => sids.has(r.user_id)));
+      const { data: es } = await supabase.from("essay_answers").select("user_id").is("score", null);
+      const m = new Map<string, number>();
+      for (const e of es ?? []) m.set(e.user_id, (m.get(e.user_id) ?? 0) + 1);
+      setPending(m);
     })();
   }, [acc]);
 
@@ -130,7 +135,7 @@ function TeacherPage() {
 
           <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-xl"><Users className="h-5 w-5" /> นักเรียน</h2>
-            <p className="text-sm text-muted-foreground">เรียงจากคะแนนล่าสุดน้อยไปมาก ({SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]})</p>
+            <p className="text-sm text-muted-foreground">กดชื่อเพื่อดูผลรายคนและตรวจข้อเขียน · เรียงจากคะแนนล่าสุดน้อยไปมาก ({SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]})</p>
             {!students.length ? <p className="mt-3">ยังไม่มีนักเรียนสมัคร ให้นักเรียนสมัครด้วยรหัสโรงเรียน <b>{acc.school}</b></p> : (
               <div className="mt-3 overflow-x-auto">
                 <table className="w-full min-w-[560px] text-sm">
@@ -138,7 +143,7 @@ function TeacherPage() {
                   <tbody className="divide-y divide-border">
                     {view.per.map((s) => (
                       <tr key={s.id}>
-                        <td className="py-2 font-semibold">{s.first} {s.last}</td>
+                        <td className="py-2 font-semibold"><Link to="/teacher/$studentId" params={{ studentId: s.id }} className="text-primary underline-offset-2 hover:underline">{s.first} {s.last}</Link>{pending.get(s.id) ? <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-xs font-normal">ข้อเขียนรอตรวจ {pending.get(s.id)}</span> : null}</td>
                         <td>{s.tests} ครั้ง</td>
                         <td>{s.firstPct === null ? "–" : `${s.firstPct}%`}</td>
                         <td>{s.lastPct === null ? "–" : <b>{s.lastPct}% <span className="font-normal text-muted-foreground">({levelOf(s.lastPct)})</span></b>}</td>
