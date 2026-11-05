@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { ArrowRight, Calculator, BookOpen, Languages, FlaskConical, Clock } from "lucide-react";
+import { ArrowRight, BarChart3, ClipboardCheck, Calculator, BookOpen, Languages, FlaskConical, Clock } from "lucide-react";
 import { yearsFor, examKey, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
 import { preloadExamImages } from "@/lib/preload-exam";
@@ -48,7 +48,10 @@ function Index() {
   return (
     <div className="min-h-dvh bg-background">
       <header className="mx-auto max-w-5xl px-4 pt-8 pb-4">
-        <p className="font-display text-2xl text-primary">PRE O-NET<span className="text-highlight-strong">.</span></p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-display text-2xl text-primary">PRE O-NET<span className="text-highlight-strong">.</span></p>
+          <Link to="/dashboard" search={{ level: level ?? "p6", subject: subject ?? "math" }} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-semibold"><BarChart3 className="h-4 w-4" /> แดชบอร์ดของฉัน</Link>
+        </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 pb-12">
         <h1 className="font-display text-3xl leading-tight sm:text-5xl">ฝึกทำข้อสอบ O-NET<br /><span className="marker">ข้อสอบจริง ทำบนจอได้</span></h1>
@@ -87,6 +90,11 @@ function Index() {
                     </button>
                     {open && (
                       <div className="animate-in fade-in border-t border-border p-3">
+                        <Link to="/diagnostic/$level/$subject" params={{ level, subject: s.key }} search={{ strand: undefined }}
+                          className="mb-3 flex items-center gap-2 rounded-xl border-2 border-current px-3 py-2 font-semibold transition hover:bg-secondary">
+                          <ClipboardCheck className="h-5 w-5" /> วัดความรู้พื้นฐาน
+                          <span className="ml-auto text-xs font-normal text-muted-foreground">สุ่มจากทุกปี · ดูว่าเก่งเรื่องไหน</span>
+                        </Link>
                         <p className="mb-2 text-sm font-medium text-foreground">เลือกปีการศึกษา</p>
                         <div className="flex flex-wrap gap-2">
                           {sets.map((e) => (

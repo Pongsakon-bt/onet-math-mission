@@ -9,7 +9,7 @@ import { FigureView, ShapeChoice } from "./Figures";
 
 type Answers = Record<string, unknown>;
 
-export function ExamRunner({ exam, storageKey, onStatus }: { exam: Exam; storageKey: string; onStatus?: (submitted: boolean) => void }) {
+export function ExamRunner({ exam, storageKey, onStatus }: { exam: Exam; storageKey: string; onStatus?: (submitted: boolean, answers: Record<string, unknown>) => void }) {
   const key = `exam-answers-${storageKey}`;
   const [answers, setAnswers] = useState<Answers>({});
   const [idx, setIdx] = useState(0);
@@ -36,7 +36,7 @@ export function ExamRunner({ exam, storageKey, onStatus }: { exam: Exam; storage
   }, [answers, submitted, loaded, key]);
 
   useEffect(() => {
-    if (loaded) onStatus?.(submitted);
+    if (loaded) onStatus?.(submitted, answers);
   }, [submitted, loaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const qs = exam.questions;

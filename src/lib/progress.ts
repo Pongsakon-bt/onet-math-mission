@@ -1,0 +1,53 @@
+import { isCorrect, type Exam, type Subject } from "@/data/exams";
+import type { Level } from "@/data/catalog";
+import { strandOf } from "@/data/strands";
+
+export type AttemptKind = "diagnostic" | "practice" | "retest" | "full";
+export type Attempt = {
+  id: string;
+  kind: AttemptKind;
+  level: Level;
+  subject: Subject;
+  label: string;
+  at: number;
+  items: { qid: string; strand: string; topic: string; correct: boolean; points: number }[];
+};
+
+const KEY = "preonet-attempts";
+const STUDIED = "preonet-studied";
+
+export function loadAttempts(): Attempt[] {
+  try { return JSON.parse(localStorage.getItem(KEY) ?? "[]") as Attempt[]; } catch { return []; }
+}
+
+/** Save (or replace by id) one finished attempt. Essays are skipped — they are teacher-graded. */
+export function saveAttempt(kind: AttemptKind, id: string, exam: Exam, answers: Record<string, unknown>, label: string) {
+  const items = exam.questions.filter((q) => q.type !== "essay").map((q) => {
+    const base = (q as { strand?: string }).strand ?? strandOf(exam.subject, q.topic);
+    return { qid: q.id, strand: base, topic: q.topic, correct: isCorrect(q, answers[q.id]), points: q.points };
+  });
+  const list = loadAttempts().filter((a) => a.id !== id);
+  list.push({ id, kind, level: exam.level, subject: exam.subject, label, at: Date.now(), items });
+  localStorage.setItem(KEY, JSON.stringify(list));
+}
+
+export function loadStudied(): string[] {
+  try { return JSON.parse(localStorage.getItem(STUDIED) ?? "[]") as string[]; } catch { return []; }
+}
+export function markStudied(key: string) {
+  const s = new Set(loadStudied()); s.add(key);
+  localStorage.setItem(STUDIED, JSON.stringify([...s]));
+}
+
+/** Percent correct per strand for one attempt (by question count). */
+export function strandScores(items: Attempt["items"]) {
+  const m = new Map<string, { ok: number; n: number }>();
+  for (const it of items) {
+    const v = m.get(it.strand) ?? { ok: 0, n: 0 };
+    v.n++; if (it.correct) v.ok++;
+    m.set(it.strand, v);
+  }
+  return new Map([...m].map(([k, v]) => [k, { ...v, pct: Math.round((v.ok / v.n) * 100) }]));
+}
+
+export const levelOf = (pct: number) => (pct < 50 ? "อ่อน" : pct < 75 ? "พอใช้" : "ดี");

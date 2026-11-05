@@ -10,11 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ExamKeyRouteImport } from './routes/exam.$key'
+import { Route as DiagnosticLevelSubjectRouteImport } from './routes/diagnostic.$level.$subject'
+import { Route as LearnLevelSubjectStrandRouteImport } from './routes/learn.$level.$subject.$strand'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExamKeyRoute = ExamKeyRouteImport.update({
@@ -22,31 +30,69 @@ const ExamKeyRoute = ExamKeyRouteImport.update({
   path: '/exam/$key',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiagnosticLevelSubjectRoute = DiagnosticLevelSubjectRouteImport.update({
+  id: '/diagnostic/$level/$subject',
+  path: '/diagnostic/$level/$subject',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnLevelSubjectStrandRoute = LearnLevelSubjectStrandRouteImport.update({
+  id: '/learn/$level/$subject/$strand',
+  path: '/learn/$level/$subject/$strand',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
+  '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
+  '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
+  '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/exam/$key'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/exam/$key'
+    | '/diagnostic/$level/$subject'
+    | '/learn/$level/$subject/$strand'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/exam/$key'
-  id: '__root__' | '/' | '/exam/$key'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/exam/$key'
+    | '/diagnostic/$level/$subject'
+    | '/learn/$level/$subject/$strand'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/exam/$key'
+    | '/diagnostic/$level/$subject'
+    | '/learn/$level/$subject/$strand'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
   ExamKeyRoute: typeof ExamKeyRoute
+  DiagnosticLevelSubjectRoute: typeof DiagnosticLevelSubjectRoute
+  LearnLevelSubjectStrandRoute: typeof LearnLevelSubjectStrandRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +104,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exam/$key': {
       id: '/exam/$key'
       path: '/exam/$key'
@@ -65,12 +118,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExamKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diagnostic/$level/$subject': {
+      id: '/diagnostic/$level/$subject'
+      path: '/diagnostic/$level/$subject'
+      fullPath: '/diagnostic/$level/$subject'
+      preLoaderRoute: typeof DiagnosticLevelSubjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/$level/$subject/$strand': {
+      id: '/learn/$level/$subject/$strand'
+      path: '/learn/$level/$subject/$strand'
+      fullPath: '/learn/$level/$subject/$strand'
+      preLoaderRoute: typeof LearnLevelSubjectStrandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   ExamKeyRoute: ExamKeyRoute,
+  DiagnosticLevelSubjectRoute: DiagnosticLevelSubjectRoute,
+  LearnLevelSubjectStrandRoute: LearnLevelSubjectStrandRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

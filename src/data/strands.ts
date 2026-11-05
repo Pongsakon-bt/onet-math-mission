@@ -37,3 +37,6 @@ export function strandOf(subject: Subject, topic: string): string {
   const rules = RULES[subject];
   return (rules.find((r) => r.re?.test(topic)) ?? rules[rules.length - 1]!).name;
 }
+
+/** Strand names for a subject, in a fixed order (index is used in URLs). */
+export const strandsFor = (subject: Subject): string[] => RULES[subject].map((r) => r.name);

@@ -7,3 +7,5 @@
 - [ ] Year 2564 — all 8 sets, waiting for files
 - [x] Flow: level → subject → year → exam
 - [ ] Later: school accounts, student join by code, dashboard
+- [x] Diagnostic test, per-strand learning pages, retest, personal dashboard (stored on device)
+- [ ] Lesson summaries for ไทย / อังกฤษ / วิทย์ (math done)

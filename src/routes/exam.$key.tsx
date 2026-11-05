@@ -5,6 +5,7 @@ import { preloadExamImages } from "@/lib/preload-exam";
 import { ExamIntro } from "@/components/exam/ExamIntro";
 import { useEffect, useState } from "react";
 import { Timer } from "lucide-react";
+import { saveAttempt } from "@/lib/progress";
 
 export const Route = createFileRoute("/exam/$key")({
   loader: async ({ params }) => {
@@ -73,8 +74,11 @@ function ExamPage() {
     setNow(Date.now());
     setStarted(true);
   };
-  const onStatus = (submitted: boolean) => {
-    if (submitted && time && !time.end) save({ ...time, end: Date.now() });
+  const onStatus = (submitted: boolean, answers: Record<string, unknown>) => {
+    if (submitted && time && !time.end) {
+      save({ ...time, end: Date.now() });
+      saveAttempt("full", `full-${key}-${time.start}`, exam, answers, `${exam.title} ปี ${exam.year}`);
+    }
     if (!submitted && time?.end) save({ start: Date.now() });
   };
   const limit = exam.minutes * 60;

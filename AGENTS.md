@@ -29,3 +29,4 @@ use the editor.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
 - Exam overview groups question topics into curriculum strands via regex rules in src/data/strands.ts — new topics need no data edits, only a rule if they fall into the wrong strand.
+- Student progress (diagnostic/practice/retest/full attempts) lives in localStorage via src/lib/progress.ts with a DB-ready record shape — swap the storage when school accounts arrive.
