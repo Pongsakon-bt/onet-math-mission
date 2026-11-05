@@ -64,7 +64,7 @@ export function ExamRunner({ exam }: { exam: Exam }) {
       <QuestionStrip exam={exam} idx={idx} setIdx={setIdx} answers={answers} submitted={submitted} answeredCount={answeredCount} result={result} />
 
       <article key={q.id} className="animate-in fade-in mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col px-3 py-2 sm:px-4">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-y-auto md:grid landscape:grid rounded-2xl border border-border bg-card p-3 shadow-paper sm:p-5 md:grid-cols-2 md:overflow-hidden landscape:grid-cols-2 landscape:overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-y-auto md:grid landscape:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] landscape:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] rounded-2xl border border-border bg-card p-3 shadow-paper sm:p-5 md:grid-cols-2 md:overflow-hidden landscape:grid-cols-2 landscape:overflow-hidden">
           {/* Left: the question */}
           <section className="min-w-0 shrink-0 md:min-h-0 landscape:min-h-0 md:shrink landscape:shrink md:overflow-y-auto landscape:overflow-y-auto md:pr-2 landscape:pr-2">
             <div className="mb-2 flex items-center gap-2">
