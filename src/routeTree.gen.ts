@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ExamKeyRouteImport } from './routes/exam.$key'
+import { Route as AnalysisLevelSubjectRouteImport } from './routes/analysis.$level.$subject'
 import { Route as DiagnosticLevelSubjectRouteImport } from './routes/diagnostic.$level.$subject'
 import { Route as LearnLevelSubjectStrandRouteImport } from './routes/learn.$level.$subject.$strand'
 
@@ -30,6 +31,11 @@ const ExamKeyRoute = ExamKeyRouteImport.update({
   path: '/exam/$key',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalysisLevelSubjectRoute = AnalysisLevelSubjectRouteImport.update({
+  id: '/analysis/$level/$subject',
+  path: '/analysis/$level/$subject',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiagnosticLevelSubjectRoute = DiagnosticLevelSubjectRouteImport.update({
   id: '/diagnostic/$level/$subject',
   path: '/diagnostic/$level/$subject',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
@@ -69,6 +78,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/exam/$key'
+    | '/analysis/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
   fileRoutesByTo: FileRoutesByTo
@@ -76,6 +86,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/exam/$key'
+    | '/analysis/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
   id:
@@ -83,6 +94,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/exam/$key'
+    | '/analysis/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
   fileRoutesById: FileRoutesById
@@ -91,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   ExamKeyRoute: typeof ExamKeyRoute
+  AnalysisLevelSubjectRoute: typeof AnalysisLevelSubjectRoute
   DiagnosticLevelSubjectRoute: typeof DiagnosticLevelSubjectRoute
   LearnLevelSubjectStrandRoute: typeof LearnLevelSubjectStrandRoute
 }
@@ -118,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExamKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analysis/$level/$subject': {
+      id: '/analysis/$level/$subject'
+      path: '/analysis/$level/$subject'
+      fullPath: '/analysis/$level/$subject'
+      preLoaderRoute: typeof AnalysisLevelSubjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/diagnostic/$level/$subject': {
       id: '/diagnostic/$level/$subject'
       path: '/diagnostic/$level/$subject'
@@ -139,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   ExamKeyRoute: ExamKeyRoute,
+  AnalysisLevelSubjectRoute: AnalysisLevelSubjectRoute,
   DiagnosticLevelSubjectRoute: DiagnosticLevelSubjectRoute,
   LearnLevelSubjectStrandRoute: LearnLevelSubjectStrandRoute,
 }
