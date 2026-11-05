@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { preloadExamImages } from "@/lib/preload-exam";
 import { ArrowRight, MousePointerClick, Calculator, ListChecks, Lightbulb } from "lucide-react";
 import { p6Exam, m3Exam, type Exam } from "@/data/exams";
 
@@ -17,6 +19,14 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const router = useRouter();
+  // Get both exams (page code + diagrams) ready in the background so "เริ่มทำข้อสอบ" opens instantly.
+  useEffect(() => {
+    for (const level of ["p6", "m3"] as const) {
+      router.preloadRoute({ to: "/exam/$level", params: { level } }).catch(() => {});
+      preloadExamImages(level, 15000);
+    }
+  }, [router]);
   return (
     <div className="min-h-screen bg-background">
       <header className="mx-auto max-w-5xl px-4 pt-10 pb-6">
