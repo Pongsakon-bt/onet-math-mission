@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { BarChart3, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExamRunner } from "./ExamRunner";
-import { buildExam, pickIds, poolFor } from "@/data/pool";
+import { buildExam, pickIds, poolFor, withPassageGroups } from "@/data/pool";
 import { topicFrequency } from "@/data/analysis";
 import { strandsFor } from "@/data/strands";
 import type { Level } from "@/data/catalog";
@@ -31,7 +31,7 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
 
   const newSet = (round: number) => {
     const seen = new Set(loadAttempts().filter((a) => a.level === level && a.subject === subject).flatMap((a) => a.items.map((i) => i.qid)));
-    const ids = all ? pool.filter((q) => q.strand === strand).map((q) => q.id) : pickIds(pool, subject, perStrand, strand, seen, topicFrequency(level, subject));
+    const ids = all ? withPassageGroups(pool, pool.filter((q) => q.strand === strand).map((q) => q.id)) : pickIds(pool, subject, perStrand, strand, seen, topicFrequency(level, subject));
     const s = { ids, round, saved: false };
     localStorage.setItem(setKey, JSON.stringify(s));
     localStorage.removeItem(`exam-answers-${sid}-${round}`);
