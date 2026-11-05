@@ -1,10 +1,12 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { exams, type Level } from "@/data/exams";
 import { ExamRunner } from "@/components/exam/ExamRunner";
+import { preloadExamImages } from "@/lib/preload-exam";
 
 export const Route = createFileRoute("/exam/$level")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     if (!(params.level in exams)) throw notFound();
+    await preloadExamImages(params.level as Level);
     return { level: params.level as Level };
   },
   head: ({ loaderData }) => {
@@ -25,6 +27,12 @@ export const Route = createFileRoute("/exam/$level")({
     };
   },
   component: ExamPage,
+  pendingComponent: () => (
+    <div className="flex h-dvh flex-col items-center justify-center gap-3 bg-background">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary border-t-primary" />
+      <p className="font-display text-primary">กำลังเตรียมข้อสอบ...</p>
+    </div>
+  ),
   notFoundComponent: () => (
     <div className="p-10 text-center">
       ไม่พบชุดข้อสอบนี้ <Link to="/" className="underline">กลับหน้าแรก</Link>
