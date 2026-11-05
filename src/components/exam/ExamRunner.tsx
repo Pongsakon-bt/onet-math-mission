@@ -64,7 +64,7 @@ export function ExamRunner({ exam }: { exam: Exam }) {
           <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-secondary">
             <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(answeredCount / exam.questions.length) * 100}%` }} />
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1">
             {exam.questions.map((x, i) => {
               const done = isAnswered(x, answers[x.id]);
               const ok = submitted && isCorrect(x, answers[x.id]);
@@ -75,7 +75,7 @@ export function ExamRunner({ exam }: { exam: Exam }) {
                   aria-label={`ไปข้อ ${x.no}${done ? "" : " (ยังไม่ทำ)"}`}
                   aria-current={i === idx ? "step" : undefined}
                   className={cn(
-                    "h-9 w-9 rounded-lg border text-sm font-semibold transition",
+                    "h-9 w-9 rounded-lg border text-sm font-semibold transition lg:w-[34px]",
                     i === idx && "ring-2 ring-ring ring-offset-2 ring-offset-card",
                     submitted
                       ? ok ? "border-success bg-success text-success-foreground" : "border-destructive bg-destructive/15 text-destructive"
