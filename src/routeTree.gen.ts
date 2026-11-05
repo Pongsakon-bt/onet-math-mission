@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExamKeyRouteImport } from './routes/exam.$key'
+import { Route as DiagnosticLevelSubjectRouteImport } from './routes/diagnostic.$level.$subject'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const ExamKeyRoute = ExamKeyRouteImport.update({
   path: '/exam/$key',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiagnosticLevelSubjectRoute = DiagnosticLevelSubjectRouteImport.update({
+  id: '/diagnostic/$level/$subject',
+  path: '/diagnostic/$level/$subject',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/exam/$key'
+  fullPaths: '/' | '/exam/$key' | '/diagnostic/$level/$subject'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/exam/$key'
-  id: '__root__' | '/' | '/exam/$key'
+  to: '/' | '/exam/$key' | '/diagnostic/$level/$subject'
+  id: '__root__' | '/' | '/exam/$key' | '/diagnostic/$level/$subject'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ExamKeyRoute: typeof ExamKeyRoute
+  DiagnosticLevelSubjectRoute: typeof DiagnosticLevelSubjectRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExamKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diagnostic/$level/$subject': {
+      id: '/diagnostic/$level/$subject'
+      path: '/diagnostic/$level/$subject'
+      fullPath: '/diagnostic/$level/$subject'
+      preLoaderRoute: typeof DiagnosticLevelSubjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ExamKeyRoute: ExamKeyRoute,
+  DiagnosticLevelSubjectRoute: DiagnosticLevelSubjectRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
