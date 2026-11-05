@@ -142,3 +142,48 @@
     color: var(--color-foreground);
   }
 }
+
+/* ---- โจทย์คณิต theme: paper + ink + marker ---- */
+:root {
+  --background: oklch(0.975 0.012 85);
+  --foreground: oklch(0.22 0.04 260);
+  --card: oklch(0.995 0.005 85);
+  --card-foreground: oklch(0.22 0.04 260);
+  --popover: oklch(0.995 0.005 85);
+  --popover-foreground: oklch(0.22 0.04 260);
+  --primary: oklch(0.38 0.12 262);
+  --primary-foreground: oklch(0.98 0.01 85);
+  --secondary: oklch(0.93 0.02 85);
+  --secondary-foreground: oklch(0.22 0.04 260);
+  --muted: oklch(0.93 0.02 85);
+  --muted-foreground: oklch(0.48 0.03 260);
+  --accent: oklch(0.9 0.04 85);
+  --accent-foreground: oklch(0.22 0.04 260);
+  --border: oklch(0.86 0.02 85);
+  --input: oklch(0.86 0.02 85);
+  --ring: oklch(0.38 0.12 262);
+  --highlight: oklch(0.88 0.16 95);
+  --highlight-strong: oklch(0.72 0.17 70);
+  --success: oklch(0.58 0.14 155);
+  --success-foreground: oklch(0.98 0.01 155);
+  --chart-1: oklch(0.55 0.12 262);
+  --chart-2: oklch(0.72 0.1 262);
+  --chart-3: oklch(0.85 0.13 95);
+  --chart-4: oklch(0.7 0.11 30);
+  --chart-5: oklch(0.82 0.06 200);
+  --shadow-paper: 4px 4px 0 0 color-mix(in oklab, var(--foreground) 85%, transparent);
+}
+@theme inline {
+  --color-highlight: var(--highlight);
+  --color-highlight-strong: var(--highlight-strong);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --font-sans: "Sarabun", system-ui, sans-serif;
+  --font-display: "Mitr", "Sarabun", sans-serif;
+  --shadow-paper: var(--shadow-paper);
+}
+body { font-family: var(--font-sans); }
+.marker {
+  background: linear-gradient(transparent 55%, var(--highlight) 55%, var(--highlight) 92%, transparent 92%);
+  padding: 0 0.15em;
+}
