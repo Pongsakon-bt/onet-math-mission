@@ -41,6 +41,52 @@ export function ExamRunner({ exam }: { exam: Exam }) {
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[1fr_260px]">
+        <nav aria-label="แผนผังข้อสอบ" className="sticky top-[61px] z-[5] -mx-4 lg:col-span-2 border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-2xl sm:border sm:bg-card sm:shadow-paper">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm">
+            <p className="font-semibold">ข้อ {q.no} จาก {exam.questions.length}</p>
+            <p className="flex flex-wrap gap-3 text-muted-foreground">
+              {submitted ? (
+                <>
+                  <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-success" />ถูก {result.correct}</span>
+                  <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-destructive" />ผิด {result.total - result.correct}</span>
+                </>
+              ) : (
+                <>
+                  <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-primary" />ทำแล้ว {answeredCount}</span>
+                  <span className={cn(exam.questions.length - answeredCount > 0 && "font-semibold text-highlight-strong")}>
+                    <span className="mr-1 inline-block h-2.5 w-2.5 rounded-full border border-dashed border-muted-foreground" />ยังไม่ทำ {exam.questions.length - answeredCount}
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
+          <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-secondary">
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(answeredCount / exam.questions.length) * 100}%` }} />
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {exam.questions.map((x, i) => {
+              const done = isAnswered(x, answers[x.id]);
+              const ok = submitted && isCorrect(x, answers[x.id]);
+              return (
+                <button
+                  key={x.id}
+                  onClick={() => setIdx(i)}
+                  aria-label={`ไปข้อ ${x.no}${done ? "" : " (ยังไม่ทำ)"}`}
+                  aria-current={i === idx ? "step" : undefined}
+                  className={cn(
+                    "h-9 w-9 rounded-lg border text-sm font-semibold transition",
+                    i === idx && "ring-2 ring-ring ring-offset-2 ring-offset-card",
+                    submitted
+                      ? ok ? "border-success bg-success text-success-foreground" : "border-destructive bg-destructive/15 text-destructive"
+                      : done ? "border-primary bg-primary text-primary-foreground" : "border-dashed border-muted-foreground/60 bg-background text-muted-foreground hover:bg-secondary",
+                  )}
+                >
+                  {x.no}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
       <main>
         <article key={q.id} className="animate-in fade-in slide-in-from-bottom-2 rounded-2xl border border-border bg-card p-5 shadow-paper sm:p-8">
           <header className="mb-5 flex flex-wrap items-center justify-between gap-2">
@@ -100,28 +146,6 @@ export function ExamRunner({ exam }: { exam: Exam }) {
               <p className="text-xs text-muted-foreground">จาก 100 คะแนน · ถูก {result.correct}/{result.total} ข้อ</p>
             </div>
           )}
-          <div className="grid grid-cols-5 gap-2">
-            {exam.questions.map((x, i) => {
-              const done = isAnswered(x, answers[x.id]);
-              const ok = submitted && isCorrect(x, answers[x.id]);
-              return (
-                <button
-                  key={x.id}
-                  onClick={() => setIdx(i)}
-                  aria-label={`ไปข้อ ${x.no}`}
-                  className={cn(
-                    "aspect-square rounded-lg border text-sm font-semibold transition",
-                    i === idx && "ring-2 ring-ring ring-offset-2 ring-offset-card",
-                    submitted
-                      ? ok ? "border-success bg-success text-success-foreground" : "border-destructive bg-destructive/15 text-destructive"
-                      : done ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:bg-secondary",
-                  )}
-                >
-                  {x.no}
-                </button>
-              );
-            })}
-          </div>
           {!submitted && answeredCount > 0 && (
             <Button className="mt-4 w-full bg-success text-success-foreground hover:bg-success/90" onClick={() => setSubmitted(true)}>
               ส่งคำตอบ
