@@ -40,10 +40,11 @@ export function pickIds(pool: PoolQuestion[], subject: Subject, perStrand: numbe
   return withPassageGroups(pool, picked);
 }
 
-/** Questions that share one reading passage/situation are a set: if one is picked, bring all of
+/** Questions that share one reading passage/situation (or the same picture) are a set: if one is picked, bring all of
  *  its siblings along, kept together and in their original order, so no question loses its context. */
 export function withPassageGroups(pool: PoolQuestion[], ids: string[]): string[] {
-  const key = (q: PoolQuestion) => (q.passage ? `${q.fromYear}|${q.passage}` : null);
+  const key = (q: PoolQuestion) =>
+    q.passage ? `${q.fromYear}|${q.passage}` : q.figure?.kind === "image" ? `${q.fromYear}|img|${q.figure.src}` : null;
   const groups = new Map<string, PoolQuestion[]>();
   for (const q of pool) {
     const k = key(q);

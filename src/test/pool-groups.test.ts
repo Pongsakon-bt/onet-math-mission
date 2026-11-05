@@ -8,11 +8,12 @@ describe("mixed practice keeps passage sets together", () => {
       for (let run = 0; run < 20; run++) {
         const ids = pickIds(pool, subject, 3);
         const qs = ids.map((id) => pool.find((q) => q.id === id)!);
-        const keys = qs.map((q) => (q.passage ? `${q.fromYear}|${q.passage}` : q.id));
+        const gk = (q: (typeof pool)[number]) => (q.passage ? `${q.fromYear}|${q.passage}` : q.figure?.kind === "image" ? `${q.fromYear}|img|${q.figure.src}` : null);
+        const keys = qs.map((q) => gk(q) ?? q.id);
         for (const k of new Set(keys)) {
           const pos = keys.flatMap((x, i) => (x === k ? [i] : []));
           expect(pos[pos.length - 1]! - pos[0]!).toBe(pos.length - 1);
-          const all = pool.filter((q) => q.passage && `${q.fromYear}|${q.passage}` === k);
+          const all = pool.filter((q) => gk(q) === k);
           if (all.length) expect(pos.length).toBe(all.length);
         }
       }
