@@ -1,19 +1,19 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { exams, type Level } from "@/data/exams";
+import { catalog } from "@/data/catalog";
 import { ExamRunner } from "@/components/exam/ExamRunner";
 import { preloadExamImages } from "@/lib/preload-exam";
 
-export const Route = createFileRoute("/exam/$level")({
+export const Route = createFileRoute("/exam/$key")({
   loader: async ({ params }) => {
-    if (!(params.level in exams)) throw notFound();
-    await preloadExamImages(params.level as Level);
-    return { level: params.level as Level };
+    if (!catalog[params.key]) throw notFound();
+    await preloadExamImages(params.key);
+    return { key: params.key };
   },
   head: ({ loaderData }) => {
-    const exam = loaderData ? exams[loaderData.level] : undefined;
-    const title = exam ? `${exam.title} ปี 2568 · ทำข้อสอบออนไลน์` : "ไม่พบชุดข้อสอบ";
+    const exam = loaderData ? catalog[loaderData.key] : undefined;
+    const title = exam ? `${exam.title} ปี ${exam.year} · PRE O-NET` : "ไม่พบชุดข้อสอบ";
     const description = exam
-      ? `ทำข้อสอบ ${exam.title} ปีการศึกษา 2568 ครบ ${exam.questions.length} ข้อ ตอบแบบโต้ตอบ พร้อมวิธีทำทีละขั้น`
+      ? `ฝึกทำข้อสอบ ${exam.title} ปีการศึกษา ${exam.year} ครบ ${exam.questions.length} ข้อ แบบโต้ตอบ พร้อมคำใบ้`
       : "ไม่พบชุดข้อสอบนี้";
     return {
       meta: [
@@ -41,20 +41,20 @@ export const Route = createFileRoute("/exam/$level")({
 });
 
 function ExamPage() {
-  const { level } = Route.useLoaderData();
-  const exam = exams[level];
+  const { key } = Route.useLoaderData();
+  const exam = catalog[key]!;
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background">
       <div className="shrink-0 border-b border-border bg-background [@media(max-height:500px)]:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-1.5 sm:px-4">
-          <Link to="/" className="font-display text-lg text-primary">โจทย์คณิต<span className="text-highlight-strong">.</span></Link>
+          <Link to="/" className="font-display text-lg text-primary">PRE O-NET<span className="text-highlight-strong">.</span></Link>
           <div className="min-w-0 text-right">
-            <p className="truncate text-sm font-semibold leading-tight">{exam.title}</p>
+            <p className="truncate text-sm font-semibold leading-tight">{exam.title} · ปี {exam.year}</p>
             <p className="hidden text-xs text-muted-foreground sm:block">{exam.code} · {exam.examDate}</p>
           </div>
         </div>
       </div>
-      <ExamRunner exam={exam} />
+      <ExamRunner exam={exam} storageKey={key} />
     </div>
   );
 }
