@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { BarChart3, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExamRunner } from "./ExamRunner";
@@ -48,6 +48,7 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
 
   const exam = useMemo(() => (state ? buildExam(pool, state.ids, { level, subject, title }) : null), [state, pool, level, subject, title]);
   const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
 
   if (!state || !exam) return <div className="flex flex-1 items-center justify-center text-muted-foreground">กำลังสุ่มข้อสอบ...</div>;
   if (!exam.questions.length) return <div className="flex flex-1 items-center justify-center p-6 text-center text-muted-foreground">ยังไม่มีข้อสอบในเรื่องนี้</div>;
@@ -55,10 +56,12 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
   const onStatus = (sub: boolean, answers: Record<string, unknown>) => {
     setSubmitted(sub);
     if (sub && !state.saved) {
-      saveAttempt(kind, `${sid}-${state.round}-${Date.now()}`, exam, answers, title);
+      const id = `${sid}-${state.round}-${Date.now()}`;
+      saveAttempt(kind, id, exam, answers, title, { back: window.location.pathname + window.location.search });
       const s = { ...state, saved: true };
       localStorage.setItem(setKey, JSON.stringify(s));
       setState(s);
+      void navigate({ to: "/result/$id", params: { id } });
     }
   };
 
