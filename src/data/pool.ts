@@ -1,0 +1,54 @@
+import { catalog, type Level } from "./catalog";
+import type { Exam, Question, Subject } from "./exam-types";
+import { strandOf, strandsFor } from "./strands";
+
+export type PoolQuestion = Question & { strand: string; fromYear: number };
+
+/** Every auto-scored question of one level+subject across all years, tagged with its strand. */
+export function poolFor(level: Level, subject: Subject): PoolQuestion[] {
+  return Object.values(catalog)
+    .filter((e) => e.level === level && e.subject === subject)
+    .sort((a, b) => b.year - a.year)
+    .flatMap((e) =>
+      e.questions
+        .filter((q) => q.type !== "essay")
+        .map((q) => ({ ...q, strand: strandOf(subject, q.topic), fromYear: e.year }) as PoolQuestion),
+    );
+}
+
+function shuffle<T>(a: T[]): T[] {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j]!, b[i]!];
+  }
+  return b;
+}
+
+/** Pick `perStrand` questions per strand (or only the given strand), preferring ids not in `seen`. */
+export function pickIds(pool: PoolQuestion[], subject: Subject, perStrand: number, onlyStrand?: string, seen: Set<string> = new Set()) {
+  const names = onlyStrand ? [onlyStrand] : strandsFor(subject);
+  return names.flatMap((n) => {
+    const qs = pool.filter((q) => q.strand === n);
+    const fresh = shuffle(qs.filter((q) => !seen.has(q.id)));
+    const old = shuffle(qs.filter((q) => seen.has(q.id)));
+    return [...fresh, ...old].slice(0, perStrand).map((q) => q.id);
+  });
+}
+
+/** Wrap chosen questions as a temporary exam (renumbered 1..n). Topic shows the source year. */
+export function buildExam(pool: PoolQuestion[], ids: string[], meta: { level: Level; subject: Subject; title: string; minutesPerQ?: number }): Exam {
+  const byId = new Map(pool.map((q) => [q.id, q]));
+  const questions = ids.map((id) => byId.get(id)).filter((q): q is PoolQuestion => !!q)
+    .map((q, i) => ({ ...q, no: i + 1, topic: `${q.strand} · ${q.topic} (ปี ${q.fromYear})` }));
+  return {
+    level: meta.level,
+    subject: meta.subject,
+    year: 0,
+    title: meta.title,
+    code: "ชุดสุ่มจากข้อสอบจริง",
+    examDate: "ข้อสอบ O-NET ปีการศึกษา 2565–2568",
+    minutes: Math.max(5, Math.round(questions.length * (meta.minutesPerQ ?? 2))),
+    questions,
+  };
+}
