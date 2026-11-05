@@ -537,7 +537,7 @@ export const exam: Exam = {
     "no": 17,
     "topic": "เลขยกกำลังและกรณฑ์",
     "points": 6,
-    "prompt": "∛{ √{256x⁻²y⁴z⁶} × √{25x⁻⁴y⁴z⁻⁴} ÷ √{100x⁻⁶y⁸z²} } มีค่าเท่าใด",
+    "prompt": "∛( √{256x⁻²y⁴z⁶} × √{25x⁻⁴y⁴z⁻⁴} ÷ √{100x⁻⁶y⁸z²} ) มีค่าเท่าใด",
     "type": "numeric",
     "answer": 2,
     "steps": [
