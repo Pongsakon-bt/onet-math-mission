@@ -473,20 +473,20 @@ export const exam: Exam = {
       "no": 16,
       "topic": "เสียงสระ",
       "points": 3.125,
-      "prompt": "Which of the following underlined words has the same vowel sound as “chip”?\nUnderlined words: lives, drive, gives, arrive.",
+      "prompt": "Which of the following underlined words has the same vowel sound as “chip”?",
       "type": "mcq",
       "choices": [
         {
-          "text": "Cats have nine lives."
+          "text": "Cats have nine _{lives}."
         },
         {
-          "text": "My parents drive to work."
+          "text": "My parents _{drive} to work."
         },
         {
-          "text": "Nina gives presents to children."
+          "text": "Nina _{gives} presents to children."
         },
         {
-          "text": "They always arrive 15 minutes earlier."
+          "text": "They always _{arrive} 15 minutes earlier."
         }
       ],
       "answer": 3,
