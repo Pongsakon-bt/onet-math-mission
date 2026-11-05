@@ -34,7 +34,7 @@ export function ExamRunner({ exam }: { exam: Exam }) {
     if (loaded) localStorage.setItem(key, JSON.stringify({ answers, submitted }));
   }, [answers, submitted, loaded, key]);
 
-  const q = exam.questions[idx];
+  const q = exam.questions[idx] ?? exam.questions[0]!;
   const result = useMemo(() => scoreExam(exam, answers), [exam, answers]);
   const answeredCount = exam.questions.filter((x) => isAnswered(x, answers[x.id])).length;
   const setAns = (v: unknown) => !submitted && setAnswers((a) => ({ ...a, [q.id]: v }));
