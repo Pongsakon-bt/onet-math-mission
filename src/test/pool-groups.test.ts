@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { poolFor, pickIds, withPassageGroups } from "../pool";
+import { poolFor, pickIds, withPassageGroups } from "@/data/pool";
 
 describe("mixed practice keeps passage sets together", () => {
   it("picking one passage question brings every sibling, adjacent and in order", () => {
