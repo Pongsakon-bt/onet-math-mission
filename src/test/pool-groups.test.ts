@@ -3,8 +3,8 @@ import { poolFor, pickIds, withPassageGroups } from "@/data/pool";
 
 describe("mixed practice keeps passage sets together", () => {
   it("picking one passage question brings every sibling, adjacent and in order", () => {
-    for (const subject of ["thai", "eng"] as const) {
-      const pool = poolFor("m3", subject);
+    for (const [level, subject] of (["p6","m3"] as const).flatMap((l) => (["math","thai","eng","sci"] as const).map((s) => [l, s] as const))) {
+      const pool = poolFor(level, subject);
       for (let run = 0; run < 20; run++) {
         const ids = pickIds(pool, subject, 3);
         const qs = ids.map((id) => pool.find((q) => q.id === id)!);
