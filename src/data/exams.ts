@@ -21,7 +21,8 @@ export type Figure =
   | { kind: "pieColors" }
   | { kind: "barFlu" }
   | { kind: "stemLeaf" }
-  | { kind: "dataStrip" };
+  | { kind: "dataStrip" }
+  | { kind: "pyramid" };
 
 export type Choice = { text?: string; shape?: "hexagon" | "square" | "trapezoid" | "triangle" };
 
@@ -343,6 +344,7 @@ export const m3Exam: Exam = {
     {
       id: "m3-11", no: 11, type: "mcq", topic: "เรขาคณิตสามมิติ (หน้าตัด)", points: 4.75,
       prompt: "กำหนดพีระมิดฐานสี่เหลี่ยมมุมฉาก ดังรูป",
+      figure: { kind: "pyramid" },
       promptAfter: "ข้อใดไม่ใช่หน้าตัดที่เกิดจากการตัดพีระมิดฐานสี่เหลี่ยมมุมฉากด้วยระนาบ",
       choices: [{ shape: "hexagon" }, { shape: "square" }, { shape: "trapezoid" }, { shape: "triangle" }], answer: 1,
       steps: [

@@ -47,6 +47,8 @@ export function FigureView({ figure }: { figure: Figure }) {
       return <StemLeaf />;
     case "dataStrip":
       return <DataStrip />;
+    case "pyramid":
+      return <PyramidFigure />;
   }
 }
 
