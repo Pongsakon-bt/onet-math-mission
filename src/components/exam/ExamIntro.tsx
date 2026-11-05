@@ -1,6 +1,7 @@
 import { Clock, ListChecks, Target, Timer, Play, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Exam, Question } from "@/data/exams";
+import { strandOf } from "@/data/strands";
 
 const TYPE_LABEL: Record<Question["type"], string> = {
   mcq: "ปรนัย เลือก 1 คำตอบ",
@@ -31,8 +32,20 @@ export function analyzeExam(exam: Exam) {
     t.each.add(q.points);
     types.set(q.type, t);
   }
+  const strands = new Map<string, { nos: number[]; points: number; subs: Map<string, number[]> }>();
+  for (const q of qs) {
+    const n = strandOf(exam.subject, q.topic);
+    const t = strands.get(n) ?? { nos: [], points: 0, subs: new Map<string, number[]>() };
+    t.nos.push(q.no);
+    t.points += q.points;
+    t.subs.set(q.topic, [...(t.subs.get(q.topic) ?? []), q.no]);
+    strands.set(n, t);
+  }
   return {
     total,
+    strands: [...strands.entries()]
+      .map(([name, v]) => ({ name, nos: v.nos, points: r(v.points), subs: [...v.subs.entries()] }))
+      .sort((a, b) => b.points - a.points),
     secPerQ: (exam.minutes * 60) / qs.length,
     secPerPoint: (exam.minutes * 60) / (total || 1),
     topics: [...topics.entries()].map(([name, v]) => ({ name, ...v, points: r(v.points) })).sort((a, b) => b.points - a.points),
@@ -98,20 +111,26 @@ export function ExamIntro({ exam, onStart, resumable }: { exam: Exam; onStart: (
 
         <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
           <h2 className="font-display text-xl">เนื้อหาที่ออกสอบ</h2>
-          <p className="text-sm text-muted-foreground">เรียงตามน้ำหนักคะแนน จากมากไปน้อย</p>
+          <p className="text-sm text-muted-foreground">แยกตามสาระการเรียนรู้ เรียงตามน้ำหนักคะแนน พร้อมเรื่องย่อยและเลขข้อ</p>
           <div className="mt-3 space-y-3">
-            {a.topics.map((t) => {
+            {a.strands.map((t) => {
               const pct = (t.points / (a.total || 1)) * 100;
               return (
-                <div key={t.name}>
-                  <div className="flex items-baseline justify-between gap-3 text-sm">
+                <div key={t.name} className="rounded-xl border border-border p-3">
+                  <div className="flex items-baseline justify-between gap-3">
                     <p className="min-w-0 font-semibold">{t.name}</p>
-                    <p className="shrink-0 text-muted-foreground">{t.points} คะแนน · {Math.round(pct)}%</p>
+                    <p className="shrink-0 text-sm text-muted-foreground">{t.nos.length} ข้อ · {t.points} คะแนน · {Math.round(pct)}%</p>
                   </div>
-                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-secondary">
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-secondary">
                     <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
                   </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">ข้อ {ranges(t.nos)} ({t.nos.length} ข้อ)</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {t.subs.map(([sub, nos]) => (
+                      <span key={sub} className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">
+                        {sub} <span className="text-muted-foreground">· ข้อ {ranges(nos)}</span>
+                      </span>
+                    ))}
+                  </div>
                 </div>
               );
             })}
