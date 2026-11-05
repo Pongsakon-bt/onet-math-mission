@@ -95,6 +95,11 @@ function Index() {
                           <ClipboardCheck className="h-5 w-5" /> วัดความรู้พื้นฐาน
                           <span className="ml-auto text-xs font-normal text-muted-foreground">สุ่มจากทุกปี · ดูว่าเก่งเรื่องไหน</span>
                         </Link>
+                        <Link to="/analysis/$level/$subject" params={{ level, subject: s.key }}
+                          className="mb-3 flex items-center gap-2 rounded-xl border border-border px-3 py-2 font-semibold transition hover:bg-secondary">
+                          <BarChart3 className="h-5 w-5" /> วิเคราะห์ข้อสอบย้อนหลัง
+                          <span className="ml-auto text-xs font-normal text-muted-foreground">ข้อไหนออกเรื่องอะไร · ควรติวอะไร</span>
+                        </Link>
                         <p className="mb-2 text-sm font-medium text-foreground">เลือกปีการศึกษา</p>
                         <div className="flex flex-wrap gap-2">
                           {sets.map((e) => (

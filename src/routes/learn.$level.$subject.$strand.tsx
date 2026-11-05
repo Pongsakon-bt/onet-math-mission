@@ -9,6 +9,7 @@ import type { Subject } from "@/data/exam-types";
 import { strandsFor } from "@/data/strands";
 import { poolFor } from "@/data/pool";
 import { lessonFor } from "@/data/lessons";
+import { baseTopic, topicFrequency } from "@/data/analysis";
 import { markStudied } from "@/lib/progress";
 
 const LEVEL_NAMES: Record<Level, string> = { p6: "ป.6", m3: "ม.3" };
@@ -39,7 +40,10 @@ function LearnPage() {
   const [practice, setPractice] = useState(false);
   const lesson = lessonFor(level, subject, strand);
   const qs = useMemo(() => poolFor(level, subject).filter((q) => q.strand === strand), [level, subject, strand]);
-  const topics = useMemo(() => [...new Set(qs.map((q) => q.topic))], [qs]);
+  const topics = useMemo(() => {
+    const f = topicFrequency(level, subject);
+    return [...new Set(qs.map((q) => baseTopic(q.topic)))].map((t) => [t, f.get(t) ?? 0] as const).sort((a, b) => b[1] - a[1]);
+  }, [qs, level, subject]);
   const name = `${SUBJECT_NAMES[subject]} ${LEVEL_NAMES[level]}`;
 
   useEffect(() => { markStudied(`${level}-${subject}-${strand}`); }, [level, subject, strand]);
@@ -81,15 +85,16 @@ function LearnPage() {
             ) : (
               <p className="mt-2 text-muted-foreground">กำลังเตรียมสรุปความรู้ของวิชานี้ ตอนนี้ฝึกจากข้อสอบเก่าได้เลย</p>
             )}
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {topics.map((t) => <span key={t} className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">{t}</span>)}
+            <p className="mt-4 text-sm font-semibold">เรื่องในสาระนี้ที่เคยออกสอบ (เรียงจากออกบ่อย)</p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {topics.map(([t, n]) => <span key={t} className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">{t} · ออก {n} ปี</span>)}
             </div>
           </section>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <Button size="lg" onClick={() => setPractice(true)} disabled={!qs.length}><Dumbbell /> ฝึกทำข้อสอบเก่า ({qs.length} ข้อ)</Button>
             <Button size="lg" variant="outline" asChild>
-              <Link to="/diagnostic/$level/$subject" params={{ level, subject }} search={{ strand: index }}><RotateCcw /> สอบซ้ำเรื่องนี้</Link>
+              <Link to="/diagnostic/$level/$subject" params={{ level, subject }} search={{ strand: index }}><RotateCcw /> ทดสอบหลังเรียน</Link>
             </Button>
           </div>
         </div>

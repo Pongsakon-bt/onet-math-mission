@@ -1,5 +1,8 @@
 import type { Level } from "../catalog";
 import type { Subject } from "../exam-types";
+import { LESSONS_THAI } from "./thai";
+import { LESSONS_ENG } from "./eng";
+import { LESSONS_SCI } from "./sci";
 
 /** Short self-written study notes per strand. Written by the app author — teachers should review. */
 export type Lesson = { points: string[]; example?: { q: string; a: string[] } };
@@ -72,5 +75,7 @@ const LESSONS: Partial<Record<`${Level}-${Subject}`, Record<string, Lesson>>> = 
   },
 };
 
+const ALL: Record<string, Record<string, Lesson>> = { ...LESSONS, ...LESSONS_THAI, ...LESSONS_ENG, ...LESSONS_SCI };
+
 export const lessonFor = (level: Level, subject: Subject, strand: string): Lesson | undefined =>
-  LESSONS[`${level}-${subject}`]?.[strand];
+  ALL[`${level}-${subject}`]?.[strand];
