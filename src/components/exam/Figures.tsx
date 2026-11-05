@@ -60,7 +60,8 @@ function Hint({ children }: { children: React.ReactNode }) {
 
 function LineVisitors() {
   const days = ["พฤหัสบดี", "ศุกร์", "เสาร์", "อาทิตย์", "จันทร์", "อังคาร", "พุธ"];
-  const vals = [205, 220, 230, 215, 205, 215, 220];
+  const vals: number[] = [205, 220, 230, 215, 205, 215, 220];
+  const v = (i: number) => vals[i] ?? 0;
   const [sel, setSel] = useState<number | null>(null);
   const W = 560, H = 280, L = 50, R = 20, T = 20, B = 50;
   const x = (i: number) => L + (i * (W - L - R)) / 6;
@@ -88,9 +89,9 @@ function LineVisitors() {
         ))}
         {sel !== null && (
           <g>
-            <rect x={x(sel) - 52} y={y(vals[sel]) - 46} width="104" height="34" rx="6" fill="var(--foreground)" />
-            <text x={x(sel)} y={y(vals[sel]) - 25} textAnchor="middle" fontSize="13" fill="var(--background)">
-              {vals[sel]} คน{sel > 0 ? ` (${vals[sel] - vals[sel - 1] >= 0 ? "+" : ""}${vals[sel] - vals[sel - 1]})` : ""}
+            <rect x={x(sel) - 52} y={y(v(sel)) - 46} width="104" height="34" rx="6" fill="var(--foreground)" />
+            <text x={x(sel)} y={y(v(sel)) - 25} textAnchor="middle" fontSize="13" fill="var(--background)">
+              {v(sel)} คน{sel > 0 ? ` (${v(sel) - v(sel - 1) >= 0 ? "+" : ""}${v(sel) - v(sel - 1)})` : ""}
             </text>
           </g>
         )}
