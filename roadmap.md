@@ -1,5 +1,7 @@
 # Roadmap
-- [ ] Transcribe 2568 sets: ไทย/อังกฤษ/วิทย์ ป.6 + ม.3
-- [ ] Transcribe 2567 sets: ไทย/อังกฤษ/วิทย์/คณิต ป.6, ไทย/อังกฤษ/วิทย์ ม.3 (คณิต ม.3 2567 file is corrupt — needs re-upload)
-- [ ] Flow: level → subject → year → exam
+- [x] 2568 sets: all 4 subjects ป.6 + ม.3
+- [x] 2566 sets (exam Feb 2567): ไทย/อังกฤษ/วิทย์/คณิต ป.6, ไทย/อังกฤษ/วิทย์ ม.3
+- [ ] คณิต ม.3 ปี 2566 — waiting for a working file (old one is corrupt)
+- [ ] ไทย ม.3 2568 totals 70 points — check whether the writing section is missing from the file
+- [x] Flow: level → subject → year → exam
 - [ ] Later: school accounts, student join by code, dashboard
