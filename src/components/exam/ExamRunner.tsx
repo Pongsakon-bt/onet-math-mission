@@ -41,8 +41,7 @@ export function ExamRunner({ exam }: { exam: Exam }) {
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[1fr_260px]">
-      <main>
-        <nav aria-label="แผนผังข้อสอบ" className="sticky top-[61px] z-[5] -mx-4 mb-4 border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-2xl sm:border sm:bg-card sm:shadow-paper">
+        <nav aria-label="แผนผังข้อสอบ" className="sticky top-[61px] z-[5] -mx-4 lg:col-span-2 border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-2xl sm:border sm:bg-card sm:shadow-paper">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm">
             <p className="font-semibold">ข้อ {q.no} จาก {exam.questions.length}</p>
             <p className="flex flex-wrap gap-3 text-muted-foreground">
@@ -75,7 +74,7 @@ export function ExamRunner({ exam }: { exam: Exam }) {
                   aria-label={`ไปข้อ ${x.no}${done ? "" : " (ยังไม่ทำ)"}`}
                   aria-current={i === idx ? "step" : undefined}
                   className={cn(
-                    "h-9 w-9 rounded-lg border text-sm font-semibold transition lg:w-[34px]",
+                    "h-9 w-9 rounded-lg border text-sm font-semibold transition",
                     i === idx && "ring-2 ring-ring ring-offset-2 ring-offset-card",
                     submitted
                       ? ok ? "border-success bg-success text-success-foreground" : "border-destructive bg-destructive/15 text-destructive"
@@ -88,6 +87,7 @@ export function ExamRunner({ exam }: { exam: Exam }) {
             })}
           </div>
         </nav>
+      <main>
         <article key={q.id} className="animate-in fade-in slide-in-from-bottom-2 rounded-2xl border border-border bg-card p-5 shadow-paper sm:p-8">
           <header className="mb-5 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-3">
