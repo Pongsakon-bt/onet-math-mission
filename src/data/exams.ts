@@ -7,57 +7,14 @@ import m3q13 from "@/assets/exam/m3-q13.jpg.asset.json";
 import m3q14 from "@/assets/exam/m3-q14.jpg.asset.json";
 import m3q19 from "@/assets/exam/m3-q19.jpg.asset.json";
 
-/**
- * Text markup used in questions:
- *   {a/b}  -> stacked fraction      [n]{a/b} not used; mixed numbers write "1{4/15}"
- *   ^{n}   -> superscript
- *   √{x}   -> square root, ∛{x} -> cube root
- */
-
-export type Figure =
-  | { kind: "image"; src: string; alt: string; maxWidth?: number }
-  | { kind: "lineVisitors" }
-  | { kind: "pieDrinks" }
-  | { kind: "pieColors" }
-  | { kind: "barFlu" }
-  | { kind: "stemLeaf" }
-  | { kind: "dataStrip" }
-  | { kind: "pyramid" };
-
-export type Choice = { text?: string; shape?: "hexagon" | "square" | "trapezoid" | "triangle" };
-
-type Base = {
-  id: string;
-  no: number;
-  topic: string;
-  points: number;
-  prompt: string;
-  promptAfter?: string;
-  figure?: Figure;
-  steps: string[];
-};
-
-export type McqQuestion = Base & { type: "mcq"; choices: Choice[]; answer: number };
-export type NumericQuestion = Base & { type: "numeric"; answer: number; unit?: string };
-export type TrueFalseQuestion = Base & {
-  type: "truefalse";
-  items: { label: string; text: string; answer: boolean }[];
-};
-export type Question = McqQuestion | NumericQuestion | TrueFalseQuestion;
-
-export type Exam = {
-  level: "p6" | "m3";
-  title: string;
-  code: string;
-  examDate: string;
-  minutes: number;
-  questions: Question[];
-};
+import type { Choice, Exam, Question } from "./exam-types";
+export type * from "./exam-types";
 
 const t = (s: string): Choice => ({ text: s });
 
 export const p6Exam: Exam = {
   level: "p6",
+  subject: "math",
   title: "O-NET คณิตศาสตร์ ป.6",
   code: "รหัสวิชา 64 · ชุด 100",
   examDate: "สอบ 31 มกราคม 2569 (ปีการศึกษา 2568)",
@@ -217,6 +174,7 @@ export const p6Exam: Exam = {
 
 export const m3Exam: Exam = {
   level: "m3",
+  subject: "math",
   title: "O-NET คณิตศาสตร์ ม.3",
   code: "รหัสวิชา 94 · ชุด 100",
   examDate: "ปีการศึกษา 2568",
@@ -454,22 +412,4 @@ export const m3Exam: Exam = {
 export const exams = { p6: p6Exam, m3: m3Exam } as const;
 export type Level = keyof typeof exams;
 
-export function isCorrect(q: Question, ans: unknown): boolean {
-  if (ans === undefined || ans === null || ans === "") return false;
-  if (q.type === "mcq") return ans === q.answer;
-  if (q.type === "numeric") return Math.abs(Number(ans) - q.answer) < 1e-9;
-  const a = ans as Record<string, boolean>;
-  return q.items.every((it) => a[it.label] === it.answer);
-}
-
-export function scoreExam(exam: Exam, answers: Record<string, unknown>) {
-  let score = 0;
-  let correct = 0;
-  for (const q of exam.questions) {
-    if (isCorrect(q, answers[q.id])) {
-      score += q.points;
-      correct += 1;
-    }
-  }
-  return { score: Math.round(score * 1000) / 1000, correct, total: exam.questions.length };
-}
+export { isCorrect, scoreExam } from "./exam-types";
