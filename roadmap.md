@@ -6,7 +6,8 @@
 - [x] 2565 sets (exam Feb 2566): all 8
 - [ ] Year 2564 — all 8 sets, waiting for files
 - [x] Flow: level → subject → year → exam
-- [ ] Later: school accounts, student join by code, dashboard
+- [x] School accounts: teacher/student sign-up with OBEC 10-digit code, teacher page with school progress
+- [ ] Students who sign in should also see attempts from other devices (dashboard still reads this device only)
 - [x] Diagnostic test, per-strand learning pages, retest, personal dashboard (stored on device)
 - [x] Lesson summaries for all 4 subjects
 - [x] Past-exam analysis page per level+subject (topics per question, most frequent topics, what to tutor); diagnostic favours frequent topics
