@@ -5,6 +5,7 @@ import { yearsFor, examKey, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
 import { preloadExamImages } from "@/lib/preload-exam";
 import { cn } from "@/lib/utils";
+import { AccountChip } from "@/components/AccountChip";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -50,7 +51,10 @@ function Index() {
       <header className="mx-auto max-w-5xl px-4 pt-8 pb-4">
         <div className="flex items-center justify-between gap-3">
           <p className="font-display text-2xl text-primary">PRE O-NET<span className="text-highlight-strong">.</span></p>
-          <Link to="/dashboard" search={{ level: level ?? "p6", subject: subject ?? "math" }} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-semibold"><BarChart3 className="h-4 w-4" /> แดชบอร์ดของฉัน</Link>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Link to="/dashboard" search={{ level: level ?? "p6", subject: subject ?? "math" }} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-semibold"><BarChart3 className="h-4 w-4" /> แดชบอร์ดของฉัน</Link>
+            <AccountChip />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 pb-12">
