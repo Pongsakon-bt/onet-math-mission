@@ -15,6 +15,7 @@ const t = (s: string): Choice => ({ text: s });
 export const p6Exam: Exam = {
   level: "p6",
   subject: "math",
+  year: 2568,
   title: "O-NET คณิตศาสตร์ ป.6",
   code: "รหัสวิชา 64 · ชุด 100",
   examDate: "สอบ 31 มกราคม 2569 (ปีการศึกษา 2568)",
@@ -175,6 +176,7 @@ export const p6Exam: Exam = {
 export const m3Exam: Exam = {
   level: "m3",
   subject: "math",
+  year: 2568,
   title: "O-NET คณิตศาสตร์ ม.3",
   code: "รหัสวิชา 94 · ชุด 100",
   examDate: "ปีการศึกษา 2568",

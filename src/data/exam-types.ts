@@ -47,6 +47,8 @@ export type Subject = "math" | "thai" | "eng" | "sci";
 export type Exam = {
   level: "p6" | "m3";
   subject: Subject;
+  /** Buddhist-era academic year, e.g. 2568 */
+  year: number;
   title: string;
   code: string;
   examDate: string;
