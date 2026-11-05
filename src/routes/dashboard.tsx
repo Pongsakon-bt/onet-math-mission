@@ -174,6 +174,25 @@ function Dashboard() {
               </section>
             </>
           )}
+
+          {essays.length > 0 && (
+            <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
+              <h2 className="font-display text-xl">ข้อเขียนที่ส่งให้ครูตรวจ</h2>
+              <div className="mt-2 divide-y divide-border text-sm">
+                {essays.map((e) => (
+                  <div key={e.attempt_id + e.qid} className="py-2">
+                    <div className="flex items-center gap-3">
+                      <span className="min-w-0 flex-1 truncate">ข้อ {e.no} · {e.prompt}</span>
+                      <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold", e.score === null ? "bg-secondary" : "bg-primary text-primary-foreground")}>
+                        {e.score === null ? "รอครูตรวจ" : `${e.score}/${e.max_points} คะแนน`}
+                      </span>
+                    </div>
+                    {e.comment && <p className="mt-1 text-muted-foreground">ครู: {e.comment}</p>}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </main>
     </PageShell>
