@@ -1,16 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { ArrowRight, Calculator, BookOpen, Languages, FlaskConical, Clock } from "lucide-react";
+import { exams, type Level } from "@/data/exams";
 import { preloadExamImages } from "@/lib/preload-exam";
-import { ArrowRight, MousePointerClick, Calculator, ListChecks, Lightbulb } from "lucide-react";
-import { p6Exam, m3Exam, type Exam } from "@/data/exams";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ข้อสอบ O-NET คณิต ป.6 และ ม.3 ปี 2568 แบบโต้ตอบ" },
-      { name: "description", content: "ทำข้อสอบ O-NET คณิตศาสตร์ ป.6 และ ม.3 ปีการศึกษา 2568 ครบทุกข้อ แบบโต้ตอบ แตะกราฟ เติมตัวเลข พร้อมวิธีทำทีละขั้น" },
-      { property: "og:title", content: "ข้อสอบ O-NET คณิต ป.6 และ ม.3 ปี 2568 แบบโต้ตอบ" },
-      { property: "og:description", content: "ถอดข้อสอบกระดาษเป็นแบบโต้ตอบ ครบทุกข้อ พร้อมเฉลยและวิธีทำ" },
+      { title: "PRE O-NET ป.6 และ ม.3 · ฝึกทำข้อสอบจริงแบบโต้ตอบ" },
+      { name: "description", content: "ระบบ PRE O-NET ฝึกทำข้อสอบ O-NET ป.6 และ ม.3 ทั้ง 4 วิชา คณิตศาสตร์ ภาษาไทย ภาษาอังกฤษ วิทยาศาสตร์ แบบโต้ตอบ" },
+      { property: "og:title", content: "PRE O-NET ป.6 และ ม.3" },
+      { property: "og:description", content: "ฝึกทำข้อสอบ O-NET 4 วิชา แบบโต้ตอบ พร้อมคำใบ้" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -18,67 +19,79 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const SUBJECTS = [
+  { key: "math", name: "คณิตศาสตร์", icon: Calculator, color: "bg-subj-math", text: "text-subj-math", code: { p6: "64", m3: "94" } },
+  { key: "thai", name: "ภาษาไทย", icon: BookOpen, color: "bg-subj-thai", text: "text-subj-thai", code: { p6: "61", m3: "91" } },
+  { key: "eng", name: "ภาษาอังกฤษ", icon: Languages, color: "bg-subj-eng", text: "text-subj-eng", code: { p6: "63", m3: "93" } },
+  { key: "sci", name: "วิทยาศาสตร์", icon: FlaskConical, color: "bg-subj-sci", text: "text-subj-sci", code: { p6: "65", m3: "95" } },
+] as const;
+
+const LEVELS: { level: Level; short: string; full: string }[] = [
+  { level: "p6", short: "ป.6", full: "ประถมศึกษาปีที่ 6" },
+  { level: "m3", short: "ม.3", full: "มัธยมศึกษาปีที่ 3" },
+];
+
 function Index() {
   const router = useRouter();
-  // Get both exams (page code + diagrams) ready in the background so "เริ่มทำข้อสอบ" opens instantly.
+  const [level, setLevel] = useState<Level | null>(null);
   useEffect(() => {
-    for (const level of ["p6", "m3"] as const) {
-      router.preloadRoute({ to: "/exam/$level", params: { level } }).catch(() => {});
-      preloadExamImages(level, 15000);
+    for (const l of ["p6", "m3"] as const) {
+      router.preloadRoute({ to: "/exam/$level", params: { level: l } }).catch(() => {});
+      preloadExamImages(l, 15000);
     }
   }, [router]);
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="mx-auto max-w-5xl px-4 pt-10 pb-6">
-        <p className="font-display text-lg text-primary">โจทย์คณิต<span className="text-highlight-strong">.</span></p>
+    <div className="min-h-dvh bg-background">
+      <header className="mx-auto max-w-5xl px-4 pt-8 pb-4">
+        <p className="font-display text-2xl text-primary">PRE O-NET<span className="text-highlight-strong">.</span></p>
       </header>
-      <section className="mx-auto max-w-5xl px-4 pb-10">
-        <p className="mb-3 inline-block rounded-full bg-highlight/40 px-3 py-1 text-sm font-semibold">O-NET ปีการศึกษา 2568</p>
-        <h1 className="font-display text-4xl leading-tight sm:text-6xl">
-          ข้อสอบคณิตจริง<br />ที่<span className="marker">แตะ ลาก ลองคิด</span>ได้
-        </h1>
-        <p className="mt-4 max-w-xl text-lg text-muted-foreground">
-          ถอดจากข้อสอบกระดาษครบทุกข้อ ทำบนจอได้ทันที ตรวจคะแนนให้อัตโนมัติ และดูวิธีทำทีละขั้นเมื่อติด
-        </p>
+      <main className="mx-auto max-w-5xl px-4 pb-12">
+        <h1 className="font-display text-3xl leading-tight sm:text-5xl">ฝึกทำข้อสอบ O-NET<br /><span className="marker">ข้อสอบจริง ทำบนจอได้</span></h1>
+        <p className="mt-3 text-muted-foreground">เลือกระดับชั้นของนักเรียน</p>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
-          <ExamCard exam={p6Exam} grade="ป.6" />
-          <ExamCard exam={m3Exam} grade="ม.3" />
-        </div>
-
-        <div className="mt-12 grid gap-4 sm:grid-cols-4">
-          {[
-            { icon: MousePointerClick, t: "แตะกราฟอ่านค่า", d: "กราฟเส้น แท่ง วงกลม ตอบสนองเมื่อแตะ" },
-            { icon: Calculator, t: "เติมตัวเลข", d: "แป้นตัวเลขแทนการระบายวงกลม" },
-            { icon: ListChecks, t: "ใช่ / ไม่ใช่", d: "ข้อเชิงซ้อนตอบทีละข้อย่อย" },
-            { icon: Lightbulb, t: "วิธีทำทีละขั้น", d: "เปิดดูทีละขั้นเพื่อคิดต่อเอง" },
-          ].map(({ icon: I, t, d }) => (
-            <div key={t} className="rounded-xl border border-border bg-card p-4">
-              <I className="mb-2 h-5 w-5 text-primary" />
-              <p className="font-semibold">{t}</p>
-              <p className="text-sm text-muted-foreground">{d}</p>
-            </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          {LEVELS.map((l) => (
+            <button key={l.level} onClick={() => setLevel(l.level)}
+              className={cn("rounded-2xl border-2 bg-card p-5 text-left shadow-paper transition hover:-translate-y-0.5",
+                level === l.level ? "border-primary ring-4 ring-primary/20" : "border-border")}>
+              <span className="font-display text-5xl text-primary">{l.short}</span>
+              <p className="mt-1 text-lg font-semibold">{l.full}</p>
+              <p className="text-sm text-muted-foreground">4 วิชา</p>
+            </button>
           ))}
         </div>
-      </section>
-    </div>
-  );
-}
 
-function ExamCard({ exam, grade }: { exam: Exam; grade: string }) {
-  return (
-    <Link
-      to="/exam/$level"
-      params={{ level: exam.level }}
-      className="group relative overflow-hidden rounded-2xl border-2 border-foreground bg-card p-6 shadow-paper transition hover:-translate-y-1"
-    >
-      <span className="font-display text-7xl text-primary">{grade}</span>
-      <p className="mt-2 text-xl font-semibold">{exam.title}</p>
-      <p className="text-sm text-muted-foreground">{exam.code}</p>
-      <p className="mt-4 text-sm">{exam.questions.length} ข้อ · {exam.minutes} นาที · 100 คะแนน</p>
-      <span className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground">
-        เริ่มทำข้อสอบ <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-      </span>
-    </Link>
+        {level && (
+          <section className="animate-in fade-in mt-8">
+            <h2 className="mb-3 font-display text-xl">เลือกวิชา · {LEVELS.find((l) => l.level === level)!.full}</h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {SUBJECTS.map((s) => {
+                const I = s.icon;
+                const ready = s.key === "math";
+                const body = (
+                  <>
+                    <span className={cn("flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-primary-foreground", s.color)}><I className="h-7 w-7" /></span>
+                    <div className="min-w-0 flex-1">
+                      <p className={cn("text-lg font-semibold", s.text)}>{s.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        รหัสวิชา {s.code[level]} · {ready ? `${exams[level].questions.length} ข้อ · ${exams[level].minutes} นาที` : "รอไฟล์ข้อสอบปี 2568"}
+                      </p>
+                    </div>
+                    {ready ? <ArrowRight className={cn("h-5 w-5 shrink-0", s.text)} /> : <Clock className="h-5 w-5 shrink-0 text-muted-foreground" />}
+                  </>
+                );
+                const cls = "flex items-center gap-3 rounded-2xl border-2 bg-card p-4 transition";
+                return ready ? (
+                  <Link key={s.key} to="/exam/$level" params={{ level }} className={cn(cls, "border-subj-math hover:-translate-y-0.5 shadow-paper")}>{body}</Link>
+                ) : (
+                  <div key={s.key} className={cn(cls, "border-dashed border-border opacity-70")} aria-disabled>{body}</div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+      </main>
+    </div>
   );
 }
