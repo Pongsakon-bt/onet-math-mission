@@ -3,6 +3,7 @@
 - [x] 2567 sets (exam Feb 2568): all 8 (answers taken from answer sheets in the files)
 - [x] 2566 sets (exam Feb 2567): all 8
 - [ ] ไทย ม.3 2568 totals 70 points — check whether the writing section is missing from the file
-- [ ] Years 2565, 2564 — all 8 sets each, waiting for files
+- [x] 2565 sets (exam Feb 2566): all 8
+- [ ] Year 2564 — all 8 sets, waiting for files
 - [x] Flow: level → subject → year → exam
 - [ ] Later: school accounts, student join by code, dashboard
