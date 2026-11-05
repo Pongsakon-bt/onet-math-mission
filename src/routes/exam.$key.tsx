@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { catalog } from "@/data/catalog";
 import { ExamRunner } from "@/components/exam/ExamRunner";
 import { preloadExamImages } from "@/lib/preload-exam";
@@ -49,6 +49,7 @@ export const Route = createFileRoute("/exam/$key")({
 function ExamPage() {
   const { key } = Route.useLoaderData();
   const exam = catalog[key]!;
+  const navigate = useNavigate();
   const sKey = `exam-time-${key}`;
   const [time, setTime] = useState<{ start: number; end?: number } | null>(null);
   const [started, setStarted] = useState(false);
@@ -79,7 +80,9 @@ function ExamPage() {
   const onStatus = (submitted: boolean, answers: Record<string, unknown>) => {
     if (submitted && time && !time.end) {
       save({ ...time, end: Date.now() });
-      saveAttempt("full", `full-${key}-${time.start}`, exam, answers, `${exam.title} ปี ${exam.year}`);
+      const id = `full-${key}-${time.start}`;
+      saveAttempt("full", id, exam, answers, `${exam.title} ปี ${exam.year}`, { back: `/exam/${key}`, ms: Date.now() - time.start });
+      void navigate({ to: "/result/$id", params: { id } });
     }
     if (!submitted && time?.end) save({ start: Date.now() });
   };

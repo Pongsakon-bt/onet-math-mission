@@ -10,7 +10,11 @@ export type Attempt = {
   subject: Subject;
   label: string;
   at: number;
-  items: { qid: string; strand: string; topic: string; correct: boolean; points: number }[];
+  items: { qid: string; no?: number; strand: string; topic: string; correct: boolean; points: number }[];
+  /** Page to return to for the question-by-question review. */
+  back?: string;
+  /** Time spent in ms, when timed. */
+  ms?: number;
 };
 
 const KEY = "preonet-attempts";
@@ -21,13 +25,13 @@ export function loadAttempts(): Attempt[] {
 }
 
 /** Save (or replace by id) one finished attempt. Essays are skipped — they are teacher-graded. */
-export function saveAttempt(kind: AttemptKind, id: string, exam: Exam, answers: Record<string, unknown>, label: string) {
+export function saveAttempt(kind: AttemptKind, id: string, exam: Exam, answers: Record<string, unknown>, label: string, extra: { back?: string; ms?: number } = {}) {
   const items = exam.questions.filter((q) => q.type !== "essay").map((q) => {
     const base = (q as { strand?: string }).strand ?? strandOf(exam.subject, q.topic);
-    return { qid: q.id, strand: base, topic: q.topic, correct: isCorrect(q, answers[q.id]), points: q.points };
+    return { qid: q.id, no: q.no, strand: base, topic: q.topic, correct: isCorrect(q, answers[q.id]), points: q.points };
   });
   const list = loadAttempts().filter((a) => a.id !== id);
-  list.push({ id, kind, level: exam.level, subject: exam.subject, label, at: Date.now(), items });
+  list.push({ id, kind, level: exam.level, subject: exam.subject, label, at: Date.now(), items, ...extra });
   localStorage.setItem(KEY, JSON.stringify(list));
 }
 

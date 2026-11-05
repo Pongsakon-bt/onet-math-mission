@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ExamKeyRouteImport } from './routes/exam.$key'
+import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as AnalysisLevelSubjectRouteImport } from './routes/analysis.$level.$subject'
 import { Route as DiagnosticLevelSubjectRouteImport } from './routes/diagnostic.$level.$subject'
 import { Route as LearnLevelSubjectStrandRouteImport } from './routes/learn.$level.$subject.$strand'
@@ -29,6 +30,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const ExamKeyRoute = ExamKeyRouteImport.update({
   id: '/exam/$key',
   path: '/exam/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultIdRoute = ResultIdRouteImport.update({
+  id: '/result/$id',
+  path: '/result/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnalysisLevelSubjectRoute = AnalysisLevelSubjectRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/result/$id': typeof ResultIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/result/$id': typeof ResultIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
+  '/result/$id': typeof ResultIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/exam/$key'
+    | '/result/$id'
     | '/analysis/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/exam/$key'
+    | '/result/$id'
     | '/analysis/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/exam/$key'
+    | '/result/$id'
     | '/analysis/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
@@ -103,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   ExamKeyRoute: typeof ExamKeyRoute
+  ResultIdRoute: typeof ResultIdRoute
   AnalysisLevelSubjectRoute: typeof AnalysisLevelSubjectRoute
   DiagnosticLevelSubjectRoute: typeof DiagnosticLevelSubjectRoute
   LearnLevelSubjectStrandRoute: typeof LearnLevelSubjectStrandRoute
@@ -129,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/exam/$key'
       fullPath: '/exam/$key'
       preLoaderRoute: typeof ExamKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/result/$id': {
+      id: '/result/$id'
+      path: '/result/$id'
+      fullPath: '/result/$id'
+      preLoaderRoute: typeof ResultIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analysis/$level/$subject': {
@@ -159,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   ExamKeyRoute: ExamKeyRoute,
+  ResultIdRoute: ResultIdRoute,
   AnalysisLevelSubjectRoute: AnalysisLevelSubjectRoute,
   DiagnosticLevelSubjectRoute: DiagnosticLevelSubjectRoute,
   LearnLevelSubjectStrandRoute: LearnLevelSubjectStrandRoute,
