@@ -10,9 +10,11 @@ import { saveAttempt } from "@/lib/progress";
 export const Route = createFileRoute("/exam/$key")({
   loader: async ({ params }) => {
     if (!catalog[params.key]) throw notFound();
-    await preloadExamImages(params.key);
+    // Don't block navigation on images: the intro page shows first, pictures keep downloading meanwhile.
+    void preloadExamImages(params.key);
     return { key: params.key };
   },
+  pendingMs: 0,
   head: ({ loaderData }) => {
     const exam = loaderData ? catalog[loaderData.key] : undefined;
     const title = exam ? `${exam.title} ปี ${exam.year} · PRE O-NET` : "ไม่พบชุดข้อสอบ";
