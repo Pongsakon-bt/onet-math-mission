@@ -153,7 +153,8 @@ function BarFlu() {
   const y = (v: number) => T + (1 - v / 3000) * (H - T - B);
   const toggle = (i: number) =>
     setPicked((p) => (p.includes(i) ? p.filter((x) => x !== i) : [...p.slice(-1), i]));
-  const diff = picked.length === 2 ? Math.abs(data[picked[0]][1] - data[picked[1]][1]) : null;
+  const [p0, p1] = picked;
+  const diff = p0 !== undefined && p1 !== undefined ? Math.abs(data[p0][1] - data[p1][1]) : null;
   return (
     <div className="mx-auto max-w-2xl">
       <p className="mb-1 text-sm text-muted-foreground">จำนวนคนป่วยต่อประชากรแสนคน</p>
@@ -178,7 +179,7 @@ function BarFlu() {
       <p className="mt-2 text-center text-sm">
         {diff !== null ? (
           <span className="rounded-md bg-highlight/40 px-2 py-1 font-semibold">
-            {data[picked[0]][0]} กับ {data[picked[1]][0]} ต่างกัน {diff.toFixed(2)}
+            {data[p0!][0]} กับ {data[p1!][0]} ต่างกัน {diff.toFixed(2)}
           </span>
         ) : (
           <span className="text-xs text-muted-foreground">แตะแท่ง 2 แท่งเพื่อให้เครื่องคิดผลต่างให้ดู</span>

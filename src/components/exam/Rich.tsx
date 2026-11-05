@@ -22,7 +22,8 @@ function parse(s: string): ReactNode[] {
   let k = 0;
   while ((m = re.exec(s))) {
     if (m.index > last) out.push(s.slice(last, m.index));
-    const [, op, body] = m;
+    const op = m[1];
+    const body = m[2] ?? "";
     if (op === "^") out.push(<sup key={k++}>{body}</sup>);
     else if (op === "√" || op === "∛")
       out.push(
