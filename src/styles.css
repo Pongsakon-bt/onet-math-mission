@@ -165,6 +165,10 @@
   --highlight: oklch(0.88 0.16 95);
   --highlight-strong: oklch(0.72 0.17 70);
   --success: oklch(0.58 0.14 155);
+  --subj-math: oklch(0.48 0.16 258);
+  --subj-thai: oklch(0.55 0.2 25);
+  --subj-eng: oklch(0.55 0.15 150);
+  --subj-sci: oklch(0.5 0.18 300);
   --success-foreground: oklch(0.98 0.01 155);
   --chart-1: oklch(0.55 0.12 262);
   --chart-2: oklch(0.72 0.1 262);
@@ -177,6 +181,10 @@
   --color-highlight: var(--highlight);
   --color-highlight-strong: var(--highlight-strong);
   --color-success: var(--success);
+  --color-subj-math: var(--subj-math);
+  --color-subj-thai: var(--subj-thai);
+  --color-subj-eng: var(--subj-eng);
+  --color-subj-sci: var(--subj-sci);
   --color-success-foreground: var(--success-foreground);
   --font-sans: "Sarabun", system-ui, sans-serif;
   --font-display: "Mitr", "Sarabun", sans-serif;
