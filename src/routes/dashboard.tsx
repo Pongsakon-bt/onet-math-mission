@@ -10,6 +10,8 @@ import type { Subject } from "@/data/exam-types";
 import { strandsFor } from "@/data/strands";
 import { loadAttempts, loadStudied, strandScores, levelOf, type Attempt } from "@/lib/progress";
 import { cn } from "@/lib/utils";
+import { syncMyAttempts } from "@/lib/session";
+import { supabase } from "@/integrations/supabase/client";
 
 const LEVELS: Level[] = ["p6", "m3"];
 const LEVEL_NAMES: Record<Level, string> = { p6: "ป.6", m3: "ม.3" };
@@ -38,7 +40,15 @@ function Dashboard() {
   const { level, subject } = Route.useSearch();
   const [all, setAll] = useState<Attempt[] | null>(null);
   const [studied, setStudied] = useState<string[]>([]);
-  useEffect(() => { setAll(loadAttempts()); setStudied(loadStudied()); }, []);
+  const [synced, setSynced] = useState(false);
+  const [essays, setEssays] = useState<{ attempt_id: string; qid: string; no: string; prompt: string; max_points: number; score: number | null; comment: string | null }[]>([]);
+  useEffect(() => {
+    setAll(loadAttempts()); setStudied(loadStudied());
+    // Signed in: show results from every device, plus teacher-graded writing.
+    void syncMyAttempts().then((l) => { if (l) { setAll(l); setSynced(true); } });
+    void supabase.from("essay_answers").select("attempt_id, qid, no, prompt, max_points, score, comment").order("created_at", { ascending: false }).limit(50)
+      .then(({ data }) => setEssays(data ?? []));
+  }, []);
 
   const strands = strandsFor(subject);
   const mine = useMemo(() => (all ?? []).filter((a) => a.level === level && a.subject === subject).sort((a, b) => a.at - b.at), [all, level, subject]);
@@ -64,7 +74,7 @@ function Dashboard() {
   const todo = strands.map((n, i) => ({ n, i, pct: latest.get(n) })).sort((a, b) => (a.pct ?? -1) - (b.pct ?? -1));
 
   return (
-    <PageShell title="แดชบอร์ดของฉัน" sub="ผลเก็บไว้ในเครื่องนี้">
+    <PageShell title="แดชบอร์ดของฉัน" sub={synced ? "ผลจากบัญชีของคุณ (ทุกเครื่อง)" : "ผลเก็บไว้ในเครื่องนี้"}>
       <main className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:px-4">
           <div className="flex flex-wrap gap-2">
