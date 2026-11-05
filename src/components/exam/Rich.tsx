@@ -16,7 +16,7 @@ export function Rich({ text }: { text: string }) {
 
 function parse(s: string): ReactNode[] {
   const out: ReactNode[] = [];
-  const re = /(√|∛|\^)?\{([^{}]+)\}/g;
+  const re = /(√|∛|\^|_)?\{([^{}]+)\}/g;
   let last = 0;
   let m: RegExpExecArray | null;
   let k = 0;
@@ -25,6 +25,7 @@ function parse(s: string): ReactNode[] {
     const op = m[1];
     const body = m[2] ?? "";
     if (op === "^") out.push(<sup key={k++}>{body}</sup>);
+    else if (op === "_") out.push(<u key={k++} className="underline-offset-4">{body}</u>);
     else if (op === "√" || op === "∛")
       out.push(
         <span key={k++} className="inline-flex items-baseline whitespace-nowrap">
