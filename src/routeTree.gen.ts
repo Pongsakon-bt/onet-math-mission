@@ -10,43 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ExamLevelRouteImport } from './routes/exam.$level'
+import { Route as ExamKeyRouteImport } from './routes/exam.$key'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExamLevelRoute = ExamLevelRouteImport.update({
-  id: '/exam/$level',
-  path: '/exam/$level',
+const ExamKeyRoute = ExamKeyRouteImport.update({
+  id: '/exam/$key',
+  path: '/exam/$key',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/exam/$level': typeof ExamLevelRoute
+  '/exam/$key': typeof ExamKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/exam/$level': typeof ExamLevelRoute
+  '/exam/$key': typeof ExamKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/exam/$level': typeof ExamLevelRoute
+  '/exam/$key': typeof ExamKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/exam/$level'
+  fullPaths: '/' | '/exam/$key'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/exam/$level'
-  id: '__root__' | '/' | '/exam/$level'
+  to: '/' | '/exam/$key'
+  id: '__root__' | '/' | '/exam/$key'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ExamLevelRoute: typeof ExamLevelRoute
+  ExamKeyRoute: typeof ExamKeyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,11 +58,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/exam/$level': {
-      id: '/exam/$level'
-      path: '/exam/$level'
-      fullPath: '/exam/$level'
-      preLoaderRoute: typeof ExamLevelRouteImport
+    '/exam/$key': {
+      id: '/exam/$key'
+      path: '/exam/$key'
+      fullPath: '/exam/$key'
+      preLoaderRoute: typeof ExamKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -70,7 +70,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ExamLevelRoute: ExamLevelRoute,
+  ExamKeyRoute: ExamKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
