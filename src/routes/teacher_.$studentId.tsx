@@ -162,11 +162,11 @@ function EssayCard({ e, onSaved }: { e: Essay; onSaved: (e: Essay) => void }) {
   const [busy, setBusy] = useState(false);
   const save = async () => {
     const n = Number(score);
-    if (score === "" || Number.isNaN(n) || n < 0 || n > e.max_points) return toast.error(`ใส่คะแนน 0–${e.max_points}`);
+    if (score === "" || Number.isNaN(n) || n < 0 || n > e.max_points) { toast.error(`ใส่คะแนน 0–${e.max_points}`); return; }
     setBusy(true);
     const { error } = await supabase.from("essay_answers").update({ score: n, comment: comment.trim() || null }).eq("attempt_id", e.attempt_id).eq("qid", e.qid);
     setBusy(false);
-    if (error) return toast.error("บันทึกไม่สำเร็จ");
+    if (error) { toast.error("บันทึกไม่สำเร็จ"); return; }
     toast.success("บันทึกคะแนนแล้ว");
     onSaved({ ...e, score: n, comment: comment.trim() || null });
   };
