@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ExamRunner } from "./ExamRunner";
 import { buildExam, pickIds, poolFor } from "@/data/pool";
 import { topicFrequency } from "@/data/analysis";
+import { strandsFor } from "@/data/strands";
 import type { Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
 import { loadAttempts, saveAttempt, strandScores, levelOf, type AttemptKind } from "@/lib/progress";
@@ -69,9 +70,10 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
         <div className="shrink-0 border-b border-border bg-secondary/60">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-3 py-2 text-sm sm:px-4">
             {[...strandScores(last.items)].map(([n, v]) => (
-              <span key={n} className="rounded-full bg-card px-2.5 py-0.5">
-                {n} <b>{v.pct}%</b> <span className="text-muted-foreground">({levelOf(v.pct)})</span>
-              </span>
+              <Link key={n} to="/learn/$level/$subject/$strand" params={{ level, subject, strand: String(strandsFor(subject).indexOf(n)) }}
+                className="rounded-full bg-card px-2.5 py-0.5 underline-offset-2 hover:underline">
+                {n} <b>{v.pct}%</b> <span className="text-muted-foreground">({levelOf(v.pct)}) · ไปเรียน →</span>
+              </Link>
             ))}
             <div className="ml-auto flex gap-2">
               <Button size="sm" variant="outline" onClick={() => { setSubmitted(false); newSet(state.round + 1); }}><Shuffle /> สุ่มชุดใหม่</Button>
