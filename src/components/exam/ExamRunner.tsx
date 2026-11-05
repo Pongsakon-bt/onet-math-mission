@@ -156,7 +156,7 @@ function Verdict({ ok }: { ok: boolean }) {
   );
 }
 
-function McqInput({ q, value, onChange, submitted }: { q: Extract<Question, { type: "mcq" }>; value?: number; onChange: (v: number) => void; submitted: boolean }) {
+function McqInput({ q, value, onChange, submitted }: { q: Extract<Question, { type: "mcq" }>; value: number | undefined; onChange: (v: number) => void; submitted: boolean }) {
   const shapes = q.choices.some((c) => c.shape);
   return (
     <div className={cn("grid gap-3", shapes ? "grid-cols-2" : "sm:grid-cols-2")}>
