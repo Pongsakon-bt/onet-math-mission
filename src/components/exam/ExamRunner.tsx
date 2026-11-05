@@ -64,20 +64,20 @@ export function ExamRunner({ exam }: { exam: Exam }) {
       <QuestionStrip exam={exam} idx={idx} setIdx={setIdx} answers={answers} submitted={submitted} answeredCount={answeredCount} result={result} />
 
       <article key={q.id} className="animate-in fade-in mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col px-3 py-2 sm:px-4">
-        <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto rounded-2xl border border-border bg-card p-3 shadow-paper sm:p-5 md:grid-cols-2 md:overflow-hidden landscape:grid-cols-2 landscape:overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-y-auto md:grid landscape:grid rounded-2xl border border-border bg-card p-3 shadow-paper sm:p-5 md:grid-cols-2 md:overflow-hidden landscape:grid-cols-2 landscape:overflow-hidden">
           {/* Left: the question */}
-          <section className="min-h-0 md:overflow-y-auto landscape:overflow-y-auto md:pr-2 landscape:pr-2">
+          <section className="min-w-0 shrink-0 md:min-h-0 landscape:min-h-0 md:shrink landscape:shrink md:overflow-y-auto landscape:overflow-y-auto md:pr-2 landscape:pr-2">
             <div className="mb-2 flex items-center gap-2">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary font-display text-primary-foreground">{q.no}</span>
               <p className="min-w-0 truncate text-xs text-muted-foreground">{q.topic} · {q.points} คะแนน</p>
               {submitted && <Verdict ok={isCorrect(q, answers[q.id])} />}
             </div>
-            <p className="text-base leading-relaxed sm:text-lg"><Rich text={q.prompt} /></p>
+            <p className="text-base leading-relaxed sm:text-lg [@media(max-height:500px)]:text-sm"><Rich text={q.prompt} /></p>
             {q.figure && <div className="mt-3"><FigureView figure={q.figure} /></div>}
           </section>
 
           {/* Right: answer + hints */}
-          <section className="flex min-h-0 flex-col gap-3 md:overflow-y-auto landscape:overflow-y-auto md:border-l md:pl-4 landscape:border-l landscape:pl-4 border-border">
+          <section className="flex min-w-0 shrink-0 flex-col gap-3 md:min-h-0 landscape:min-h-0 md:overflow-y-auto landscape:overflow-y-auto md:border-l md:pl-4 landscape:border-l landscape:pl-4 border-border">
             {q.promptAfter && <p className="font-semibold leading-relaxed sm:text-lg"><Rich text={q.promptAfter} /></p>}
             <p className="text-xs font-medium text-muted-foreground">
               {q.type === "mcq" ? "แตะเลือก 1 คำตอบ" : q.type === "numeric" ? "กดตัวเลขคำตอบ" : "ตอบ ใช่ / ไม่ใช่ ทุกข้อย่อย"}
@@ -135,8 +135,8 @@ function QuestionStrip({ exam, idx, setIdx, answers, submitted, answeredCount, r
   }, [idx]);
   const n = exam.questions.length;
   return (
-    <nav aria-label="แผนผังข้อสอบ" className="border-b border-border bg-card">
-      <div className="mx-auto max-w-6xl px-3 py-2 sm:px-4">
+    <nav aria-label="แผนผังข้อสอบ" className="shrink-0 border-b border-border bg-card">
+      <div className="mx-auto max-w-6xl px-3 py-2 sm:px-4 [@media(max-height:500px)]:py-1">
         <div className="mb-1.5 flex items-center justify-between gap-2 text-xs sm:text-sm">
           <p className="font-semibold">ข้อ {idx + 1}/{n}</p>
           <div className="mx-2 h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">

@@ -37,7 +37,7 @@ function ExamPage() {
   const exam = exams[level];
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background">
-      <div className="shrink-0 border-b border-border bg-background">
+      <div className="shrink-0 border-b border-border bg-background [@media(max-height:500px)]:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-1.5 sm:px-4">
           <Link to="/" className="font-display text-lg text-primary">โจทย์คณิต<span className="text-highlight-strong">.</span></Link>
           <div className="min-w-0 text-right">
