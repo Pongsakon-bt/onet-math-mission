@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ExamKeyRouteImport } from './routes/exam.$key'
 import { Route as DiagnosticLevelSubjectRouteImport } from './routes/diagnostic.$level.$subject'
 import { Route as LearnLevelSubjectStrandRouteImport } from './routes/learn.$level.$subject.$strand'
@@ -17,6 +18,11 @@ import { Route as LearnLevelSubjectStrandRouteImport } from './routes/learn.$lev
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExamKeyRoute = ExamKeyRouteImport.update({
@@ -37,12 +43,14 @@ const LearnLevelSubjectStrandRoute = LearnLevelSubjectStrandRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
@@ -50,6 +58,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/exam/$key': typeof ExamKeyRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
@@ -58,18 +67,21 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard'
     | '/exam/$key'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard'
     | '/exam/$key'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
   id:
     | '__root__'
     | '/'
+    | '/dashboard'
     | '/exam/$key'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
@@ -77,6 +89,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
   ExamKeyRoute: typeof ExamKeyRoute
   DiagnosticLevelSubjectRoute: typeof DiagnosticLevelSubjectRoute
   LearnLevelSubjectStrandRoute: typeof LearnLevelSubjectStrandRoute
@@ -89,6 +102,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/exam/$key': {
@@ -117,6 +137,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   ExamKeyRoute: ExamKeyRoute,
   DiagnosticLevelSubjectRoute: DiagnosticLevelSubjectRoute,
   LearnLevelSubjectStrandRoute: LearnLevelSubjectStrandRoute,
