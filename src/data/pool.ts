@@ -30,13 +30,36 @@ function shuffle<T>(a: T[]): T[] {
 export function pickIds(pool: PoolQuestion[], subject: Subject, perStrand: number, onlyStrand?: string, seen: Set<string> = new Set(), freq?: Map<string, number>) {
   const names = onlyStrand ? [onlyStrand] : strandsFor(subject);
   const f = (q: PoolQuestion) => freq?.get(baseTopic(q.topic)) ?? 0;
-  return names.flatMap((n) => {
+  const picked = names.flatMap((n) => {
     const qs = pool.filter((q) => q.strand === n);
     // Frequently tested topics (appear in more years) come first; random order within the same frequency.
     const fresh = shuffle(qs.filter((q) => !seen.has(q.id))).sort((a, b) => f(b) - f(a));
     const old = shuffle(qs.filter((q) => seen.has(q.id)));
     return [...fresh, ...old].slice(0, perStrand).map((q) => q.id);
   });
+  return withPassageGroups(pool, picked);
+}
+
+/** Questions that share one reading passage/situation are a set: if one is picked, bring all of
+ *  its siblings along, kept together and in their original order, so no question loses its context. */
+export function withPassageGroups(pool: PoolQuestion[], ids: string[]): string[] {
+  const key = (q: PoolQuestion) => (q.passage ? `${q.fromYear}|${q.passage}` : null);
+  const groups = new Map<string, PoolQuestion[]>();
+  for (const q of pool) {
+    const k = key(q);
+    if (k) groups.set(k, [...(groups.get(k) ?? []), q]);
+  }
+  const byId = new Map(pool.map((q) => [q.id, q]));
+  const out: string[] = [];
+  const done = new Set<string>();
+  for (const id of ids) {
+    if (done.has(id)) continue;
+    const q = byId.get(id);
+    const k = q && key(q);
+    const set = k ? [...groups.get(k)!].sort((a, b) => a.no - b.no) : q ? [q] : [];
+    for (const s of set) if (!done.has(s.id)) { done.add(s.id); out.push(s.id); }
+  }
+  return out;
 }
 
 /** Wrap chosen questions as a temporary exam (renumbered 1..n). Topic shows the source year. */
