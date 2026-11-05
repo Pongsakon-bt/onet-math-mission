@@ -16,7 +16,7 @@ type Props = {
   title: string;
   /** Questions per strand; ignored when `all` is set. */
   perStrand?: number;
-  strand?: string;
+  strand?: string | undefined;
   /** Use every question of the strand (practice mode). */
   all?: boolean;
 };

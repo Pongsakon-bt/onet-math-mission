@@ -8,7 +8,7 @@ import { strandsFor } from "@/data/strands";
 const LEVEL_NAMES: Record<Level, string> = { p6: "ป.6", m3: "ม.3" };
 
 export const Route = createFileRoute("/diagnostic/$level/$subject")({
-  validateSearch: (s: Record<string, unknown>) => ({ strand: s.strand === undefined ? undefined : Number(s.strand) }),
+  validateSearch: (s: Record<string, unknown>) => ({ strand: s['strand'] === undefined ? undefined : Number(s['strand']) }),
   loader: ({ params }) => {
     if (!(params.level in LEVEL_NAMES) || !(params.subject in SUBJECT_NAMES)) throw notFound();
     return { level: params.level as Level, subject: params.subject as Subject };

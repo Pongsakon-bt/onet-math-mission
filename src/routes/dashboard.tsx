@@ -18,8 +18,8 @@ const KIND: Record<Attempt["kind"], string> = { diagnostic: "วัดพื้�
 
 export const Route = createFileRoute("/dashboard")({
   validateSearch: (s: Record<string, unknown>) => ({
-    level: (LEVELS.includes(s.level as Level) ? s.level : "p6") as Level,
-    subject: (SUBJECTS.includes(s.subject as Subject) ? s.subject : "math") as Subject,
+    level: (LEVELS.includes(s['level'] as Level) ? s['level'] : "p6") as Level,
+    subject: (SUBJECTS.includes(s['subject'] as Subject) ? s['subject'] : "math") as Subject,
   }),
   head: () => ({
     meta: [
