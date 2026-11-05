@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as ExamKeyRouteImport } from './routes/exam.$key'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as AnalysisLevelSubjectRouteImport } from './routes/analysis.$level.$subject'
@@ -43,6 +44,11 @@ const LoginRoute = LoginRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeacherRoute = TeacherRouteImport.update({
+  id: '/teacher',
+  path: '/teacher',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExamKeyRoute = ExamKeyRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/teacher': typeof TeacherRoute
   '/exam/$key': typeof ExamKeyRoute
   '/result/$id': typeof ResultIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/teacher': typeof TeacherRoute
   '/exam/$key': typeof ExamKeyRoute
   '/result/$id': typeof ResultIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/teacher': typeof TeacherRoute
   '/exam/$key': typeof ExamKeyRoute
   '/result/$id': typeof ResultIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/teacher'
     | '/exam/$key'
     | '/result/$id'
     | '/analysis/$level/$subject'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/teacher'
     | '/exam/$key'
     | '/result/$id'
     | '/analysis/$level/$subject'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/teacher'
     | '/exam/$key'
     | '/result/$id'
     | '/analysis/$level/$subject'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  TeacherRoute: typeof TeacherRoute
   ExamKeyRoute: typeof ExamKeyRoute
   ResultIdRoute: typeof ResultIdRoute
   AnalysisLevelSubjectRoute: typeof AnalysisLevelSubjectRoute
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teacher': {
+      id: '/teacher'
+      path: '/teacher'
+      fullPath: '/teacher'
+      preLoaderRoute: typeof TeacherRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/exam/$key': {
@@ -241,6 +261,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  TeacherRoute: TeacherRoute,
   ExamKeyRoute: ExamKeyRoute,
   ResultIdRoute: ResultIdRoute,
   AnalysisLevelSubjectRoute: AnalysisLevelSubjectRoute,
