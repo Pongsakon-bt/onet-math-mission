@@ -16,7 +16,6 @@ export type TRow = { user_id: string; kind: string; level: string; subject: stri
 export type TClass = { id: string; teacher_id: string; grade: string; room: string; subject: string };
 
 const SUBJECTS = Object.keys(SUBJECT_NAMES) as Subject[];
-const KIND_NAMES: Record<AssignmentKind, string> = { pre1: "PRE O-NET ครั้งที่ 1", pre2: "PRE O-NET ครั้งที่ 2", drill: "ข้อสอบย่อยรายเรื่อง" };
 const sel = "h-9 rounded-md border border-input bg-background px-2 text-sm";
 const card = "rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6";
 
