@@ -65,6 +65,30 @@ export type Database = {
         }
         Relationships: []
       }
+      drill_sets: {
+        Row: {
+          created_at: string
+          items: Json
+          level: string
+          subject: string
+          topic: string
+        }
+        Insert: {
+          created_at?: string
+          items?: Json
+          level: string
+          subject: string
+          topic: string
+        }
+        Update: {
+          created_at?: string
+          items?: Json
+          level?: string
+          subject?: string
+          topic?: string
+        }
+        Relationships: []
+      }
       essay_answers: {
         Row: {
           answer: string
