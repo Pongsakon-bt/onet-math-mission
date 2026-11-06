@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, FileDown, PenLine } from "lucide-react";
+import { ArrowLeft, FileDown, PenLine, Sparkles } from "lucide-react";
 import { printReport } from "@/lib/print-report";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ import { isPassed, nextTopic, topicSkill } from "@/lib/skill";
 import { StatusPill } from "@/components/StatusPill";
 import { levelOf, strandScores, type Attempt } from "@/lib/progress";
 import { cn } from "@/lib/utils";
-import { Sparkles } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { suggestEssayGrade } from "@/lib/insights.functions";
 import { PredictionCard } from "@/components/PredictionCard";
@@ -131,7 +130,7 @@ function StudentPage() {
                 <Button size="sm" className="ml-auto" onClick={() => printReport("student", `รายงาน ${name ?? ""} ${SUBJECT_NAMES[subject]} ${LEVEL_NAMES[level]}`)}><FileDown /> PDF รายบุคคล</Button>
               </div>
 
-              <PredictionCard level={level} subject={subject} attempts={attempts} studentName={name ?? undefined} />
+              <PredictionCard level={level} subject={subject} attempts={attempts} studentId={studentId} />
 
               {essays.length > 0 && (
                 <section className="no-print rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
