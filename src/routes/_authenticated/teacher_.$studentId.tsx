@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, FileDown, PenLine } from "lucide-react";
+import { ArrowLeft, FileDown, PenLine, Sparkles } from "lucide-react";
 import { printReport } from "@/lib/print-report";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,9 @@ import { isPassed, nextTopic, topicSkill } from "@/lib/skill";
 import { StatusPill } from "@/components/StatusPill";
 import { levelOf, strandScores, type Attempt } from "@/lib/progress";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { suggestEssayGrade } from "@/lib/insights.functions";
+import { PredictionCard } from "@/components/PredictionCard";
 
 export const Route = createFileRoute("/_authenticated/teacher_/$studentId")({
   head: () => {
@@ -35,7 +38,7 @@ export const Route = createFileRoute("/_authenticated/teacher_/$studentId")({
   component: StudentPage,
 });
 
-type Essay = { attempt_id: string; qid: string; no: string; prompt: string; max_points: number; answer: string; score: number | null; comment: string | null; created_at: string };
+type Essay = { attempt_id: string; qid: string; no: string; prompt: string; max_points: number; answer: string; score: number | null; comment: string | null; created_at: string; ai_score: number | null; ai_feedback: string | null };
 const LEVEL_NAMES: Record<Level, string> = { p6: "ป.6", m3: "ม.3" };
 const KIND: Record<Attempt["kind"], string> = { diagnostic: "วัดพื้นฐาน", retest: "สอบซ้ำ", practice: "ฝึก", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย", pre1: "PRE O-NET ครั้งที่ 1", pre2: "PRE O-NET ครั้งที่ 2" };
 const tone = (p: number) => (p < 50 ? "bg-destructive" : p < 75 ? "bg-accent" : "bg-primary");
@@ -58,7 +61,7 @@ function StudentPage() {
       const [{ data: p }, { data: att }, { data: es }] = await Promise.all([
         supabase.from("profiles").select("first_name, last_name").eq("id", studentId).maybeSingle(),
         supabase.from("attempts").select("id, kind, level, subject, label, at, ms, items").eq("user_id", studentId).order("at", { ascending: true }).limit(2000),
-        supabase.from("essay_answers").select("attempt_id, qid, no, prompt, max_points, answer, score, comment, created_at").eq("user_id", studentId).order("created_at", { ascending: false }),
+        supabase.from("essay_answers").select("attempt_id, qid, no, prompt, max_points, answer, score, comment, created_at, ai_score, ai_feedback").eq("user_id", studentId).order("created_at", { ascending: false }),
       ]);
       setName(p ? `${p.first_name} ${p.last_name}` : null);
       setAttempts((att ?? []).map(fromRow));
@@ -126,6 +129,8 @@ function StudentPage() {
                 {(Object.keys(SUBJECT_NAMES) as Subject[]).map((s) => <Chip key={s} on={s === subject} onClick={() => pick(level, s)}>{SUBJECT_NAMES[s]}</Chip>)}
                 <Button size="sm" className="ml-auto" onClick={() => printReport("student", `รายงาน ${name ?? ""} ${SUBJECT_NAMES[subject]} ${LEVEL_NAMES[level]}`)}><FileDown /> PDF รายบุคคล</Button>
               </div>
+
+              <PredictionCard level={level} subject={subject} attempts={attempts} studentId={studentId} />
 
               {essays.length > 0 && (
                 <section className="no-print rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
@@ -206,6 +211,16 @@ function EssayCard({ e, onSaved }: { e: Essay; onSaved: (e: Essay) => void }) {
   const [score, setScore] = useState(e.score === null ? "" : String(e.score));
   const [comment, setComment] = useState(e.comment ?? "");
   const [busy, setBusy] = useState(false);
+  const [ai, setAi] = useState<{ score: number; feedback: string } | null>(e.ai_score !== null && e.ai_feedback ? { score: e.ai_score, feedback: e.ai_feedback } : null);
+  const [aiBusy, setAiBusy] = useState(false);
+  const suggest = useServerFn(suggestEssayGrade);
+  const askAi = async () => {
+    setAiBusy(true);
+    const r = await suggest({ data: { attempt_id: e.attempt_id, qid: e.qid } }).catch(() => ({ ok: false as const, error: "AI ตรวจไม่สำเร็จ" }));
+    setAiBusy(false);
+    if (!r.ok) { toast.error(r.error); return; }
+    setAi({ score: r.score, feedback: r.feedback });
+  };
   const save = async () => {
     const n = Number(score);
     if (score === "" || Number.isNaN(n) || n < 0 || n > e.max_points) { toast.error(`ใส่คะแนน 0–${e.max_points}`); return; }
@@ -224,6 +239,15 @@ function EssayCard({ e, onSaved }: { e: Essay; onSaved: (e: Essay) => void }) {
       </div>
       <p className="mt-1 line-clamp-3 text-sm text-muted-foreground">{e.prompt}</p>
       <p className="mt-2 whitespace-pre-wrap rounded-lg bg-secondary/60 p-3">{e.answer}</p>
+      {ai ? (
+        <div className="mt-2 rounded-lg border border-primary/40 bg-primary/5 p-3 text-sm">
+          <p className="flex flex-wrap items-center gap-2 font-semibold"><Sparkles className="h-4 w-4 text-primary" /> AI แนะนำ {ai.score}/{e.max_points} คะแนน <span className="text-xs font-normal text-muted-foreground">(ร่างเบื้องต้น ครูเป็นผู้ตัดสิน)</span></p>
+          <p className="mt-1 whitespace-pre-wrap">{ai.feedback}</p>
+          <Button size="sm" variant="outline" className="mt-2" onClick={() => { setScore(String(ai.score)); setComment(ai.feedback); }}>ใช้คะแนนและความเห็นนี้</Button>
+        </div>
+      ) : (
+        <Button size="sm" variant="outline" className="mt-2" onClick={askAi} disabled={aiBusy}><Sparkles /> {aiBusy ? "AI กำลังตรวจ..." : "ให้ AI ช่วยตรวจร่าง"}</Button>
+      )}
       <div className="mt-2 flex flex-wrap items-start gap-2">
         <Input aria-label="คะแนน" inputMode="decimal" className="w-24" placeholder={`0–${e.max_points}`} value={score} onChange={(ev) => setScore(ev.target.value)} />
         <Textarea aria-label="ความเห็นครู" className="min-h-9 flex-1" rows={1} placeholder="ความเห็นถึงนักเรียน (ไม่บังคับ)" value={comment} onChange={(ev) => setComment(ev.target.value)} />

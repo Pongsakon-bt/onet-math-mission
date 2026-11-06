@@ -72,3 +72,13 @@ export function nextTopic<T extends { topic: string; skill: number | null; years
   return open[0] ?? null;
 }
 export const subjectReady = (rows: { skill: number | null }[]) => rows.length > 0 && rows.every((r) => isPassed(r.skill));
+
+/** PRE O-NET round 2 percent that counts as "ดีเยี่ยม" for a certificate. */
+export const EXCELLENT_PCT = 80;
+export type CertificateReason = "mastered" | "excellent";
+/** Certificate for a subject: every topic passed, or a PRE O-NET round 2 at EXCELLENT_PCT or more. */
+export function certificateReason(all: Attempt[], level: Level, subject: Subject, rows: { skill: number | null }[]): { reason: CertificateReason; pct?: number } | null {
+  if (subjectReady(rows)) return { reason: "mastered" };
+  const best = mine(all, level, subject).filter((a) => a.kind === "pre2").map(attemptPct).sort((a, b) => b - a)[0];
+  return best !== undefined && best >= EXCELLENT_PCT ? { reason: "excellent", pct: best } : null;
+}

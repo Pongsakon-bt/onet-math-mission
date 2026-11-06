@@ -7,10 +7,11 @@ import { isCorrect, scoreExam, type Exam, type Question } from "@/data/exams";
 import { hints } from "@/data/hints";
 import { Rich } from "./Rich";
 import { FigureView, ShapeChoice } from "./Figures";
+import { Speak } from "./Speak";
 
 type Answers = Record<string, unknown>;
 
-export function ExamRunner({ exam, storageKey, onStatus }: { exam: Exam; storageKey: string; onStatus?: (submitted: boolean, answers: Record<string, unknown>) => void }) {
+export function ExamRunner({ exam, storageKey, onStatus, mock, timeUp }: { exam: Exam; storageKey: string; onStatus?: (submitted: boolean, answers: Record<string, unknown>) => void; mock?: boolean; timeUp?: boolean }) {
   const key = `exam-answers-${storageKey}`;
   const [answers, setAnswers] = useState<Answers>({});
   const [idx, setIdx] = useState(0);
@@ -39,6 +40,8 @@ export function ExamRunner({ exam, storageKey, onStatus }: { exam: Exam; storage
   useEffect(() => {
     if (loaded) onStatus?.(submitted, answers);
   }, [submitted, loaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { if (loaded && timeUp && !submitted) { setConfirm(false); setSubmitted(true); } }, [timeUp, loaded, submitted]);
 
   const qs = exam.questions;
   const q = qs[idx] ?? qs[0]!;
@@ -79,10 +82,11 @@ export function ExamRunner({ exam, storageKey, onStatus }: { exam: Exam; storage
             </div>
             {q.passage && (
               <div className="mb-3 whitespace-pre-line rounded-xl border border-border bg-secondary/50 p-3 text-sm leading-relaxed sm:text-base">
+                {exam.subject === "eng" && <Speak text={q.passage} />}
                 <Rich text={q.passage} />
               </div>
             )}
-            <p className="text-base leading-relaxed sm:text-lg [@media(max-height:500px)]:text-sm"><Rich text={q.prompt} /></p>
+            <p className="text-base leading-relaxed sm:text-lg [@media(max-height:500px)]:text-sm">{exam.subject === "eng" && <Speak text={q.prompt} />}<Rich text={q.prompt} /></p>
             {q.figure && <div className="mt-3"><FigureView figure={q.figure} /></div>}
           </section>
 
@@ -101,7 +105,7 @@ export function ExamRunner({ exam, storageKey, onStatus }: { exam: Exam; storage
             {q.type === "multi" && <MultiInput q={q} value={(answers[q.id] as number[]) ?? []} onChange={setAns} submitted={submitted} />}
             {q.type === "numeric" && <NumericInput q={q} value={(answers[q.id] as string) ?? ""} onChange={setAns} submitted={submitted} />}
             {q.type === "truefalse" && <TrueFalseInput q={q} value={(answers[q.id] as Record<string, boolean>) ?? {}} onChange={setAns} submitted={submitted} />}
-            <HintBox q={q} submitted={submitted} />
+            {mock && !submitted ? <p className="rounded-xl bg-secondary/60 p-3 text-xs text-muted-foreground">โหมดสอบจริง: ไม่มีคำใบ้ เฉลยจะแสดงหลังส่งกระดาษคำตอบ</p> : <HintBox q={q} submitted={submitted} />}
           </section>
         </div>
       </article>

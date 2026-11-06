@@ -34,3 +34,22 @@ export function cleanRoom(v: unknown): string | null {
 
 export const classLabel = (grade: string | null, room: string | null) =>
   grade ? `${grade === "p6" ? "ป.6" : "ม.3"}${room ? `/${room}` : ""}` : "ยังไม่ระบุชั้น";
+
+export type AssignmentAlert = "done" | "late" | "soon" | "new" | "todo";
+/** Days before the due date that count as "ใกล้ครบกำหนด". */
+export const SOON_DAYS = 2;
+
+/** Badge for one assignment on the student's dashboard: late > due soon > not yet opened > to do. */
+export function assignmentAlert(a: Assignment, attempts: AttemptLike[], seen: ReadonlySet<string>, now = Date.now()): AssignmentAlert {
+  const st = assignmentStatus(a, attempts, now);
+  if (st !== "todo") return st;
+  if (a.due_at && new Date(a.due_at).getTime() - now <= SOON_DAYS * 86400000) return "soon";
+  return seen.has(a.id) ? "todo" : "new";
+}
+
+const ALERT_ORDER: Record<AssignmentAlert, number> = { late: 0, soon: 1, new: 2, todo: 3, done: 4 };
+/** Most urgent first, then the nearest due date. */
+export function sortByUrgency<T extends Assignment>(list: T[], alertOf: (a: T) => AssignmentAlert): T[] {
+  const due = (a: T) => (a.due_at ? new Date(a.due_at).getTime() : Infinity);
+  return [...list].sort((x, y) => ALERT_ORDER[alertOf(x)] - ALERT_ORDER[alertOf(y)] || due(x) - due(y));
+}

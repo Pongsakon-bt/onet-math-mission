@@ -24,6 +24,7 @@ import { Route as AuthenticatedResultIdRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedTeacherStudentIdRouteImport } from './routes/_authenticated/teacher_.$studentId'
 import { Route as AuthenticatedAnalysisLevelSubjectRouteImport } from './routes/_authenticated/analysis.$level.$subject'
 import { Route as AuthenticatedBankLevelSubjectRouteImport } from './routes/_authenticated/bank.$level.$subject'
+import { Route as AuthenticatedCertificateLevelSubjectRouteImport } from './routes/_authenticated/certificate.$level.$subject'
 import { Route as AuthenticatedDevelopLevelSubjectRouteImport } from './routes/_authenticated/develop.$level.$subject'
 import { Route as AuthenticatedDiagnosticLevelSubjectRouteImport } from './routes/_authenticated/diagnostic.$level.$subject'
 import { Route as AuthenticatedDrillLevelSubjectTopicRouteImport } from './routes/_authenticated/drill.$level.$subject.$topic'
@@ -107,6 +108,12 @@ const AuthenticatedBankLevelSubjectRoute =
     path: '/bank/$level/$subject',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCertificateLevelSubjectRoute =
+  AuthenticatedCertificateLevelSubjectRouteImport.update({
+    id: '/certificate/$level/$subject',
+    path: '/certificate/$level/$subject',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDevelopLevelSubjectRoute =
   AuthenticatedDevelopLevelSubjectRouteImport.update({
     id: '/develop/$level/$subject',
@@ -153,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/teacher/$studentId': typeof AuthenticatedTeacherStudentIdRoute
   '/analysis/$level/$subject': typeof AuthenticatedAnalysisLevelSubjectRoute
   '/bank/$level/$subject': typeof AuthenticatedBankLevelSubjectRoute
+  '/certificate/$level/$subject': typeof AuthenticatedCertificateLevelSubjectRoute
   '/develop/$level/$subject': typeof AuthenticatedDevelopLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof AuthenticatedDiagnosticLevelSubjectRoute
   '/drill/$level/$subject/$topic': typeof AuthenticatedDrillLevelSubjectTopicRoute
@@ -174,6 +182,7 @@ export interface FileRoutesByTo {
   '/teacher/$studentId': typeof AuthenticatedTeacherStudentIdRoute
   '/analysis/$level/$subject': typeof AuthenticatedAnalysisLevelSubjectRoute
   '/bank/$level/$subject': typeof AuthenticatedBankLevelSubjectRoute
+  '/certificate/$level/$subject': typeof AuthenticatedCertificateLevelSubjectRoute
   '/develop/$level/$subject': typeof AuthenticatedDevelopLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof AuthenticatedDiagnosticLevelSubjectRoute
   '/drill/$level/$subject/$topic': typeof AuthenticatedDrillLevelSubjectTopicRoute
@@ -197,6 +206,7 @@ export interface FileRoutesById {
   '/_authenticated/teacher_/$studentId': typeof AuthenticatedTeacherStudentIdRoute
   '/_authenticated/analysis/$level/$subject': typeof AuthenticatedAnalysisLevelSubjectRoute
   '/_authenticated/bank/$level/$subject': typeof AuthenticatedBankLevelSubjectRoute
+  '/_authenticated/certificate/$level/$subject': typeof AuthenticatedCertificateLevelSubjectRoute
   '/_authenticated/develop/$level/$subject': typeof AuthenticatedDevelopLevelSubjectRoute
   '/_authenticated/diagnostic/$level/$subject': typeof AuthenticatedDiagnosticLevelSubjectRoute
   '/_authenticated/drill/$level/$subject/$topic': typeof AuthenticatedDrillLevelSubjectTopicRoute
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/teacher/$studentId'
     | '/analysis/$level/$subject'
     | '/bank/$level/$subject'
+    | '/certificate/$level/$subject'
     | '/develop/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/drill/$level/$subject/$topic'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/teacher/$studentId'
     | '/analysis/$level/$subject'
     | '/bank/$level/$subject'
+    | '/certificate/$level/$subject'
     | '/develop/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/drill/$level/$subject/$topic'
@@ -263,6 +275,7 @@ export interface FileRouteTypes {
     | '/_authenticated/teacher_/$studentId'
     | '/_authenticated/analysis/$level/$subject'
     | '/_authenticated/bank/$level/$subject'
+    | '/_authenticated/certificate/$level/$subject'
     | '/_authenticated/develop/$level/$subject'
     | '/_authenticated/diagnostic/$level/$subject'
     | '/_authenticated/drill/$level/$subject/$topic'
@@ -388,6 +401,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBankLevelSubjectRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/certificate/$level/$subject': {
+      id: '/_authenticated/certificate/$level/$subject'
+      path: '/certificate/$level/$subject'
+      fullPath: '/certificate/$level/$subject'
+      preLoaderRoute: typeof AuthenticatedCertificateLevelSubjectRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/develop/$level/$subject': {
       id: '/_authenticated/develop/$level/$subject'
       path: '/develop/$level/$subject'
@@ -434,6 +454,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeacherStudentIdRoute: typeof AuthenticatedTeacherStudentIdRoute
   AuthenticatedAnalysisLevelSubjectRoute: typeof AuthenticatedAnalysisLevelSubjectRoute
   AuthenticatedBankLevelSubjectRoute: typeof AuthenticatedBankLevelSubjectRoute
+  AuthenticatedCertificateLevelSubjectRoute: typeof AuthenticatedCertificateLevelSubjectRoute
   AuthenticatedDevelopLevelSubjectRoute: typeof AuthenticatedDevelopLevelSubjectRoute
   AuthenticatedDiagnosticLevelSubjectRoute: typeof AuthenticatedDiagnosticLevelSubjectRoute
   AuthenticatedDrillLevelSubjectTopicRoute: typeof AuthenticatedDrillLevelSubjectTopicRoute
@@ -450,6 +471,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnalysisLevelSubjectRoute:
     AuthenticatedAnalysisLevelSubjectRoute,
   AuthenticatedBankLevelSubjectRoute: AuthenticatedBankLevelSubjectRoute,
+  AuthenticatedCertificateLevelSubjectRoute:
+    AuthenticatedCertificateLevelSubjectRoute,
   AuthenticatedDevelopLevelSubjectRoute: AuthenticatedDevelopLevelSubjectRoute,
   AuthenticatedDiagnosticLevelSubjectRoute:
     AuthenticatedDiagnosticLevelSubjectRoute,
