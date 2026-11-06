@@ -53,3 +53,22 @@ export function topicSkill(all: Attempt[], level: Level, subject: Subject, topic
   const skill = raw === null ? null : Math.max(0, Math.min(100, Math.round(raw)));
   return { skill, realCorrect, realTotal, drillPct, drills: drills.length };
 }
+
+export type TopicStatus = "none" | "needs" | "fair" | "pass" | "mastered";
+/** ต้องติว < 50, พอใช้ 50–74, ผ่าน 75–99, เชี่ยวชาญ 100. */
+export function topicStatus(skill: number | null): TopicStatus {
+  if (skill === null) return "none";
+  if (skill >= 100) return "mastered";
+  if (skill >= 75) return "pass";
+  if (skill >= 50) return "fair";
+  return "needs";
+}
+export const isPassed = (skill: number | null) => skill !== null && skill >= 75;
+
+/** Next topic to study: not yet passed, lowest skill first, then most frequently examined. */
+export function nextTopic<T extends { topic: string; skill: number | null; years: unknown[] }>(rows: T[], exclude?: string): T | null {
+  const open = rows.filter((r) => r.topic !== exclude && !isPassed(r.skill));
+  open.sort((a, b) => (a.skill ?? -1) - (b.skill ?? -1) || b.years.length - a.years.length);
+  return open[0] ?? null;
+}
+export const subjectReady = (rows: { skill: number | null }[]) => rows.length > 0 && rows.every((r) => isPassed(r.skill));
