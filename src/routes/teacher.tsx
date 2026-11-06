@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { KeyRound, LogOut, Users } from "lucide-react";
+import { FileDown, KeyRound, LogOut, Users } from "lucide-react";
+import { printReport } from "@/lib/print-report";
 import { Button } from "@/components/ui/button";
 import { PageShell } from "@/components/PageShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -113,20 +114,31 @@ function TeacherPage() {
             <div>
               <h1 className="font-display text-xl">สวัสดี ครู{acc.first} {acc.last}</h1>
             </div>
-            <Button variant="outline" size="sm" onClick={signOut}><LogOut /> ออกจากระบบ</Button>
+            <div className="no-print flex flex-wrap gap-2">
+              <Button size="sm" onClick={() => printReport("school", `รายงานโรงเรียน${acc.schoolName}`)}><FileDown /> PDF รายโรงเรียน</Button>
+              <Button variant="outline" size="sm" onClick={signOut}><LogOut /> ออกจากระบบ</Button>
+            </div>
           </div>
+          <p className="print-only text-xs text-muted-foreground">พิมพ์เมื่อ {new Date().toLocaleString("th-TH", { dateStyle: "long", timeStyle: "short" })} · COOL QUIZ : O-NET</p>
+
+          <div className="rep-school">
 
           <SchoolOverview acc={acc} school={school} students={students} rows={rows} pending={[...pending.values()].reduce((a, b) => a + b, 0)}
             onPick={(l, sub) => { setLevel(l); setSubject(sub); }} />
+          </div>
 
-          <h2 className="pt-2 font-display text-xl">รายละเอียด {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</h2>
+          <div className="rep-subject space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+            <h2 className="font-display text-xl">รายละเอียด {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</h2>
+            <Button size="sm" variant="outline" className="no-print" onClick={() => printReport("subject", `รายงาน${SUBJECT_NAMES[subject]} ${LEVEL_NAMES[level]} ${acc.schoolName}`)}><FileDown /> PDF รายวิชานี้</Button>
+          </div>
           <div className="grid grid-cols-3 gap-3">
             <Stat label="นักเรียนที่สมัคร" value={students.length} />
             <Stat label="ทำข้อสอบทั้งหมด" value={rows.length} />
             <Stat label={`ทำ${SUBJECT_NAMES[subject]} ${LEVEL_NAMES[level]}`} value={`${view.active} คน`} />
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="no-print flex flex-wrap gap-2">
             {LEVELS.map((l) => <Pill key={l} on={l === level} onClick={() => setLevel(l)}>{LEVEL_NAMES[l]}</Pill>)}
             <span className="mx-1 w-px bg-border" />
             {SUBJECTS.map((s) => <Pill key={s} on={s === subject} onClick={() => setSubject(s)}>{SUBJECT_NAMES[s]}</Pill>)}
@@ -155,12 +167,12 @@ function TeacherPage() {
                   <tbody className="divide-y divide-border">
                     {view.per.map((s) => (
                       <tr key={s.id}>
-                        <td className="py-2 font-semibold"><Link to="/teacher/$studentId" params={{ studentId: s.id }} className="text-primary underline-offset-2 hover:underline">{s.first} {s.last}</Link>{pending.get(s.id) ? <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-xs font-normal">ข้อเขียนรอตรวจ {pending.get(s.id)}</span> : null}</td>
+                        <td className="py-2 font-semibold"><Link to="/teacher/$studentId" params={{ studentId: s.id }} search={{ level, subject }} className="text-primary underline-offset-2 hover:underline">{s.first} {s.last}</Link>{pending.get(s.id) ? <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-xs font-normal">ข้อเขียนรอตรวจ {pending.get(s.id)}</span> : null}</td>
                         <td>{s.tests} ครั้ง</td>
                         <td>{s.firstPct === null ? "–" : `${s.firstPct}%`}</td>
                         <td>{s.lastPct === null ? "–" : <b>{s.lastPct}% <span className="font-normal text-muted-foreground">({levelOf(s.lastPct)})</span></b>}</td>
                         <td className="text-muted-foreground">{s.lastAt ? new Date(s.lastAt).toLocaleDateString("th-TH") : "–"}</td>
-                        <td className="text-right"><Button size="sm" variant="ghost" onClick={() => reset(s)}><KeyRound /> ตั้งรหัสใหม่</Button></td>
+                        <td className="no-print text-right"><Button size="sm" variant="ghost" onClick={() => reset(s)}><KeyRound /> ตั้งรหัสใหม่</Button></td>
                       </tr>
                     ))}
                   </tbody>
@@ -168,6 +180,7 @@ function TeacherPage() {
               </div>
             )}
           </section>
+          </div>
         </div>
       </main>
     </PageShell>
