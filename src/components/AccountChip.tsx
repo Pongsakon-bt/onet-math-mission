@@ -23,7 +23,9 @@ export function AccountChip({ tone = "default" }: { tone?: "default" | "navigati
   if (!acc) return <Link to="/login" className={chip}><UserRound className="h-4 w-4" /> เข้าสู่ระบบ</Link>;
   return (
     <span className="inline-flex items-center gap-2">
-      {acc.role === "teacher"
+      {acc.role === "admin"
+        ? <Link to="/admin" className={chip}><UserRound className="h-4 w-4" /> ผู้ดูแลระบบ</Link>
+        : acc.role === "teacher"
         ? <Link to="/teacher" className={chip}><UserRound className="h-4 w-4" /> หน้าครู</Link>
         : <span className={chip}><UserRound className="h-4 w-4 shrink-0" /> <span className="max-w-24 truncate">{acc.first}</span></span>}
       <Button variant="ghost" size="icon" aria-label="ออกจากระบบ" onClick={signOut} className={tone === "navigation" ? "text-nav-muted hover:bg-nav-hover hover:text-nav-text" : "border border-border bg-card"}><LogOut className="h-4 w-4" /></Button>
