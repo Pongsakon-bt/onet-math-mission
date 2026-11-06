@@ -6,13 +6,18 @@ import type { Subject } from "@/data/exam-types";
 import { analyzeSubject, baseTopic } from "@/data/analysis";
 import { loadAttempts, levelOf, type Attempt } from "@/lib/progress";
 import { cn } from "@/lib/utils";
+import { syncMyAttempts } from "@/lib/session";
 
 /** Every topic that has appeared in the subject's past exams = the full tutoring syllabus.
  *  Each topic is rated from the PRE O-NET round 1 result (ดี / พอใช้ / ต้องติว / ยังไม่ได้วัด). */
 export function TutorChecklist({ level, subject, attempts }: { level: Level; subject: Subject; attempts?: Attempt[] }) {
   const a = useMemo(() => analyzeSubject(level, subject), [level, subject]);
   const [local, setLocal] = useState<Attempt[]>([]);
-  useEffect(() => { if (!attempts) setLocal(loadAttempts()); }, [attempts]);
+  useEffect(() => {
+    if (attempts) return;
+    setLocal(loadAttempts());
+    syncMyAttempts().then((r) => { if (r) setLocal(r); }).catch(() => {});
+  }, [attempts]);
   const list = attempts ?? local;
   const [open, setOpen] = useState<string | null>(null);
   const pre1 = list.find((x) => x.kind === "pre1" && x.level === level && x.subject === subject);
