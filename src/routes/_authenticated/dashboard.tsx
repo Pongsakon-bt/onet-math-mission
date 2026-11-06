@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   validateSearch: (s: Record<string, unknown>) => ({
     level: (LEVELS.includes(s['level'] as Level) ? s['level'] : "p6") as Level,
     subject: (SUBJECTS.includes(s['subject'] as Subject) ? s['subject'] : "math") as Subject,
-    tab: (s['tab'] === "practice" ? "practice" : "learn") as "learn" | "practice",
+    tab: (s['tab'] === "practice" ? "practice" : undefined) as "practice" | undefined,
   }),
   head: () => ({
     meta: [
@@ -42,7 +42,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
-  const { level, subject, tab } = Route.useSearch();
+  const { level, subject, tab: tabParam } = Route.useSearch();
+  const tab = tabParam ?? "learn";
   const SubjIcon = subjectUi(subject).icon;
   const [all, setAll] = useState<Attempt[] | null>(null);
   const [studied, setStudied] = useState<string[]>([]);
@@ -89,7 +90,7 @@ function Dashboard() {
           </div>
           <div className="flex flex-wrap gap-2">
             {LEVELS.map((l) => (
-              <Link key={l} to="/dashboard" search={{ level: l, subject, tab }} className={cn("rounded-full border px-5 py-2 font-display text-lg", l === level ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{LEVEL_NAMES[l]}</Link>
+              <Link key={l} to="/dashboard" search={{ level: l, subject, tab: tabParam }} className={cn("rounded-full border px-5 py-2 font-display text-lg", l === level ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{LEVEL_NAMES[l]}</Link>
             ))}
           </div>
           {all && <LevelOverview level={level} all={all} />}
@@ -97,7 +98,7 @@ function Dashboard() {
           <h2 className="font-display text-xl">รายละเอียดรายวิชา</h2>
           <div className="flex flex-wrap gap-2">
             {SUBJECTS.map((s) => (
-              <Link key={s} to="/dashboard" search={{ level, subject: s, tab }} className={cn("flex items-center gap-2 rounded-xl border-2 px-4 py-2 font-semibold", s === subject ? cn(subjectUi(s).color, "border-transparent text-primary-foreground") : cn("border-border bg-card", subjectUi(s).text))}>{(() => { const I = subjectUi(s).icon; return <I className="h-5 w-5" />; })()} {SUBJECT_NAMES[s]}</Link>
+              <Link key={s} to="/dashboard" search={{ level, subject: s, tab: tabParam }} className={cn("flex items-center gap-2 rounded-xl border-2 px-4 py-2 font-semibold", s === subject ? cn(subjectUi(s).color, "border-transparent text-primary-foreground") : cn("border-border bg-card", subjectUi(s).text))}>{(() => { const I = subjectUi(s).icon; return <I className="h-5 w-5" />; })()} {SUBJECT_NAMES[s]}</Link>
             ))}
           </div>
 
@@ -116,7 +117,7 @@ function Dashboard() {
 
               <div className="grid grid-cols-2 gap-2">
                 {([["learn", "แหล่งเรียนรู้", Library], ["practice", "ฝึกทำข้อสอบ", PenLine]] as const).map(([k, label, Icon]) => (
-                  <Link key={k} to="/dashboard" search={{ level, subject, tab: k }} replace className={cn("flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 font-display text-lg transition-colors", tab === k ? "border-primary bg-primary text-primary-foreground" : "border-primary/40 bg-card text-primary hover:bg-primary/10")}><Icon className="h-5 w-5" /> {label}</Link>
+                  <Link key={k} to="/dashboard" search={{ level, subject, tab: k === "practice" ? "practice" : undefined }} replace className={cn("flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 font-display text-lg transition-colors", tab === k ? "border-primary bg-primary text-primary-foreground" : "border-primary/40 bg-card text-primary hover:bg-primary/10")}><Icon className="h-5 w-5" /> {label}</Link>
                 ))}
               </div>
               {tab === "learn" ? (<>
