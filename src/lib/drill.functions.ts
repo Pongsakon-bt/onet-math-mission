@@ -30,7 +30,7 @@ const SCHEMA = {
 } as const;
 
 function toQuestion(r: Raw, i: number, topic: string, key: string): Question | null {
-  const base = { id: `${key}-${i + 1}`, no: i + 1, topic, points: 1, prompt: r.prompt.trim(), steps: [r.explanation], hints: r.hint ? [r.hint] : [] };
+  const base = { id: `${key}-${i + 1}`, no: i + 1, topic, points: 1, prompt: r.prompt.replace(/^\s*(ข้อ|Item|No\.?)\s*\d+[.):]?\s*/i, "").trim(), steps: [r.explanation], hints: r.hint ? [r.hint] : [] };
   if (!base.prompt) return null;
   if (r.type === "mcq" && r.choices.length >= 3 && r.answer >= 1 && r.answer <= r.choices.length)
     return { ...base, type: "mcq", choices: r.choices.map((text) => ({ text })), answer: r.answer };
@@ -49,7 +49,7 @@ export const getDrillSet = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ items: Question[]; error?: string }> => {
     const { level, subject, topic } = data;
     const existing = await context.supabase.from("drill_sets").select("items").eq("level", level).eq("subject", subject).eq("topic", topic).maybeSingle();
-    if (existing.data) return { items: existing.data.items as unknown as Question[] };
+    if (existing.data) return { items: (existing.data.items as unknown as Question[]).map((q) => ({ ...q, prompt: q.prompt.replace(/^\s*(ข้อ|Item|No\.?)\s*\d+[.):]?\s*/i, "") })) };
 
     const { analyzeSubject } = await import("@/data/analysis");
     const { yearsFor } = await import("@/data/catalog");
