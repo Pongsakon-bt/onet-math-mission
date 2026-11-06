@@ -30,6 +30,8 @@ export const lookupSchool = createServerFn({ method: "POST" })
 
 type RegisterInput = { role: Role; first: string; last: string; school: string; password: string };
 
+const esc = (s: string) => s.replace(/[%_\\]/g, "\\$&");
+
 function cleanName(s: unknown) {
   return String(s ?? "").replace(/\s+/g, " ").trim().slice(0, 60);
 }
@@ -140,7 +142,7 @@ export const signInByName = createServerFn({ method: "POST" })
     const { count } = await supabaseAdmin.from("reset_attempts").select("id", { count: "exact", head: true }).eq("key", key).gte("at", since);
     if ((count ?? 0) >= 10) return { ok: false as const, error: "ลองผิดหลายครั้งเกินไป กรุณารอ 15 นาทีแล้วลองใหม่" };
     const { data: prof } = await supabaseAdmin.from("profiles").select("id, first_name, last_name, school_code")
-      .ilike("first_name", data.first).ilike("last_name", data.last).limit(20);
+      .ilike("first_name", esc(data.first)).ilike("last_name", esc(data.last)).limit(20);
     const client = publicClient();
     for (const p of prof ?? []) {
       const email = await accountEmail(data.role, p.first_name, p.last_name, p.school_code);
