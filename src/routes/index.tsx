@@ -21,8 +21,8 @@ export const Route = createFileRoute("/")({
 });
 
 const LEVELS = [
-  { to: "/p6" as const, short: "ป.6", full: "ประถมศึกษาปีที่ 6", img: bannerP6 },
-  { to: "/m3" as const, short: "ม.3", full: "มัธยมศึกษาปีที่ 3", img: bannerM3 },
+  { to: "/p6" as const, short: "ป.6", full: "ประถมศึกษาปีที่ 6", img: bannerP6, tone: "var(--nav-surface)" },
+  { to: "/m3" as const, short: "ม.3", full: "มัธยมศึกษาปีที่ 3", img: bannerM3, tone: "var(--nav-active)" },
 ];
 
 const FEATURES = [
@@ -64,9 +64,9 @@ function Index() {
 
         <section className="mt-6 grid gap-4 sm:grid-cols-2">
           {LEVELS.map((l) => (
-            <Link key={l.to} to={l.to} className="group overflow-hidden rounded-2xl border-2 border-border bg-card shadow-paper transition hover:-translate-y-0.5 hover:border-primary">
+            <Link key={l.to} to={l.to} style={{ ["--primary" as string]: l.tone }} className="group overflow-hidden rounded-2xl border-2 border-border bg-card shadow-paper transition hover:-translate-y-0.5 hover:border-primary">
               <img src={l.img} alt={`นักเรียนชั้น${l.full}`} width={1600} height={640} className="h-32 w-full object-cover" />
-              <div className="flex items-end justify-between p-5">
+              <div className="flex items-end justify-between border-t-4 p-5" style={{ borderTopColor: l.tone }}>
                 <div>
                   <span className="font-display text-5xl text-primary">{l.short}</span>
                   <p className="mt-1 text-lg font-semibold">{l.full}</p>
