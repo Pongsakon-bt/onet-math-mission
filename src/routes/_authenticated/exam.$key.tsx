@@ -7,6 +7,7 @@ import { preloadExamImages } from "@/lib/preload-exam";
 import { ExamIntro } from "@/components/exam/ExamIntro";
 import { useEffect, useState } from "react";
 import { Timer, Lock } from "lucide-react";
+import { toast } from "sonner";
 import { loadAttempts, saveAttempt } from "@/lib/progress";
 
 export const Route = createFileRoute("/_authenticated/exam/$key")({
@@ -93,6 +94,12 @@ function ExamPage() {
   const limit = exam.minutes * 60;
   const used = time ? Math.max(0, Math.floor(((time.end ?? now) - time.start) / 1000)) : 0;
   const remain = limit - used;
+  useEffect(() => {
+    if (!started || !time?.mock || time.end) return;
+    if (remain === 600) toast.warning("เหลือเวลา 10 นาที");
+    if (remain === 60) toast.warning("เหลือเวลา 1 นาที — ระบบจะส่งให้อัตโนมัติเมื่อหมดเวลา");
+    if (remain === 0) toast("หมดเวลา ส่งกระดาษคำตอบแล้ว");
+  }, [remain, started, time]);
   const mmss = (n: number) => `${Math.floor(Math.abs(n) / 60)}:${String(Math.abs(n) % 60).padStart(2, "0")}`;
 
   return (
