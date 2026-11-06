@@ -25,7 +25,7 @@ export const Route = createFileRoute("/register")({
 function RegisterPage() {
   const navigate = useNavigate();
   const [role, setRole] = useState<Role>("student");
-  const [f, setF] = useState({ first: "", last: "", school: "", password: "", confirm: "" });
+  const [f, setF] = useState({ first: "", last: "", school: "", password: "", confirm: "", grade: "", room: "" });
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [recovery, setRecovery] = useState<string | null>(null);
@@ -37,11 +37,12 @@ function RegisterPage() {
     setErr("");
     if (!f.first.trim() || !f.last.trim()) return setErr("กรุณากรอกชื่อและนามสกุล");
     if (!isSchoolCode(f.school)) return setErr("รหัสโรงเรียนต้องเป็นตัวเลข 10 หลัก");
+    if (role === "student" && !f.grade) return setErr("กรุณาเลือกชั้นเรียน");
     if (!okSchool) return setErr("กรุณากด \"ถูกต้องแล้ว กดตกลง\" เพื่อยืนยันโรงเรียน");
     if (f.password.length < MIN_PASSWORD) return setErr(`รหัสผ่านต้องมีอย่างน้อย ${MIN_PASSWORD} ตัว`);
     if (f.password !== f.confirm) return setErr("รหัสผ่านทั้งสองช่องไม่ตรงกัน");
     setBusy(true);
-    const res = await registerAccount({ data: { role, first: f.first, last: f.last, school: f.school, password: f.password } });
+    const res = await registerAccount({ data: { role, first: f.first, last: f.last, school: f.school, password: f.password, grade: f.grade, room: f.room } });
     if (!res.ok) { setBusy(false); return setErr(res.error); }
     const email = await accountEmail(role, f.first, f.last, f.school);
     await supabase.auth.signInWithPassword({ email, password: f.password });
@@ -81,6 +82,16 @@ function RegisterPage() {
             <Field label="นามสกุล"><Input value={f.last} onChange={(e) => setF({ ...f, last: e.target.value })} /></Field>
           </div>
           <SchoolCodeField value={f.school} onChange={(school) => setF({ ...f, school })} confirmed={okSchool} onConfirm={setOkSchool} />
+          {role === "student" && (
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="ชั้น">
+                <select value={f.grade} onChange={(e) => setF({ ...f, grade: e.target.value })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="">เลือกชั้น</option><option value="p6">ป.6</option><option value="m3">ม.3</option>
+                </select>
+              </Field>
+              <Field label="ห้อง" hint="เช่น 1, 2 (ไม่บังคับ)"><Input value={f.room} onChange={(e) => setF({ ...f, room: e.target.value })} /></Field>
+            </div>
+          )}
           <Field label="รหัสผ่าน" hint={`อย่างน้อย ${MIN_PASSWORD} ตัว ใช้ตัวเลขล้วนได้`}>
             <Input type="password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
           </Field>

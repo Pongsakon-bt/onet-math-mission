@@ -16,7 +16,7 @@ import { baseTopic } from "@/data/analysis";
 import { levelOf, strandScores, type Attempt } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/teacher_/$studentId")({
+export const Route = createFileRoute("/_authenticated/teacher_/$studentId")({
   head: () => {
     const title = "ผลรายคน · หน้าครู · PRE O-NET";
     const description = "ครูดูผลของนักเรียนรายคน สาระและหัวข้อที่ควรเสริม และตรวจข้อเขียน";

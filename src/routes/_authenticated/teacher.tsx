@@ -14,7 +14,7 @@ import { strandsFor } from "@/data/strands";
 import { levelOf } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/teacher")({
+export const Route = createFileRoute("/_authenticated/teacher")({
   head: () => {
     const title = "หน้าครู · ความคืบหน้านักเรียน · PRE O-NET";
     const description = "ครูดูความคืบหน้าและผลวิเคราะห์ของนักเรียนทุกคนในโรงเรียน";
