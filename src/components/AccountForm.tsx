@@ -19,8 +19,8 @@ export function RolePicker({ role, onChange }: { role: Role; onChange: (r: Role)
   return (
     <div className="grid grid-cols-2 gap-2 rounded-xl bg-secondary p-1">
       {(["student", "teacher"] as const).map((r) => (
-        <button key={r} type="button" onClick={() => onChange(r)}
-          className={cn("rounded-lg py-2 font-semibold transition", role === r ? "bg-card shadow-sm" : "text-muted-foreground")}>
+        <button key={r} type="button" onClick={() => onChange(r)} aria-pressed={role === r}
+          className={cn("rounded-lg py-2 font-semibold transition", role === r ? "bg-nav-active text-nav-text shadow-sm" : "text-muted-foreground hover:text-foreground")}>
           {r === "student" ? "นักเรียน" : "ครู"}
         </button>
       ))}
