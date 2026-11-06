@@ -44,7 +44,6 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function Dashboard() {
   const { level, subject, tab: tabParam } = Route.useSearch();
   const tab = tabParam ?? "learn";
-  const SubjIcon = subjectUi(subject).icon;
   const [all, setAll] = useState<Attempt[] | null>(null);
   const [studied, setStudied] = useState<string[]>([]);
   const [synced, setSynced] = useState(false);
@@ -93,15 +92,30 @@ function Dashboard() {
               <Link key={l} to="/dashboard" search={{ level: l, subject, tab: tabParam }} className={cn("rounded-full border px-5 py-2 font-display text-lg", l === level ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{LEVEL_NAMES[l]}</Link>
             ))}
           </div>
-          {all && <LevelOverview level={level} all={all} />}
-          <div className="space-y-4 rounded-3xl bg-primary/5 p-3 sm:p-4" style={subjectVars(subject)}>
-          <h2 className="font-display text-xl">รายละเอียดรายวิชา</h2>
-          <div className="flex flex-wrap gap-2">
-            {SUBJECTS.map((s) => (
-              <Link key={s} to="/dashboard" search={{ level, subject: s, tab: tabParam }} className={cn("flex items-center gap-2 rounded-xl border-2 px-4 py-2 font-semibold", s === subject ? cn(subjectUi(s).color, "border-transparent text-primary-foreground") : cn("border-border bg-card", subjectUi(s).text))}>{(() => { const I = subjectUi(s).icon; return <I className="h-5 w-5" />; })()} {SUBJECT_NAMES[s]}</Link>
-            ))}
-          </div>
+          <div className="space-y-4" style={subjectVars(subject)}>
+              <div className="grid gap-4 md:grid-cols-2">
+              <PredictionCard level={level} subject={subject} attempts={all ?? []} />
+              <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h2 className="font-display text-xl">ความรู้แต่ละสาระ</h2>
+                </div>
+                <p className="text-sm text-muted-foreground">ครั้งแรก เทียบกับ ผลล่าสุด (ร้อยละที่ตอบถูก)</p>
+                <ChartContainer className="mt-3 h-64 w-full" config={{ first: { label: "ครั้งแรก", color: "var(--muted-foreground)" }, latest: { label: "ล่าสุด", color: "var(--primary)" } }}>
+                  <BarChart data={barData} layout="vertical" margin={{ left: 8, right: 8 }}>
+                    <CartesianGrid horizontal={false} />
+                    <XAxis type="number" domain={[0, 100]} />
+                    <YAxis type="category" dataKey="strand" width={150} tick={{ fontSize: 11 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="first" fill="var(--color-first)" radius={4} />
+                    <Bar dataKey="latest" fill="var(--color-latest)" radius={4} />
+                  </BarChart>
+                </ChartContainer>
+              </section>
+              </div>
 
+          {all && <LevelOverview level={level} all={all} subject={subject} tab={tabParam} />}
+          <div className="space-y-4 border-t border-border pt-4">
           {all !== null && !tests.length ? (
             <section className="rounded-2xl border border-border bg-card p-6 text-center shadow-paper">
               <p className="font-display text-xl">ยังไม่ได้วัดความรู้พื้นฐาน {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</p>
@@ -110,9 +124,6 @@ function Dashboard() {
             </section>
           ) : (
             <>
-              <div className="rounded-2xl bg-primary p-4 text-primary-foreground shadow-paper sm:p-5">
-                <p className="flex items-center gap-3 font-display text-2xl"><SubjIcon className="h-7 w-7 shrink-0" /> {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</p>
-              </div>
               <div className="grid grid-cols-2 gap-2">
                 {([["learn", "แหล่งเรียนรู้", Library], ["practice", "ฝึกทำข้อสอบ", PenLine]] as const).map(([k, label, Icon]) => (
                   <Link key={k} to="/dashboard" search={{ level, subject, tab: k === "practice" ? "practice" : undefined }} replace className={cn("flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 font-display text-lg transition-colors", tab === k ? "border-primary bg-primary text-primary-foreground" : "border-primary/40 bg-card text-primary hover:bg-primary/10")}><Icon className="h-5 w-5" /> {label}</Link>
@@ -157,26 +168,6 @@ function Dashboard() {
               <TutorChecklist level={level} subject={subject} attempts={all ?? []} />
 
 </>)}
-              <div className="grid gap-4 md:grid-cols-2">
-              <PredictionCard level={level} subject={subject} attempts={all ?? []} />
-              <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h2 className="font-display text-xl">ความรู้แต่ละสาระ</h2>
-                </div>
-                <p className="text-sm text-muted-foreground">ครั้งแรก เทียบกับ ผลล่าสุด (ร้อยละที่ตอบถูก)</p>
-                <ChartContainer className="mt-3 h-64 w-full" config={{ first: { label: "ครั้งแรก", color: "var(--muted-foreground)" }, latest: { label: "ล่าสุด", color: "var(--primary)" } }}>
-                  <BarChart data={barData} layout="vertical" margin={{ left: 8, right: 8 }}>
-                    <CartesianGrid horizontal={false} />
-                    <XAxis type="number" domain={[0, 100]} />
-                    <YAxis type="category" dataKey="strand" width={150} tick={{ fontSize: 11 }} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <ChartLegend content={<ChartLegendContent />} />
-                    <Bar dataKey="first" fill="var(--color-first)" radius={4} />
-                    <Bar dataKey="latest" fill="var(--color-latest)" radius={4} />
-                  </BarChart>
-                </ChartContainer>
-              </section>
-              </div>
 
               {lineData.length > 1 && (
                 <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
@@ -195,6 +186,7 @@ function Dashboard() {
             </>
           )}
 
+          </div>
           </div>
 
           {essays.length > 0 && (
