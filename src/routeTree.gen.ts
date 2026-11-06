@@ -14,10 +14,10 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as M3RouteImport } from './routes/m3'
-import { Route as P6RouteImport } from './routes/p6'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedM3RouteImport } from './routes/_authenticated/m3'
+import { Route as AuthenticatedP6RouteImport } from './routes/_authenticated/p6'
 import { Route as AuthenticatedTeacherRouteImport } from './routes/_authenticated/teacher'
 import { Route as AuthenticatedExamKeyRouteImport } from './routes/_authenticated/exam.$key'
 import { Route as AuthenticatedResultIdRouteImport } from './routes/_authenticated/result.$id'
@@ -54,16 +54,6 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const M3Route = M3RouteImport.update({
-  id: '/m3',
-  path: '/m3',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const P6Route = P6RouteImport.update({
-  id: '/p6',
-  path: '/p6',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -72,6 +62,16 @@ const RegisterRoute = RegisterRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedM3Route = AuthenticatedM3RouteImport.update({
+  id: '/m3',
+  path: '/m3',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedP6Route = AuthenticatedP6RouteImport.update({
+  id: '/p6',
+  path: '/p6',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTeacherRoute = AuthenticatedTeacherRouteImport.update({
@@ -143,10 +143,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
-  '/m3': typeof M3Route
-  '/p6': typeof P6Route
   '/register': typeof RegisterRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/m3': typeof AuthenticatedM3Route
+  '/p6': typeof AuthenticatedP6Route
   '/teacher': typeof AuthenticatedTeacherRoute
   '/exam/$key': typeof AuthenticatedExamKeyRoute
   '/result/$id': typeof AuthenticatedResultIdRoute
@@ -164,10 +164,10 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
-  '/m3': typeof M3Route
-  '/p6': typeof P6Route
   '/register': typeof RegisterRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/m3': typeof AuthenticatedM3Route
+  '/p6': typeof AuthenticatedP6Route
   '/teacher': typeof AuthenticatedTeacherRoute
   '/exam/$key': typeof AuthenticatedExamKeyRoute
   '/result/$id': typeof AuthenticatedResultIdRoute
@@ -187,10 +187,10 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
-  '/m3': typeof M3Route
-  '/p6': typeof P6Route
   '/register': typeof RegisterRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/m3': typeof AuthenticatedM3Route
+  '/_authenticated/p6': typeof AuthenticatedP6Route
   '/_authenticated/teacher': typeof AuthenticatedTeacherRoute
   '/_authenticated/exam/$key': typeof AuthenticatedExamKeyRoute
   '/_authenticated/result/$id': typeof AuthenticatedResultIdRoute
@@ -210,10 +210,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/forgot-password'
     | '/login'
-    | '/m3'
-    | '/p6'
     | '/register'
     | '/dashboard'
+    | '/m3'
+    | '/p6'
     | '/teacher'
     | '/exam/$key'
     | '/result/$id'
@@ -231,10 +231,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/forgot-password'
     | '/login'
-    | '/m3'
-    | '/p6'
     | '/register'
     | '/dashboard'
+    | '/m3'
+    | '/p6'
     | '/teacher'
     | '/exam/$key'
     | '/result/$id'
@@ -253,10 +253,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/forgot-password'
     | '/login'
-    | '/m3'
-    | '/p6'
     | '/register'
     | '/_authenticated/dashboard'
+    | '/_authenticated/m3'
+    | '/_authenticated/p6'
     | '/_authenticated/teacher'
     | '/_authenticated/exam/$key'
     | '/_authenticated/result/$id'
@@ -276,8 +276,6 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
-  M3Route: typeof M3Route
-  P6Route: typeof P6Route
   RegisterRoute: typeof RegisterRoute
 }
 
@@ -318,20 +316,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/m3': {
-      id: '/m3'
-      path: '/m3'
-      fullPath: '/m3'
-      preLoaderRoute: typeof M3RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/p6': {
-      id: '/p6'
-      path: '/p6'
-      fullPath: '/p6'
-      preLoaderRoute: typeof P6RouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -344,6 +328,20 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/m3': {
+      id: '/_authenticated/m3'
+      path: '/m3'
+      fullPath: '/m3'
+      preLoaderRoute: typeof AuthenticatedM3RouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/p6': {
+      id: '/_authenticated/p6'
+      path: '/p6'
+      fullPath: '/p6'
+      preLoaderRoute: typeof AuthenticatedP6RouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/teacher': {
@@ -428,6 +426,8 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedM3Route: typeof AuthenticatedM3Route
+  AuthenticatedP6Route: typeof AuthenticatedP6Route
   AuthenticatedTeacherRoute: typeof AuthenticatedTeacherRoute
   AuthenticatedExamKeyRoute: typeof AuthenticatedExamKeyRoute
   AuthenticatedResultIdRoute: typeof AuthenticatedResultIdRoute
@@ -443,6 +443,8 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedM3Route: AuthenticatedM3Route,
+  AuthenticatedP6Route: AuthenticatedP6Route,
   AuthenticatedTeacherRoute: AuthenticatedTeacherRoute,
   AuthenticatedExamKeyRoute: AuthenticatedExamKeyRoute,
   AuthenticatedResultIdRoute: AuthenticatedResultIdRoute,
@@ -470,8 +472,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
-  M3Route: M3Route,
-  P6Route: P6Route,
   RegisterRoute: RegisterRoute,
 }
 export const routeTree = rootRouteImport
