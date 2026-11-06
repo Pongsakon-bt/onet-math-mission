@@ -22,7 +22,9 @@ import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as TeacherStudentIdRouteImport } from './routes/teacher_.$studentId'
 import { Route as AnalysisLevelSubjectRouteImport } from './routes/analysis.$level.$subject'
 import { Route as BankLevelSubjectRouteImport } from './routes/bank.$level.$subject'
+import { Route as DevelopLevelSubjectRouteImport } from './routes/develop.$level.$subject'
 import { Route as DiagnosticLevelSubjectRouteImport } from './routes/diagnostic.$level.$subject'
+import { Route as DrillLevelSubjectTopicRouteImport } from './routes/drill.$level.$subject.$topic'
 import { Route as LearnLevelSubjectStrandRouteImport } from './routes/learn.$level.$subject.$strand'
 
 const IndexRoute = IndexRouteImport.update({
@@ -90,9 +92,19 @@ const BankLevelSubjectRoute = BankLevelSubjectRouteImport.update({
   path: '/bank/$level/$subject',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevelopLevelSubjectRoute = DevelopLevelSubjectRouteImport.update({
+  id: '/develop/$level/$subject',
+  path: '/develop/$level/$subject',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiagnosticLevelSubjectRoute = DiagnosticLevelSubjectRouteImport.update({
   id: '/diagnostic/$level/$subject',
   path: '/diagnostic/$level/$subject',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DrillLevelSubjectTopicRoute = DrillLevelSubjectTopicRouteImport.update({
+  id: '/drill/$level/$subject/$topic',
+  path: '/drill/$level/$subject/$topic',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnLevelSubjectStrandRoute = LearnLevelSubjectStrandRouteImport.update({
@@ -115,7 +127,9 @@ export interface FileRoutesByFullPath {
   '/teacher/$studentId': typeof TeacherStudentIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
   '/bank/$level/$subject': typeof BankLevelSubjectRoute
+  '/develop/$level/$subject': typeof DevelopLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
+  '/drill/$level/$subject/$topic': typeof DrillLevelSubjectTopicRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
 export interface FileRoutesByTo {
@@ -132,7 +146,9 @@ export interface FileRoutesByTo {
   '/teacher/$studentId': typeof TeacherStudentIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
   '/bank/$level/$subject': typeof BankLevelSubjectRoute
+  '/develop/$level/$subject': typeof DevelopLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
+  '/drill/$level/$subject/$topic': typeof DrillLevelSubjectTopicRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
 export interface FileRoutesById {
@@ -150,7 +166,9 @@ export interface FileRoutesById {
   '/teacher_/$studentId': typeof TeacherStudentIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
   '/bank/$level/$subject': typeof BankLevelSubjectRoute
+  '/develop/$level/$subject': typeof DevelopLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
+  '/drill/$level/$subject/$topic': typeof DrillLevelSubjectTopicRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
 export interface FileRouteTypes {
@@ -169,7 +187,9 @@ export interface FileRouteTypes {
     | '/teacher/$studentId'
     | '/analysis/$level/$subject'
     | '/bank/$level/$subject'
+    | '/develop/$level/$subject'
     | '/diagnostic/$level/$subject'
+    | '/drill/$level/$subject/$topic'
     | '/learn/$level/$subject/$strand'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -186,7 +206,9 @@ export interface FileRouteTypes {
     | '/teacher/$studentId'
     | '/analysis/$level/$subject'
     | '/bank/$level/$subject'
+    | '/develop/$level/$subject'
     | '/diagnostic/$level/$subject'
+    | '/drill/$level/$subject/$topic'
     | '/learn/$level/$subject/$strand'
   id:
     | '__root__'
@@ -203,7 +225,9 @@ export interface FileRouteTypes {
     | '/teacher_/$studentId'
     | '/analysis/$level/$subject'
     | '/bank/$level/$subject'
+    | '/develop/$level/$subject'
     | '/diagnostic/$level/$subject'
+    | '/drill/$level/$subject/$topic'
     | '/learn/$level/$subject/$strand'
   fileRoutesById: FileRoutesById
 }
@@ -221,7 +245,9 @@ export interface RootRouteChildren {
   TeacherStudentIdRoute: typeof TeacherStudentIdRoute
   AnalysisLevelSubjectRoute: typeof AnalysisLevelSubjectRoute
   BankLevelSubjectRoute: typeof BankLevelSubjectRoute
+  DevelopLevelSubjectRoute: typeof DevelopLevelSubjectRoute
   DiagnosticLevelSubjectRoute: typeof DiagnosticLevelSubjectRoute
+  DrillLevelSubjectTopicRoute: typeof DrillLevelSubjectTopicRoute
   LearnLevelSubjectStrandRoute: typeof LearnLevelSubjectStrandRoute
 }
 
@@ -318,11 +344,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BankLevelSubjectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/develop/$level/$subject': {
+      id: '/develop/$level/$subject'
+      path: '/develop/$level/$subject'
+      fullPath: '/develop/$level/$subject'
+      preLoaderRoute: typeof DevelopLevelSubjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/diagnostic/$level/$subject': {
       id: '/diagnostic/$level/$subject'
       path: '/diagnostic/$level/$subject'
       fullPath: '/diagnostic/$level/$subject'
       preLoaderRoute: typeof DiagnosticLevelSubjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/drill/$level/$subject/$topic': {
+      id: '/drill/$level/$subject/$topic'
+      path: '/drill/$level/$subject/$topic'
+      fullPath: '/drill/$level/$subject/$topic'
+      preLoaderRoute: typeof DrillLevelSubjectTopicRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learn/$level/$subject/$strand': {
@@ -349,7 +389,9 @@ const rootRouteChildren: RootRouteChildren = {
   TeacherStudentIdRoute: TeacherStudentIdRoute,
   AnalysisLevelSubjectRoute: AnalysisLevelSubjectRoute,
   BankLevelSubjectRoute: BankLevelSubjectRoute,
+  DevelopLevelSubjectRoute: DevelopLevelSubjectRoute,
   DiagnosticLevelSubjectRoute: DiagnosticLevelSubjectRoute,
+  DrillLevelSubjectTopicRoute: DrillLevelSubjectTopicRoute,
   LearnLevelSubjectStrandRoute: LearnLevelSubjectStrandRoute,
 }
 export const routeTree = rootRouteImport
