@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, createElement, type ReactNode } from "react";
+import { useRouter } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Role } from "./account-id";
 import { loadAttempts, mergeAttempts, type Attempt, type EssayAnswer } from "./progress";
@@ -18,19 +20,43 @@ export async function fetchAccount(): Promise<Account | null> {
   return { id: user.id, first: p.first_name, last: p.last_name, school: p.school_code, schoolName: s?.name ?? "", role };
 }
 
-/** Current signed-in account (undefined while loading, null when signed out). */
-export function useAccount() {
+const AccountContext = createContext<Account | null | undefined>(undefined);
+
+/** One app-wide subscriber keeps navigation and protected routes in sync. */
+export function AccountProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [acc, setAcc] = useState<Account | null | undefined>(undefined);
   useEffect(() => {
     let alive = true;
-    const load = () => fetchAccount().then((a) => alive && setAcc(a)).catch(() => alive && setAcc(null));
-    load();
+    let revision = 0;
+    const load = async () => {
+      const current = ++revision;
+      const account = await fetchAccount().catch(() => null);
+      if (alive && current === revision) setAcc(account);
+    };
+    void load();
     const { data } = supabase.auth.onAuthStateChange((ev) => {
-      if (ev === "SIGNED_IN" || ev === "SIGNED_OUT" || ev === "USER_UPDATED") load();
+      if (ev !== "SIGNED_IN" && ev !== "SIGNED_OUT" && ev !== "USER_UPDATED") return;
+      if (ev === "SIGNED_OUT") { revision++; setAcc(null); }
+      // Leave the auth callback before making further auth requests.
+      setTimeout(() => {
+        if (!alive) return;
+        if (ev !== "SIGNED_OUT") {
+          void load();
+          void queryClient.invalidateQueries();
+        }
+        void router.invalidate();
+      }, 0);
     });
     return () => { alive = false; data.subscription.unsubscribe(); };
-  }, []);
-  return acc;
+  }, [router, queryClient]);
+  return createElement(AccountContext.Provider, { value: acc }, children);
+}
+
+/** Current signed-in account (undefined while loading, null when signed out). */
+export function useAccount() {
+  return useContext(AccountContext);
 }
 
 const toRow = (uid: string, a: Attempt) => ({

@@ -9,7 +9,7 @@ import { loadAttempts, type Attempt } from "@/lib/progress";
 import { isPreUnlocked, topicSkill } from "@/lib/skill";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/develop/$level/$subject")({
+export const Route = createFileRoute("/_authenticated/develop/$level/$subject")({
   loader: ({ params }) => {
     if (!isLevel(params.level) || !isSubject(params.subject)) throw notFound();
     return { level: params.level, subject: params.subject };

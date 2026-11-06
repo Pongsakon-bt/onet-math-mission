@@ -8,7 +8,7 @@ import { SUBJECT_NAMES } from "@/data/catalog";
 import { loadAttempts } from "@/lib/progress";
 import { PRE_SIZE, preRound1 } from "@/lib/skill";
 
-export const Route = createFileRoute("/preonet/$level/$subject/$round")({
+export const Route = createFileRoute("/_authenticated/preonet/$level/$subject/$round")({
   loader: ({ params }) => {
     if (!isLevel(params.level) || !isSubject(params.subject) || !["1", "2"].includes(params.round)) throw notFound();
     return { level: params.level, subject: params.subject, round: params.round as "1" | "2" };

@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { Timer, Lock } from "lucide-react";
 import { loadAttempts, saveAttempt } from "@/lib/progress";
 
-export const Route = createFileRoute("/exam/$key")({
+export const Route = createFileRoute("/_authenticated/exam/$key")({
   loader: async ({ params }) => {
     if (!catalog[params.key]) throw notFound();
     // Don't block navigation on images: the intro page shows first, pictures keep downloading meanwhile.
