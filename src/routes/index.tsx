@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteNav } from "@/components/SiteNav";
-import bannerP6 from "@/assets/banner-p6.jpg";
-import bannerM3 from "@/assets/banner-m3.jpg";
+import bannerP6 from "@/assets/banner-p6.webp";
+import bannerM3 from "@/assets/banner-m3.webp";
 import { FileCheck2, Smartphone, Target, School, Lightbulb, TrendingUp } from "lucide-react";
 import { SUBJECTS } from "@/components/subject-ui";
 
