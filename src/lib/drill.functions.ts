@@ -51,14 +51,26 @@ export const getDrillSet = createServerFn({ method: "POST" })
     const existing = await context.supabase.from("drill_sets").select("items").eq("level", level).eq("subject", subject).eq("topic", topic).maybeSingle();
     if (existing.data) return { items: (existing.data.items as unknown as Question[]).map((q) => ({ ...q, prompt: q.prompt.replace(/^\s*(ข้อ|Item|No\.?)\s*\d+[.):]?\s*/i, "") })) };
 
+    const gen = await generateDrill(level, subject, topic);
+    if ("error" in gen) return { items: [], error: gen.error };
+    const { lv, sj, items } = gen;
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("drill_sets").upsert({ level: lv, subject: sj, topic, items: items as never }, { onConflict: "level,subject,topic", ignoreDuplicates: true });
+    const saved = await supabaseAdmin.from("drill_sets").select("items").eq("level", lv).eq("subject", sj).eq("topic", topic).maybeSingle();
+    return { items: (saved.data?.items as unknown as Question[]) ?? items };
+  });
+
+/** Writes a 20-question drill with AI (server-only use, from handlers). */
+async function generateDrill(level: string, subject: string, topic: string): Promise<{ error: string } | { lv: "p6" | "m3"; sj: string; items: Question[] }> {
     const { analyzeSubject } = await import("@/data/analysis");
     const { yearsFor } = await import("@/data/catalog");
     const { baseTopic } = await import("@/data/analysis");
-    if (level !== "p6" && level !== "m3") return { items: [], error: "ไม่พบระดับชั้น" };
-    if (!["math", "thai", "eng", "sci"].includes(subject)) return { items: [], error: "ไม่พบวิชา" };
+    if (level !== "p6" && level !== "m3") return { error: "ไม่พบระดับชั้น" };
+    if (!["math", "thai", "eng", "sci"].includes(subject)) return { error: "ไม่พบวิชา" };
     const lv = level as "p6" | "m3";
     const sj = subject as "math" | "thai" | "eng" | "sci";
-    if (!analyzeSubject(lv, sj).topics.some((t) => t.topic === topic)) return { items: [], error: "ไม่พบเรื่องนี้" };
+    if (!analyzeSubject(lv, sj).topics.some((t) => t.topic === topic)) return { error: "ไม่พบเรื่องนี้" };
 
     const examples = yearsFor(lv, sj).flatMap((e) => e.questions.filter((q) => baseTopic(q.topic) === topic).map((q) => `- (${e.year}) ${q.prompt}${"choices" in q ? " | ตัวเลือก: " + q.choices.map((c) => c.text ?? "").join(" / ") : ""}`)).slice(0, 5).join("\n");
     const lvName = lv === "p6" ? "ประถมศึกษาปีที่ 6" : "มัธยมศึกษาปีที่ 3";
@@ -93,14 +105,40 @@ hint = คำใบ้ที่ไม่บอกคำตอบ, explanation = 
       if (!raw.length) throw (parts[0] as PromiseRejectedResult).reason;
     } catch (e) {
       console.error("drill generation failed", e instanceof GatewayError ? e.code : e);
-      return { items: [], error: "ระบบแต่งข้อสอบไม่สำเร็จ ลองใหม่อีกครั้ง" };
+      return { error: "ระบบแต่งข้อสอบไม่สำเร็จ ลองใหม่อีกครั้ง" };
     }
     const key = `drill-${lv}-${sj}-${encodeURIComponent(topic).slice(0, 40)}`;
     const items = raw.map((r, i) => toQuestion(r, i, topic, key)).filter((q): q is Question => !!q).slice(0, 20).map((q, i) => ({ ...q, no: i + 1, id: `${key}-${i + 1}` }));
-    if (items.length < 10) return { items: [], error: "ระบบแต่งข้อสอบไม่สำเร็จ ลองใหม่อีกครั้ง" };
+    if (items.length < 10) return { error: "ระบบแต่งข้อสอบไม่สำเร็จ ลองใหม่อีกครั้ง" };
 
+    return { lv, sj, items };
+}
+
+/** Admin: topics with no saved drill yet. */
+export const listMissingDrills = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: ok } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!ok) throw new Error("Forbidden");
+    const { analyzeSubject } = await import("@/data/analysis");
+    const { data } = await context.supabase.from("drill_sets").select("level, subject, topic");
+    const have = new Set((data ?? []).map((r) => `${r.level}|${r.subject}|${r.topic}`));
+    const all: Input[] = [];
+    for (const level of ["p6", "m3"] as const) for (const subject of ["math", "thai", "eng", "sci"] as const)
+      for (const t of analyzeSubject(level, subject).topics) all.push({ level, subject, topic: t.topic });
+    return { total: all.length, missing: all.filter((x) => !have.has(`${x.level}|${x.subject}|${x.topic}`)) };
+  });
+
+/** Admin: generate and save one topic's drill ahead of time. */
+export const prefillDrill = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: Input) => d)
+  .handler(async ({ data, context }) => {
+    const { data: ok } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!ok) throw new Error("Forbidden");
+    const gen = await generateDrill(data.level, data.subject, data.topic);
+    if ("error" in gen) return { ok: false, error: gen.error };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("drill_sets").upsert({ level: lv, subject: sj, topic, items: items as never }, { onConflict: "level,subject,topic", ignoreDuplicates: true });
-    const saved = await supabaseAdmin.from("drill_sets").select("items").eq("level", lv).eq("subject", sj).eq("topic", topic).maybeSingle();
-    return { items: (saved.data?.items as unknown as Question[]) ?? items };
+    await supabaseAdmin.from("drill_sets").upsert({ level: gen.lv, subject: gen.sj, topic: data.topic, items: gen.items as never }, { onConflict: "level,subject,topic", ignoreDuplicates: true });
+    return { ok: true, count: gen.items.length };
   });
