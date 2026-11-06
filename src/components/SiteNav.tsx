@@ -20,16 +20,17 @@ export function SiteNav({ level }: { level?: Level }) {
         <div className="flex items-center gap-2">
           <BrandHomeLink compact showName />
         </div>
-        <nav aria-label="เมนูหลัก" className="col-span-2 row-start-2 flex min-w-0 items-center justify-center gap-1 lg:col-span-1 lg:row-start-auto lg:gap-2">
-          <Link to="/" activeOptions={{ exact: true }} className="rounded-md px-3 py-2 text-sm font-semibold text-nav-muted transition-colors hover:bg-nav-hover hover:text-nav-text data-[status=active]:bg-nav-active data-[status=active]:text-nav-text">หน้าหลัก</Link>
-          {TABS.map((t) => (
-            <Link key={t.to} to={t.to}
-              className="rounded-md px-3 py-2 text-center text-sm font-semibold text-nav-muted transition-colors hover:bg-nav-hover hover:text-nav-text data-[status=active]:bg-nav-active data-[status=active]:text-nav-text">
-              <span className="sm:hidden">{t.short}</span>
-              <span className="hidden sm:inline">{t.full}</span>
-            </Link>
-          ))}
-        </nav>
+        {signedIn && (
+          <nav aria-label="เมนูหลัก" className="col-span-2 row-start-2 flex min-w-0 items-center justify-center gap-1 lg:col-span-1 lg:row-start-auto lg:gap-2">
+            {TABS.map((t) => (
+              <Link key={t.to} to={t.to}
+                className="rounded-md px-3 py-2 text-center text-sm font-semibold text-nav-muted transition-colors hover:bg-nav-hover hover:text-nav-text data-[status=active]:bg-nav-active data-[status=active]:text-nav-text">
+                <span className="sm:hidden">{t.short}</span>
+                <span className="hidden sm:inline">{t.full}</span>
+              </Link>
+            ))}
+          </nav>
+        )}
         <div className="flex min-w-0 items-center justify-end gap-2">
           {canShowDashboard(account) && <Link to="/dashboard" search={{ level: level ?? "p6", subject: "math" }} aria-label="แดชบอร์ดของฉัน"
             title="แดชบอร์ดของฉัน" className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-2 text-sm font-semibold text-nav-muted transition-colors hover:bg-nav-hover hover:text-nav-text">
