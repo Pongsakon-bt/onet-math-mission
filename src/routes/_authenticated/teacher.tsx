@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/lib/session";
 import { resetStudentPassword } from "@/lib/accounts.functions";
 import { teacherUpdateStudent } from "@/lib/classes.functions";
-import { MyClasses, SchoolPeople, type TClass, type TPerson } from "@/components/teacher/ClassTools";
+import { SchoolPeople, type TPerson } from "@/components/teacher/ClassTools";
 import { classLabel } from "@/lib/assignments";
 import { MIN_PASSWORD } from "@/lib/account-id";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
@@ -48,7 +48,6 @@ function TeacherPage() {
   const [level, setLevel] = useState<Level>("p6");
   const [subject, setSubject] = useState<Subject>("math");
   const [teachers, setTeachers] = useState<TPerson[]>([]);
-  const [classes, setClasses] = useState<TClass[]>([]);
   const [room, setRoom] = useState<string>("all");
   const [tick, setTick] = useState(0);
   const [school, setSchool] = useState<{ amphoe: string | null; province: string | null; area: string | null; opened: string | null; teachers: number } | null>(null);
@@ -75,16 +74,6 @@ function TeacherPage() {
       ]);
       const tids = new Set((tr ?? []).map((r) => r.user_id));
       setTeachers((profs ?? []).filter((p) => tids.has(p.id)).map((p) => ({ id: p.id, first: p.first_name, last: p.last_name })));
-      const { data: cls } = await supabase.from("teacher_classes").select("id, teacher_id, grade, room, subject");
-      const mine = ((cls ?? []) as TClass[]);
-      setClasses(mine);
-      setRoom((cur) => {
-        if (cur !== "all") return cur;
-        const first = mine.find((c) => c.teacher_id === acc.id);
-        if (!first) return cur;
-        setLevel(first.grade as Level); setSubject(first.subject as Subject);
-        return classLabel(first.grade, first.room || null);
-      });
       setSchool({ amphoe: sc?.amphoe ?? null, province: sc?.province ?? null, area: sc?.area ?? null, opened: site?.opened_at ?? null,
         teachers: (profs ?? []).filter((p) => tids.has(p.id)).length });
     })();
@@ -161,8 +150,7 @@ function TeacherPage() {
             onPick={(l, sub) => { setLevel(l); setSubject(sub); }} />
           </div>
 
-          <SchoolPeople teachers={teachers} students={students} rows={rows} classes={classes} />
-          <MyClasses me={acc.id} classes={classes} onChange={() => setTick((t) => t + 1)} />
+          <SchoolPeople teachers={teachers} students={students} rows={rows} />
 
           <div className="rep-subject space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
