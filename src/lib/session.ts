@@ -35,7 +35,11 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       const account = await fetchAccount().catch(() => null);
       if (alive && current === revision) { if (!account) clearLocalProgress(); setAcc(account); }
     };
-    void load();
+    // Signed-out visitors: decide instantly from the local session instead of waiting on the network.
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!alive) return;
+      if (!session) { clearLocalProgress(); setAcc(null); revision++; } else void load();
+    });
     const { data } = supabase.auth.onAuthStateChange((ev) => {
       if (ev !== "SIGNED_IN" && ev !== "SIGNED_OUT" && ev !== "USER_UPDATED") return;
       if (ev === "SIGNED_OUT") { revision++; clearLocalProgress(); setAcc(null); void queryClient.cancelQueries(); queryClient.clear(); }

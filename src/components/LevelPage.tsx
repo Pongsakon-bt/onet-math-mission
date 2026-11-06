@@ -9,8 +9,8 @@ import { SiteNav } from "@/components/SiteNav";
 import { SUBJECTS } from "@/components/subject-ui";
 import { loadAttempts } from "@/lib/progress";
 import { attemptPct, preRound1 } from "@/lib/skill";
-import bannerP6 from "@/assets/banner-p6.jpg";
-import bannerM3 from "@/assets/banner-m3.jpg";
+import bannerP6 from "@/assets/banner-p6.webp";
+import bannerM3 from "@/assets/banner-m3.webp";
 
 const INFO: Record<Level, { short: string; full: string; banner: string; tag: string }> = {
   p6: { short: "ป.6", full: "ประถมศึกษาปีที่ 6", banner: bannerP6, tag: "ข้อสอบจริงย้อนหลัง ทำบนจอได้ พร้อมคำใบ้" },
