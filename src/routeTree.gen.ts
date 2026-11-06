@@ -26,6 +26,7 @@ import { Route as DevelopLevelSubjectRouteImport } from './routes/develop.$level
 import { Route as DiagnosticLevelSubjectRouteImport } from './routes/diagnostic.$level.$subject'
 import { Route as DrillLevelSubjectTopicRouteImport } from './routes/drill.$level.$subject.$topic'
 import { Route as LearnLevelSubjectStrandRouteImport } from './routes/learn.$level.$subject.$strand'
+import { Route as PreonetLevelSubjectRoundRouteImport } from './routes/preonet.$level.$subject.$round'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -112,6 +113,12 @@ const LearnLevelSubjectStrandRoute = LearnLevelSubjectStrandRouteImport.update({
   path: '/learn/$level/$subject/$strand',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PreonetLevelSubjectRoundRoute =
+  PreonetLevelSubjectRoundRouteImport.update({
+    id: '/preonet/$level/$subject/$round',
+    path: '/preonet/$level/$subject/$round',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/drill/$level/$subject/$topic': typeof DrillLevelSubjectTopicRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
+  '/preonet/$level/$subject/$round': typeof PreonetLevelSubjectRoundRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,6 +158,7 @@ export interface FileRoutesByTo {
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/drill/$level/$subject/$topic': typeof DrillLevelSubjectTopicRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
+  '/preonet/$level/$subject/$round': typeof PreonetLevelSubjectRoundRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,6 +179,7 @@ export interface FileRoutesById {
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/drill/$level/$subject/$topic': typeof DrillLevelSubjectTopicRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
+  '/preonet/$level/$subject/$round': typeof PreonetLevelSubjectRoundRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/diagnostic/$level/$subject'
     | '/drill/$level/$subject/$topic'
     | '/learn/$level/$subject/$strand'
+    | '/preonet/$level/$subject/$round'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/diagnostic/$level/$subject'
     | '/drill/$level/$subject/$topic'
     | '/learn/$level/$subject/$strand'
+    | '/preonet/$level/$subject/$round'
   id:
     | '__root__'
     | '/'
@@ -229,6 +241,7 @@ export interface FileRouteTypes {
     | '/diagnostic/$level/$subject'
     | '/drill/$level/$subject/$topic'
     | '/learn/$level/$subject/$strand'
+    | '/preonet/$level/$subject/$round'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -249,6 +262,7 @@ export interface RootRouteChildren {
   DiagnosticLevelSubjectRoute: typeof DiagnosticLevelSubjectRoute
   DrillLevelSubjectTopicRoute: typeof DrillLevelSubjectTopicRoute
   LearnLevelSubjectStrandRoute: typeof LearnLevelSubjectStrandRoute
+  PreonetLevelSubjectRoundRoute: typeof PreonetLevelSubjectRoundRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -372,6 +386,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnLevelSubjectStrandRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/preonet/$level/$subject/$round': {
+      id: '/preonet/$level/$subject/$round'
+      path: '/preonet/$level/$subject/$round'
+      fullPath: '/preonet/$level/$subject/$round'
+      preLoaderRoute: typeof PreonetLevelSubjectRoundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -393,6 +414,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiagnosticLevelSubjectRoute: DiagnosticLevelSubjectRoute,
   DrillLevelSubjectTopicRoute: DrillLevelSubjectTopicRoute,
   LearnLevelSubjectStrandRoute: LearnLevelSubjectStrandRoute,
+  PreonetLevelSubjectRoundRoute: PreonetLevelSubjectRoundRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

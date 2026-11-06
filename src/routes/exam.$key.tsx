@@ -1,3 +1,4 @@
+import { subjectVars } from "@/components/subject-ui";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { catalog } from "@/data/catalog";
 import { ExamRunner } from "@/components/exam/ExamRunner";
@@ -92,7 +93,7 @@ function ExamPage() {
   const mmss = (n: number) => `${Math.floor(Math.abs(n) / 60)}:${String(Math.abs(n) % 60).padStart(2, "0")}`;
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background" style={subjectVars(exam.subject)}>
       <div className="shrink-0 border-b border-border bg-background [@media(max-height:500px)]:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-1.5 sm:px-4">
           <Link to="/" className="font-display text-lg text-primary">PRE O-NET<span className="text-highlight-strong">.</span></Link>
