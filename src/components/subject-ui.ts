@@ -12,8 +12,8 @@ export const SUBJECTS = [
 
 export const subjectUi = (s: Subject) => SUBJECTS.find((x) => x.key === s)!;
 
-/** Page background per level: ป.6 blue, ม.3 orange. */
-export const LEVEL_BG: Record<Level, string> = { p6: "bg-level-p6", m3: "bg-level-m3" };
+/** Both levels share the site's neutral grid background. */
+export const LEVEL_BG: Record<Level, string> = { p6: "level-grid-background", m3: "level-grid-background" };
 export const LEVEL_SHORT: Record<Level, string> = { p6: "ป.6", m3: "ม.3" };
 
 export const isLevel = (v: string): v is Level => v === "p6" || v === "m3";

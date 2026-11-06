@@ -14,8 +14,7 @@ export function SiteNav({ level }: { level?: Level }) {
     <header className="sticky top-0 z-30 border-b border-nav-hover bg-nav-surface text-nav-text">
       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-2 sm:px-6 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-6">
         <div className="flex items-center gap-2">
-          <BrandHomeLink compact />
-          <span className="font-display text-base font-medium sm:text-lg">COOL QUIZ</span>
+          <BrandHomeLink compact showName />
         </div>
         <nav aria-label="เมนูหลัก" className="col-span-2 row-start-2 flex min-w-0 items-center justify-center gap-1 lg:col-span-1 lg:row-start-auto lg:gap-2">
           <Link to="/" activeOptions={{ exact: true }} className="rounded-md px-3 py-2 text-sm font-semibold text-nav-muted transition-colors hover:bg-nav-hover hover:text-nav-text data-[status=active]:bg-nav-active data-[status=active]:text-nav-text">หน้าหลัก</Link>
