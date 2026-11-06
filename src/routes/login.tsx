@@ -11,7 +11,7 @@ import { uploadLocalAttempts } from "@/lib/session";
 
 export const Route = createFileRoute("/login")({
   head: () => {
-    const title = "เข้าสู่ระบบ · PRE O-NET";
+    const title = "เข้าสู่ระบบ · COOL QUIZ : O-NET";
     const description = "นักเรียนและครูเข้าสู่ระบบด้วยชื่อ นามสกุล และรหัสผ่าน";
     return { meta: [
       { title }, { name: "description", content: description },
@@ -58,8 +58,8 @@ function LoginPage() {
   };
 
   return (
-    <PageShell title="เข้าสู่ระบบ">
-      <AuthCard title="เข้าสู่ระบบ">
+    <PageShell navigation title="เข้าสู่ระบบ">
+      <AuthCard title="เข้าสู่ระบบ" appearance="blue">
         <form onSubmit={submit} className="space-y-4">
           {adminMode ? (<>
             <p className="font-semibold">เข้าสู่ระบบผู้ดูแลระบบ</p>
@@ -75,9 +75,9 @@ function LoginPage() {
           </>)}
           {err && <p className="text-sm text-destructive">{err}</p>}
           <Button type="submit" size="lg" className="w-full" disabled={busy}>{busy ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}</Button>
-          <div className="flex justify-between text-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
             <Link to="/register" className="underline">สมัครใช้งาน</Link>
-            <button type="button" className="text-muted-foreground underline" onClick={() => { setAdminMode(!adminMode); setErr(""); }}>{adminMode ? "กลับไปหน้านักเรียน/ครู" : "ผู้ดูแลระบบ"}</button>
+            <Button type="button" variant="link" className="h-auto p-0 text-muted-foreground underline" onClick={() => { setAdminMode(!adminMode); setErr(""); }}>{adminMode ? "กลับไปหน้านักเรียน/ครู" : "ผู้ดูแลระบบ"}</Button>
             <Link to="/forgot-password" className="text-muted-foreground underline">ลืมรหัสผ่าน</Link>
           </div>
         </form>

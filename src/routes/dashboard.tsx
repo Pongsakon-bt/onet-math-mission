@@ -76,9 +76,13 @@ function Dashboard() {
   const todo = strands.map((n, i) => ({ n, i, pct: latest.get(n) })).sort((a, b) => (a.pct ?? -1) - (b.pct ?? -1));
 
   return (
-    <PageShell title="แดชบอร์ดของฉัน" sub={synced ? "ผลจากบัญชีของคุณ (ทุกเครื่อง)" : "ผลเก็บไว้ในเครื่องนี้"}>
+    <PageShell navigation level={level} title="แดชบอร์ดของฉัน" sub={synced ? "ผลจากบัญชีของคุณ (ทุกเครื่อง)" : "ผลเก็บไว้ในเครื่องนี้"}>
       <main className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:px-4">
+          <div>
+            <h1 className="font-display text-2xl">แดชบอร์ดของฉัน</h1>
+            <p className="text-sm text-muted-foreground">{synced ? "ผลจากบัญชีของคุณ (ทุกเครื่อง)" : "ผลเก็บไว้ในเครื่องนี้"}</p>
+          </div>
           <div className="flex flex-wrap gap-2">
             {LEVELS.map((l) => (
               <Link key={l} to="/dashboard" search={{ level: l, subject }} className={cn("rounded-full border px-5 py-2 font-display text-lg", l === level ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{LEVEL_NAMES[l]}</Link>
