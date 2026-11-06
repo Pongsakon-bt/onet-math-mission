@@ -165,6 +165,10 @@
   --highlight: oklch(0.88 0.16 95);
   --highlight-strong: oklch(0.72 0.17 70);
   --success: oklch(0.58 0.14 155);
+  --level-p6: oklch(0.93 0.045 250);
+  --level-p6-strong: oklch(0.5 0.17 255);
+  --level-m3: oklch(0.94 0.05 65);
+  --level-m3-strong: oklch(0.66 0.17 50);
   --subj-math: oklch(0.48 0.16 258);
   --subj-thai: oklch(0.55 0.2 25);
   --subj-eng: oklch(0.55 0.15 150);
@@ -182,6 +186,10 @@
   --color-highlight-strong: var(--highlight-strong);
   --color-success: var(--success);
   --color-subj-math: var(--subj-math);
+  --color-level-p6: var(--level-p6);
+  --color-level-p6-strong: var(--level-p6-strong);
+  --color-level-m3: var(--level-m3);
+  --color-level-m3-strong: var(--level-m3-strong);
   --color-subj-thai: var(--subj-thai);
   --color-subj-eng: var(--subj-eng);
   --color-subj-sci: var(--subj-sci);

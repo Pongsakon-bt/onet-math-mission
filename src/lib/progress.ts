@@ -2,7 +2,7 @@ import { isCorrect, type Exam, type Subject } from "@/data/exams";
 import type { Level } from "@/data/catalog";
 import { strandOf } from "@/data/strands";
 
-export type AttemptKind = "diagnostic" | "practice" | "retest" | "full";
+export type AttemptKind = "diagnostic" | "practice" | "retest" | "full" | "drill";
 export type Attempt = {
   id: string;
   kind: AttemptKind;
@@ -42,6 +42,7 @@ export function saveAttempt(kind: AttemptKind, id: string, exam: Exam, answers: 
     .map((q) => ({ qid: q.id, no: String(q.no), prompt: q.prompt, max_points: q.points, answer: String(answers[q.id]).trim() }));
   // Also store it in the student's account when signed in, so their teacher can see it.
   void import("./session").then((m) => m.uploadAttempt(attempt, essays)).catch(() => {});
+  return attempt;
 }
 
 /** Merge attempts from the account into this device (by id), so every device shows the same history. */

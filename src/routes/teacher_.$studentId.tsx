@@ -30,7 +30,7 @@ export const Route = createFileRoute("/teacher_/$studentId")({
 
 type Essay = { attempt_id: string; qid: string; no: string; prompt: string; max_points: number; answer: string; score: number | null; comment: string | null; created_at: string };
 const LEVEL_NAMES: Record<Level, string> = { p6: "ป.6", m3: "ม.3" };
-const KIND: Record<Attempt["kind"], string> = { diagnostic: "วัดพื้นฐาน", retest: "สอบซ้ำ", practice: "ฝึก", full: "ข้อสอบเต็มชุด" };
+const KIND: Record<Attempt["kind"], string> = { diagnostic: "วัดพื้นฐาน", retest: "สอบซ้ำ", practice: "ฝึก", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย" };
 const tone = (p: number) => (p < 50 ? "bg-destructive" : p < 75 ? "bg-accent" : "bg-primary");
 const pctOf = (items: Attempt["items"]) => (items.length ? Math.round((items.filter((i) => i.correct).length / items.length) * 100) : 0);
 
