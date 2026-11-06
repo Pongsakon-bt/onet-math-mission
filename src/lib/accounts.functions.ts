@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+import { GRADES } from "./assignments";
 import { accountEmail, isSchoolCode, MIN_PASSWORD, sha256Hex, type Role } from "./account-id";
 
 function publicClient() {
@@ -42,7 +43,7 @@ export const registerAccount = createServerFn({ method: "POST" })
     role: (d.role === "teacher" ? "teacher" : "student") as Role,
     first: cleanName(d.first), last: cleanName(d.last),
     school: String(d.school ?? "").trim(), password: String(d.password ?? ""),
-    grade: d.grade === "p6" || d.grade === "m3" ? d.grade : null,
+    grade: GRADES.includes(d.grade as never) ? d.grade : null,
     room: String(d.room ?? "").replace(/\s+/g, "").slice(0, 10) || null,
   }))
   .handler(async ({ data }) => {

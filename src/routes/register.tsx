@@ -1,3 +1,4 @@
+import { GRADES, GRADE_NAMES } from "@/lib/assignments";
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -86,7 +87,7 @@ function RegisterPage() {
             <div className="grid grid-cols-2 gap-3">
               <Field label="ชั้น">
                 <select value={f.grade} onChange={(e) => setF({ ...f, grade: e.target.value })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
-                  <option value="">เลือกชั้น</option><option value="p6">ป.6</option><option value="m3">ม.3</option>
+                  <option value="">เลือกชั้น</option>{GRADES.map((g) => <option key={g} value={g}>{GRADE_NAMES[g]}</option>)}
                 </select>
               </Field>
               <Field label="ห้อง" hint="เช่น 1, 2 (ไม่บังคับ)"><Input value={f.room} onChange={(e) => setF({ ...f, room: e.target.value })} /></Field>

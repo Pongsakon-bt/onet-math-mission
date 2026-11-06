@@ -9,7 +9,7 @@ import { useAccount } from "@/lib/session";
 import { resetStudentPassword } from "@/lib/accounts.functions";
 import { teacherUpdateStudent } from "@/lib/classes.functions";
 import { SchoolPeople, type TPerson } from "@/components/teacher/ClassTools";
-import { classLabel } from "@/lib/assignments";
+import { classLabel, parseGrade } from "@/lib/assignments";
 import { MIN_PASSWORD } from "@/lib/account-id";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
@@ -103,11 +103,12 @@ function TeacherPage() {
     window.alert(res.ok ? "ตั้งรหัสผ่านใหม่แล้ว แจ้งนักเรียนได้เลย" : res.error);
   };
   const move = async (s: Student) => {
-    const v = window.prompt(`ย้ายห้อง ${s.first} ${s.last} — พิมพ์ชั้น/ห้อง เช่น ป.6/2 หรือ ม.3/1`, classLabel(s.grade, s.room));
+    const v = window.prompt(`ย้ายห้อง ${s.first} ${s.last} — พิมพ์ชั้น/ห้อง เช่น ป.4/2 หรือ ม.1/1`, classLabel(s.grade, s.room));
     if (!v) return;
-    const m = v.trim().match(/^(ป\.?6|ม\.?3)\s*\/?\s*(\S*)$/);
-    if (!m) return window.alert("รูปแบบไม่ถูกต้อง ตัวอย่าง: ป.6/2");
-    const res = await teacherUpdateStudent({ data: { studentId: s.id, grade: m[1]!.startsWith("ป") ? "p6" : "m3", room: m[2] ?? "" } });
+    const [g, r] = v.trim().split("/");
+    const gc = parseGrade(g ?? "");
+    if (!gc) return window.alert("รูปแบบไม่ถูกต้อง ตัวอย่าง: ป.6/2 หรือ ม.1/3");
+    const res = await teacherUpdateStudent({ data: { studentId: s.id, grade: gc, room: (r ?? "").trim() } });
     if (!res.ok) return window.alert(res.error);
     setTick((t) => t + 1);
   };

@@ -1,9 +1,36 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { accountEmail, isSchoolCode, type Role } from "./account-id";
-import { cleanRoom } from "./assignments";
+import { asGrade, cleanRoom } from "./assignments";
 
-const grade = (v: unknown) => (v === "p6" || v === "m3" ? v : null);
+const grade = asGrade;
+
+const cleanName = (v: unknown) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, 60);
+
+/** Signed-in user edits their own first/last name (and, for students, grade/room). Renaming also moves the internal sign-in email. */
+export const updateMyProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { first: string; last: string; grade?: string; room?: string }) => ({
+    first: cleanName(d.first), last: cleanName(d.last), grade: d.grade === undefined ? undefined : grade(d.grade), room: cleanRoom(d.room ?? ""),
+  }))
+  .handler(async ({ data, context }) => {
+    if (!data.first || !data.last) return { ok: false as const, error: "กรุณากรอกชื่อและนามสกุล" };
+    const { data: p } = await context.supabase.from("profiles").select("first_name, last_name, school_code").eq("id", context.userId).maybeSingle();
+    if (!p) return { ok: false as const, error: "ไม่พบบัญชี" };
+    const { data: roles } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
+    const role: Role = roles?.some((r) => r.role === "teacher") ? "teacher" : "student";
+    if (role === "student" && data.grade === null) return { ok: false as const, error: "กรุณาเลือกชั้น" };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (p.first_name !== data.first || p.last_name !== data.last) {
+      const email = await accountEmail(role, data.first, data.last, p.school_code);
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(context.userId, { email, email_confirm: true });
+      if (error) return { ok: false as const, error: "มีบัญชีชื่อนี้ในโรงเรียนแล้ว" };
+    }
+    const patch: { first_name: string; last_name: string; grade?: string; room?: string | null } = { first_name: data.first, last_name: data.last };
+    if (role === "student" && data.grade) { patch.grade = data.grade; patch.room = data.room; }
+    const { error } = await supabaseAdmin.from("profiles").update(patch).eq("id", context.userId);
+    return error ? { ok: false as const, error: "บันทึกไม่สำเร็จ" } : { ok: true as const };
+  });
 
 /** Signed-in student sets their own grade and room. */
 export const setMyClass = createServerFn({ method: "POST" })
