@@ -61,7 +61,7 @@ function DrillPage() {
     const an = analyzeSubject(level, subject);
     const rows = an.topics.map((t, index) => ({ topic: t.topic, years: t.years, index, skill: topicSkill(all, level, subject, t.topic).skill }));
     const nx = nextTopic(rows, topic);
-    const strandIdx = an.strands.findIndex((z) => z.name === an.topics[Number(idx)]?.strand);
+    const strandIdx = an.strands.find((z) => z.name === an.topics[Number(idx)]?.strand)?.index ?? -1;
     setStrand(strandIdx);
     setResult({ correct, total: a.items.length, skill: rows.find((r) => r.topic === topic)?.skill ?? null, next: nx && { topic: nx.topic, index: nx.index } });
   };
