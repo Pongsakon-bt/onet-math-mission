@@ -7,6 +7,7 @@ import { analyzeSubject, baseTopic } from "@/data/analysis";
 import { loadAttempts, levelOf, type Attempt } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 import { syncMyAttempts } from "@/lib/session";
+import { Button } from "@/components/ui/button";
 
 /** Every topic that has appeared in the subject's past exams = the full tutoring syllabus.
  *  Each topic is rated from the PRE O-NET round 1 result (ดี / พอใช้ / ต้องติว / ยังไม่ได้วัด). */
@@ -88,16 +89,17 @@ export function TutorChecklist({ level, subject, attempts }: { level: Level; sub
                   </Link>
                   <ol className="grid gap-1.5 sm:grid-cols-2">
                     {ts.map((t) => (
-                      <li key={t.topic} className="flex items-center gap-2 rounded-xl bg-secondary/60 px-3 py-2">
+                      <li key={t.topic} className="flex flex-wrap items-start gap-2 rounded-xl bg-secondary/60 px-3 py-3">
                         <div className="min-w-0 flex-1">
                           <p className="font-semibold">{t.topic}</p>
                           <p className="text-xs text-muted-foreground">ออก {t.years.length}/{a.nYears} ปี · รวม {t.count} ข้อ{t.n ? ` · ครั้งที่ 1 ทำ ${t.n} ข้อ` : ""}</p>
-                          <Link to="/drill/$level/$subject/$topic" params={{ level, subject, topic: String(a.topics.indexOf(a.topics.find((x) => x.topic === t.topic)!)) }}
-                            className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-primary underline-offset-2 hover:underline">
-                            <PencilLine className="h-3.5 w-3.5" /> ทำข้อสอบเรื่องนี้ (20 ข้อ)
-                          </Link>
                         </div>
                         <Pill pct={t.pct} small />
+                        <Button asChild className="min-h-11 h-auto w-full whitespace-normal px-3 py-2 text-sm font-semibold">
+                          <Link to="/drill/$level/$subject/$topic" params={{ level, subject, topic: String(a.topics.findIndex((x) => x.topic === t.topic)) }}>
+                            <PencilLine /> ทำข้อสอบเรื่องนี้ (20 ข้อ)
+                          </Link>
+                        </Button>
                       </li>
                     ))}
                   </ol>
