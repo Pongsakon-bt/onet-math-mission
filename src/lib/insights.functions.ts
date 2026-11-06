@@ -80,3 +80,30 @@ Return JSON.`,
       return { ok: false, error: "AI ตรวจไม่สำเร็จ ลองใหม่อีกครั้ง" };
     }
   });
+
+/** Average percent per subject across active students of the caller's school, for one level. Only averages leave the server. */
+export const getSchoolSubjectAverage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { level: string }) => ({ level: String(d.level).slice(0, 4) }))
+  .handler(async ({ data, context }): Promise<{ subjects: Record<string, number>; students: number }> => {
+    const me = await context.supabase.from("profiles").select("school_code").eq("id", context.userId).maybeSingle();
+    const school = me.data?.school_code;
+    if (!school) return { subjects: {}, students: 0 };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: people } = await supabaseAdmin.from("profiles").select("id").eq("school_code", school).eq("active", true).limit(2000);
+    const ids = (people ?? []).map((p) => p.id);
+    if (!ids.length) return { subjects: {}, students: 0 };
+    const { data: rows } = await supabaseAdmin.from("attempts").select("user_id, subject, items").in("user_id", ids)
+      .eq("level", data.level).in("kind", ["pre1", "pre2", "full", "diagnostic", "retest"]).limit(5000);
+    const per = new Map<string, Map<string, { ok: number; n: number }>>();
+    for (const r of rows ?? []) {
+      const m = per.get(r.subject) ?? new Map<string, { ok: number; n: number }>();
+      const v = m.get(r.user_id) ?? { ok: 0, n: 0 };
+      for (const it of (r.items as { correct: boolean; points?: number }[]) ?? []) { const p = it.points ?? 1; v.n += p; if (it.correct) v.ok += p; }
+      m.set(r.user_id, v); per.set(r.subject, m);
+    }
+    const students = new Set((rows ?? []).map((r) => r.user_id)).size;
+    const subjects: Record<string, number> = {};
+    for (const [s, m] of per) { const xs = [...m.values()].filter((v) => v.n); if (xs.length) subjects[s] = Math.round(xs.reduce((a, v) => a + (v.ok / v.n) * 100, 0) / xs.length); }
+    return { subjects, students };
+  });
