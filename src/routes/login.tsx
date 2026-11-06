@@ -32,14 +32,16 @@ function LoginPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr("");
-    if (!f.first.trim() || !f.last.trim() || !f.password) return setErr("กรุณากรอกข้อมูลให้ครบ");
+    const isAdmin = f.first.trim().toLowerCase() === "admin";
+    if (!f.first.trim() || (!f.last.trim() && !isAdmin) || !f.password) return setErr("กรุณากรอกข้อมูลให้ครบ");
     setBusy(true);
     const res = await signInByName({ data: { role, first: f.first, last: f.last, password: f.password } }).catch(() => null);
     if (!res || !res.ok) { setBusy(false); return setErr(res?.error ?? "เข้าสู่ระบบไม่สำเร็จ ลองใหม่อีกครั้ง"); }
     const { error } = await supabase.auth.setSession({ access_token: res.access_token, refresh_token: res.refresh_token });
     setBusy(false);
     if (error) return setErr("เข้าสู่ระบบไม่สำเร็จ ลองใหม่อีกครั้ง");
-    if (role === "student") { await uploadLocalAttempts().catch(() => {}); navigate({ to: "/" }); }
+    if ("admin" in res && res.admin) navigate({ to: "/admin" });
+    else if (role === "student") { await uploadLocalAttempts().catch(() => {}); navigate({ to: "/" }); }
     else navigate({ to: "/teacher" });
   };
 

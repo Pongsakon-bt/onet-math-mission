@@ -134,8 +134,19 @@ export const signInByName = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data }) => {
     const fail = { ok: false as const, error: "ชื่อ นามสกุล หรือรหัสผ่านไม่ถูกต้อง" };
-    if (!data.first || !data.last || !data.password) return fail;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Admin account: first name "admin" (last name optional).
+    if (data.first.toLowerCase() === "admin" && (!data.last || data.last.toLowerCase() === "admin") && data.password) {
+      const key = "login:admin";
+      const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      const { count } = await supabaseAdmin.from("reset_attempts").select("id", { count: "exact", head: true }).eq("key", key).gte("at", since);
+      if ((count ?? 0) >= 10) return { ok: false as const, error: "ลองผิดหลายครั้งเกินไป กรุณารอ 15 นาทีแล้วลองใหม่" };
+      const { data: res } = await publicClient().auth.signInWithPassword({ email: "admin@preonet.app", password: data.password });
+      if (res.session) return { ok: true as const, admin: true, access_token: res.session.access_token, refresh_token: res.session.refresh_token };
+      await supabaseAdmin.from("reset_attempts").insert({ key });
+      return fail;
+    }
+    if (!data.first || !data.last || !data.password) return fail;
     // At most 10 tries per name in 15 minutes.
     const key = `login:${data.role}:${data.first.toLowerCase()}|${data.last.toLowerCase()}`;
     const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();

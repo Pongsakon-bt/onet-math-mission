@@ -29,6 +29,13 @@
       "when": 1793927773533,
       "tag": "0003_school_area_and_sites",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793928056259,
+      "tag": "0004_add_admin_role",
+      "breakpoints": true
     }
   ]
 }
