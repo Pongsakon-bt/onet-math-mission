@@ -1,5 +1,4 @@
 import { isPreUnlocked } from "@/lib/skill";
-import { Lock } from "lucide-react";
 import { subjectVars } from "@/components/subject-ui";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { catalog } from "@/data/catalog";
@@ -7,8 +6,8 @@ import { ExamRunner } from "@/components/exam/ExamRunner";
 import { preloadExamImages } from "@/lib/preload-exam";
 import { ExamIntro } from "@/components/exam/ExamIntro";
 import { useEffect, useState } from "react";
-import { Timer } from "lucide-react";
-import { saveAttempt } from "@/lib/progress";
+import { Timer, Lock } from "lucide-react";
+import { loadAttempts, saveAttempt } from "@/lib/progress";
 
 export const Route = createFileRoute("/exam/$key")({
   loader: async ({ params }) => {
