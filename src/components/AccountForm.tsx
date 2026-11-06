@@ -69,12 +69,13 @@ export function SchoolCodeField({ value, onChange, confirmed, onConfirm }: { val
   );
 }
 
-export function AuthCard({ title, children }: { title: string; children: ReactNode }) {
+export function AuthCard({ title, children, appearance = "default" }: { title: string; children: ReactNode; appearance?: "default" | "blue" }) {
   return (
     <main className="min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-md px-4 py-6">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-paper sm:p-6">
-          <h1 className="mb-4 font-display text-2xl">{title}</h1>
+      <div className={appearance === "blue" ? "mx-auto max-w-lg px-4 py-8 sm:py-12" : "mx-auto max-w-md px-4 py-6"}>
+        <div className={appearance === "blue" ? "auth-blue rounded-lg border border-border bg-card p-5 text-card-foreground sm:p-8" : "rounded-2xl border border-border bg-card p-5 shadow-paper sm:p-6"}>
+          {appearance === "blue" && <p className="mb-2 text-center font-display text-2xl font-medium text-foreground sm:text-3xl">COOL QUIZ : O-NET</p>}
+          <h1 className={appearance === "blue" ? "mb-6 text-center font-display text-lg text-muted-foreground" : "mb-4 font-display text-2xl"}>{title}</h1>
           {children}
         </div>
       </div>
