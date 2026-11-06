@@ -26,7 +26,7 @@ export const Route = createFileRoute("/teacher_/$studentId")({
       { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
     ] };
   },
-  validateSearch: (s: Record<string, unknown>): { level?: string; subject?: string } => ({
+  validateSearch: (s: Record<string, unknown>): { level?: string | undefined; subject?: string | undefined } => ({
     level: typeof s["level"] === "string" ? s["level"] : undefined,
     subject: typeof s["subject"] === "string" ? s["subject"] : undefined,
   }),
