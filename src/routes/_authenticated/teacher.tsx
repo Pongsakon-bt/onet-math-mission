@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/lib/session";
 import { resetStudentPassword } from "@/lib/accounts.functions";
 import { teacherUpdateStudent } from "@/lib/classes.functions";
-import { AssignmentsPanel, MyClasses, SchoolPeople, type TClass, type TPerson } from "@/components/teacher/ClassTools";
+import { MyClasses, SchoolPeople, type TClass, type TPerson } from "@/components/teacher/ClassTools";
 import { classLabel } from "@/lib/assignments";
 import { MIN_PASSWORD } from "@/lib/account-id";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
@@ -163,7 +163,6 @@ function TeacherPage() {
 
           <SchoolPeople teachers={teachers} students={students} rows={rows} classes={classes} />
           <MyClasses me={acc.id} classes={classes} onChange={() => setTick((t) => t + 1)} />
-          <AssignmentsPanel me={acc.id} school={acc.school} students={students} rows={rows} />
 
           <div className="rep-subject space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
