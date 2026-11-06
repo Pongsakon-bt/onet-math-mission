@@ -74,3 +74,8 @@ export function strandScores(items: Attempt["items"]) {
 }
 
 export const levelOf = (pct: number) => (pct < 50 ? "อ่อน" : pct < 75 ? "พอใช้" : "ดี");
+
+/** Remove this device's saved results — used whenever nobody is signed in. */
+export function clearLocalProgress() {
+  try { localStorage.removeItem(KEY); localStorage.removeItem(STUDIED); } catch { /* ignore */ }
+}
