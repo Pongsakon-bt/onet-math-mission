@@ -116,7 +116,7 @@ function Dashboard() {
               </div>
             </LevelOverview>
           <div className="space-y-4 border-t border-border pt-4">
-          {all !== null && !tests.length ? (
+          {all !== null && !tests.length && account?.role !== "admin" ? (
             <section className="rounded-2xl border border-border bg-card p-6 text-center shadow-paper">
               <p className="font-display text-xl">ยังไม่ได้วัดความรู้พื้นฐาน {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</p>
               <p className="mt-1 text-muted-foreground">ทำแบบวัดสั้น ๆ เพื่อดูว่าแต่ละสาระรู้แค่ไหน</p>
