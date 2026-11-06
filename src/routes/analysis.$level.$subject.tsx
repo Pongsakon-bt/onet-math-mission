@@ -40,7 +40,7 @@ function AnalysisPage() {
   const top = a.topics.filter((t) => t.years.length >= Math.min(3, a.nYears)).slice(0, 12);
 
   return (
-    <PageShell title="วิเคราะห์ข้อสอบ" sub={name}>
+    <PageShell subject={subject} title="วิเคราะห์ข้อสอบ" sub={name}>
       <main className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:px-4 sm:py-6">
           <h1 className="font-display text-2xl sm:text-3xl">{name} · {a.nYears} ปี ({a.years.join(", ")})</h1>

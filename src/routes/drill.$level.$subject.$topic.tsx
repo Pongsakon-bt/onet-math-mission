@@ -83,7 +83,7 @@ function DrillPage() {
     </>
   );
 
-  return <PageShell title={`ข้อสอบย่อย: ${topic}`} sub={`${s.name} ${LEVEL_SHORT[level]}`}>{body}</PageShell>;
+  return <PageShell subject={subject} title={`ข้อสอบย่อย: ${topic}`} sub={`${s.name} ${LEVEL_SHORT[level]}`}>{body}</PageShell>;
 }
 
 function Center({ children }: { children: React.ReactNode }) {

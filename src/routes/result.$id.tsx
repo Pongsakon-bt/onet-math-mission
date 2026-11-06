@@ -66,7 +66,7 @@ function ResultPage() {
   const mins = a.ms ? `${Math.floor(a.ms / 60000)} นาที ${Math.round((a.ms % 60000) / 1000)} วินาที` : null;
 
   return (
-    <PageShell title="สรุปผล" sub={name}>
+    <PageShell title="สรุปผล" sub={name} subject={a.subject}>
       <main className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl space-y-4 px-3 py-4 sm:px-4 sm:py-6">
           <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">

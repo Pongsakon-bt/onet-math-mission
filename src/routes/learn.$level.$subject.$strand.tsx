@@ -50,7 +50,7 @@ function LearnPage() {
 
   if (practice) {
     return (
-      <PageShell title={`ฝึก: ${strand}`} sub={name}>
+      <PageShell subject={subject} title={`ฝึก: ${strand}`} sub={name}>
         <div className="shrink-0 border-b border-border">
           <div className="mx-auto max-w-6xl px-3 py-1 sm:px-4">
             <Button size="sm" variant="ghost" onClick={() => setPractice(false)}><ArrowLeft /> กลับไปสรุปความรู้</Button>
@@ -62,7 +62,7 @@ function LearnPage() {
   }
 
   return (
-    <PageShell title={`เรียนรู้: ${strand}`} sub={name}>
+    <PageShell subject={subject} title={`เรียนรู้: ${strand}`} sub={name}>
       <main className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl space-y-4 px-3 py-4 sm:px-4 sm:py-6">
           <Link to="/dashboard" search={{ level, subject }} className="text-sm text-muted-foreground underline">← แดชบอร์ดของฉัน</Link>
