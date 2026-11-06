@@ -10,38 +10,38 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as M3RouteImport } from './routes/m3'
 import { Route as P6RouteImport } from './routes/p6'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as TeacherRouteImport } from './routes/teacher'
-import { Route as ExamKeyRouteImport } from './routes/exam.$key'
-import { Route as ResultIdRouteImport } from './routes/result.$id'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as TeacherStudentIdRouteImport } from './routes/teacher_.$studentId'
-import { Route as AnalysisLevelSubjectRouteImport } from './routes/analysis.$level.$subject'
-import { Route as BankLevelSubjectRouteImport } from './routes/bank.$level.$subject'
-import { Route as DevelopLevelSubjectRouteImport } from './routes/develop.$level.$subject'
-import { Route as DiagnosticLevelSubjectRouteImport } from './routes/diagnostic.$level.$subject'
-import { Route as DrillLevelSubjectTopicRouteImport } from './routes/drill.$level.$subject.$topic'
-import { Route as LearnLevelSubjectStrandRouteImport } from './routes/learn.$level.$subject.$strand'
-import { Route as PreonetLevelSubjectRoundRouteImport } from './routes/preonet.$level.$subject.$round'
+import { Route as AuthenticatedExamKeyRouteImport } from './routes/_authenticated/exam.$key'
+import { Route as AuthenticatedResultIdRouteImport } from './routes/_authenticated/result.$id'
+import { Route as AuthenticatedAnalysisLevelSubjectRouteImport } from './routes/_authenticated/analysis.$level.$subject'
+import { Route as AuthenticatedBankLevelSubjectRouteImport } from './routes/_authenticated/bank.$level.$subject'
+import { Route as AuthenticatedDevelopLevelSubjectRouteImport } from './routes/_authenticated/develop.$level.$subject'
+import { Route as AuthenticatedDiagnosticLevelSubjectRouteImport } from './routes/_authenticated/diagnostic.$level.$subject'
+import { Route as AuthenticatedDrillLevelSubjectTopicRouteImport } from './routes/_authenticated/drill.$level.$subject.$topic'
+import { Route as AuthenticatedLearnLevelSubjectStrandRouteImport } from './routes/_authenticated/learn.$level.$subject.$strand'
+import { Route as AuthenticatedPreonetLevelSubjectRoundRouteImport } from './routes/_authenticated/preonet.$level.$subject.$round'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -74,137 +74,149 @@ const TeacherRoute = TeacherRouteImport.update({
   path: '/teacher',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExamKeyRoute = ExamKeyRouteImport.update({
-  id: '/exam/$key',
-  path: '/exam/$key',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResultIdRoute = ResultIdRouteImport.update({
-  id: '/result/$id',
-  path: '/result/$id',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const TeacherStudentIdRoute = TeacherStudentIdRouteImport.update({
   id: '/teacher_/$studentId',
   path: '/teacher/$studentId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AnalysisLevelSubjectRoute = AnalysisLevelSubjectRouteImport.update({
-  id: '/analysis/$level/$subject',
-  path: '/analysis/$level/$subject',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedExamKeyRoute = AuthenticatedExamKeyRouteImport.update({
+  id: '/exam/$key',
+  path: '/exam/$key',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const BankLevelSubjectRoute = BankLevelSubjectRouteImport.update({
-  id: '/bank/$level/$subject',
-  path: '/bank/$level/$subject',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedResultIdRoute = AuthenticatedResultIdRouteImport.update({
+  id: '/result/$id',
+  path: '/result/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const DevelopLevelSubjectRoute = DevelopLevelSubjectRouteImport.update({
-  id: '/develop/$level/$subject',
-  path: '/develop/$level/$subject',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DiagnosticLevelSubjectRoute = DiagnosticLevelSubjectRouteImport.update({
-  id: '/diagnostic/$level/$subject',
-  path: '/diagnostic/$level/$subject',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DrillLevelSubjectTopicRoute = DrillLevelSubjectTopicRouteImport.update({
-  id: '/drill/$level/$subject/$topic',
-  path: '/drill/$level/$subject/$topic',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LearnLevelSubjectStrandRoute = LearnLevelSubjectStrandRouteImport.update({
-  id: '/learn/$level/$subject/$strand',
-  path: '/learn/$level/$subject/$strand',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PreonetLevelSubjectRoundRoute =
-  PreonetLevelSubjectRoundRouteImport.update({
+const AuthenticatedAnalysisLevelSubjectRoute =
+  AuthenticatedAnalysisLevelSubjectRouteImport.update({
+    id: '/analysis/$level/$subject',
+    path: '/analysis/$level/$subject',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBankLevelSubjectRoute =
+  AuthenticatedBankLevelSubjectRouteImport.update({
+    id: '/bank/$level/$subject',
+    path: '/bank/$level/$subject',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDevelopLevelSubjectRoute =
+  AuthenticatedDevelopLevelSubjectRouteImport.update({
+    id: '/develop/$level/$subject',
+    path: '/develop/$level/$subject',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDiagnosticLevelSubjectRoute =
+  AuthenticatedDiagnosticLevelSubjectRouteImport.update({
+    id: '/diagnostic/$level/$subject',
+    path: '/diagnostic/$level/$subject',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDrillLevelSubjectTopicRoute =
+  AuthenticatedDrillLevelSubjectTopicRouteImport.update({
+    id: '/drill/$level/$subject/$topic',
+    path: '/drill/$level/$subject/$topic',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLearnLevelSubjectStrandRoute =
+  AuthenticatedLearnLevelSubjectStrandRouteImport.update({
+    id: '/learn/$level/$subject/$strand',
+    path: '/learn/$level/$subject/$strand',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPreonetLevelSubjectRoundRoute =
+  AuthenticatedPreonetLevelSubjectRoundRouteImport.update({
     id: '/preonet/$level/$subject/$round',
     path: '/preonet/$level/$subject/$round',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/m3': typeof M3Route
   '/p6': typeof P6Route
   '/register': typeof RegisterRoute
   '/teacher': typeof TeacherRoute
-  '/exam/$key': typeof ExamKeyRoute
-  '/result/$id': typeof ResultIdRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/teacher/$studentId': typeof TeacherStudentIdRoute
-  '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
-  '/bank/$level/$subject': typeof BankLevelSubjectRoute
-  '/develop/$level/$subject': typeof DevelopLevelSubjectRoute
-  '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
-  '/drill/$level/$subject/$topic': typeof DrillLevelSubjectTopicRoute
-  '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
-  '/preonet/$level/$subject/$round': typeof PreonetLevelSubjectRoundRoute
+  '/exam/$key': typeof AuthenticatedExamKeyRoute
+  '/result/$id': typeof AuthenticatedResultIdRoute
+  '/analysis/$level/$subject': typeof AuthenticatedAnalysisLevelSubjectRoute
+  '/bank/$level/$subject': typeof AuthenticatedBankLevelSubjectRoute
+  '/develop/$level/$subject': typeof AuthenticatedDevelopLevelSubjectRoute
+  '/diagnostic/$level/$subject': typeof AuthenticatedDiagnosticLevelSubjectRoute
+  '/drill/$level/$subject/$topic': typeof AuthenticatedDrillLevelSubjectTopicRoute
+  '/learn/$level/$subject/$strand': typeof AuthenticatedLearnLevelSubjectStrandRoute
+  '/preonet/$level/$subject/$round': typeof AuthenticatedPreonetLevelSubjectRoundRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/m3': typeof M3Route
   '/p6': typeof P6Route
   '/register': typeof RegisterRoute
   '/teacher': typeof TeacherRoute
-  '/exam/$key': typeof ExamKeyRoute
-  '/result/$id': typeof ResultIdRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/teacher/$studentId': typeof TeacherStudentIdRoute
-  '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
-  '/bank/$level/$subject': typeof BankLevelSubjectRoute
-  '/develop/$level/$subject': typeof DevelopLevelSubjectRoute
-  '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
-  '/drill/$level/$subject/$topic': typeof DrillLevelSubjectTopicRoute
-  '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
-  '/preonet/$level/$subject/$round': typeof PreonetLevelSubjectRoundRoute
+  '/exam/$key': typeof AuthenticatedExamKeyRoute
+  '/result/$id': typeof AuthenticatedResultIdRoute
+  '/analysis/$level/$subject': typeof AuthenticatedAnalysisLevelSubjectRoute
+  '/bank/$level/$subject': typeof AuthenticatedBankLevelSubjectRoute
+  '/develop/$level/$subject': typeof AuthenticatedDevelopLevelSubjectRoute
+  '/diagnostic/$level/$subject': typeof AuthenticatedDiagnosticLevelSubjectRoute
+  '/drill/$level/$subject/$topic': typeof AuthenticatedDrillLevelSubjectTopicRoute
+  '/learn/$level/$subject/$strand': typeof AuthenticatedLearnLevelSubjectStrandRoute
+  '/preonet/$level/$subject/$round': typeof AuthenticatedPreonetLevelSubjectRoundRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/m3': typeof M3Route
   '/p6': typeof P6Route
   '/register': typeof RegisterRoute
   '/teacher': typeof TeacherRoute
-  '/exam/$key': typeof ExamKeyRoute
-  '/result/$id': typeof ResultIdRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/teacher_/$studentId': typeof TeacherStudentIdRoute
-  '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
-  '/bank/$level/$subject': typeof BankLevelSubjectRoute
-  '/develop/$level/$subject': typeof DevelopLevelSubjectRoute
-  '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
-  '/drill/$level/$subject/$topic': typeof DrillLevelSubjectTopicRoute
-  '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
-  '/preonet/$level/$subject/$round': typeof PreonetLevelSubjectRoundRoute
+  '/_authenticated/exam/$key': typeof AuthenticatedExamKeyRoute
+  '/_authenticated/result/$id': typeof AuthenticatedResultIdRoute
+  '/_authenticated/analysis/$level/$subject': typeof AuthenticatedAnalysisLevelSubjectRoute
+  '/_authenticated/bank/$level/$subject': typeof AuthenticatedBankLevelSubjectRoute
+  '/_authenticated/develop/$level/$subject': typeof AuthenticatedDevelopLevelSubjectRoute
+  '/_authenticated/diagnostic/$level/$subject': typeof AuthenticatedDiagnosticLevelSubjectRoute
+  '/_authenticated/drill/$level/$subject/$topic': typeof AuthenticatedDrillLevelSubjectTopicRoute
+  '/_authenticated/learn/$level/$subject/$strand': typeof AuthenticatedLearnLevelSubjectStrandRoute
+  '/_authenticated/preonet/$level/$subject/$round': typeof AuthenticatedPreonetLevelSubjectRoundRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
-    | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/m3'
     | '/p6'
     | '/register'
     | '/teacher'
+    | '/dashboard'
+    | '/teacher/$studentId'
     | '/exam/$key'
     | '/result/$id'
-    | '/teacher/$studentId'
     | '/analysis/$level/$subject'
     | '/bank/$level/$subject'
     | '/develop/$level/$subject'
@@ -216,16 +228,16 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
-    | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/m3'
     | '/p6'
     | '/register'
     | '/teacher'
+    | '/dashboard'
+    | '/teacher/$studentId'
     | '/exam/$key'
     | '/result/$id'
-    | '/teacher/$studentId'
     | '/analysis/$level/$subject'
     | '/bank/$level/$subject'
     | '/develop/$level/$subject'
@@ -236,46 +248,38 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/admin'
-    | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/m3'
     | '/p6'
     | '/register'
     | '/teacher'
-    | '/exam/$key'
-    | '/result/$id'
+    | '/_authenticated/dashboard'
     | '/teacher_/$studentId'
-    | '/analysis/$level/$subject'
-    | '/bank/$level/$subject'
-    | '/develop/$level/$subject'
-    | '/diagnostic/$level/$subject'
-    | '/drill/$level/$subject/$topic'
-    | '/learn/$level/$subject/$strand'
-    | '/preonet/$level/$subject/$round'
+    | '/_authenticated/exam/$key'
+    | '/_authenticated/result/$id'
+    | '/_authenticated/analysis/$level/$subject'
+    | '/_authenticated/bank/$level/$subject'
+    | '/_authenticated/develop/$level/$subject'
+    | '/_authenticated/diagnostic/$level/$subject'
+    | '/_authenticated/drill/$level/$subject/$topic'
+    | '/_authenticated/learn/$level/$subject/$strand'
+    | '/_authenticated/preonet/$level/$subject/$round'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AdminRoute: typeof AdminRoute
-  DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   M3Route: typeof M3Route
   P6Route: typeof P6Route
   RegisterRoute: typeof RegisterRoute
   TeacherRoute: typeof TeacherRoute
-  ExamKeyRoute: typeof ExamKeyRoute
-  ResultIdRoute: typeof ResultIdRoute
   TeacherStudentIdRoute: typeof TeacherStudentIdRoute
-  AnalysisLevelSubjectRoute: typeof AnalysisLevelSubjectRoute
-  BankLevelSubjectRoute: typeof BankLevelSubjectRoute
-  DevelopLevelSubjectRoute: typeof DevelopLevelSubjectRoute
-  DiagnosticLevelSubjectRoute: typeof DiagnosticLevelSubjectRoute
-  DrillLevelSubjectTopicRoute: typeof DrillLevelSubjectTopicRoute
-  LearnLevelSubjectStrandRoute: typeof LearnLevelSubjectStrandRoute
-  PreonetLevelSubjectRoundRoute: typeof PreonetLevelSubjectRoundRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -287,18 +291,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -343,19 +347,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/exam/$key': {
-      id: '/exam/$key'
-      path: '/exam/$key'
-      fullPath: '/exam/$key'
-      preLoaderRoute: typeof ExamKeyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/result/$id': {
-      id: '/result/$id'
-      path: '/result/$id'
-      fullPath: '/result/$id'
-      preLoaderRoute: typeof ResultIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/teacher_/$studentId': {
       id: '/teacher_/$studentId'
@@ -364,78 +361,117 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherStudentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/analysis/$level/$subject': {
-      id: '/analysis/$level/$subject'
+    '/_authenticated/exam/$key': {
+      id: '/_authenticated/exam/$key'
+      path: '/exam/$key'
+      fullPath: '/exam/$key'
+      preLoaderRoute: typeof AuthenticatedExamKeyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/result/$id': {
+      id: '/_authenticated/result/$id'
+      path: '/result/$id'
+      fullPath: '/result/$id'
+      preLoaderRoute: typeof AuthenticatedResultIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/analysis/$level/$subject': {
+      id: '/_authenticated/analysis/$level/$subject'
       path: '/analysis/$level/$subject'
       fullPath: '/analysis/$level/$subject'
-      preLoaderRoute: typeof AnalysisLevelSubjectRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAnalysisLevelSubjectRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/bank/$level/$subject': {
-      id: '/bank/$level/$subject'
+    '/_authenticated/bank/$level/$subject': {
+      id: '/_authenticated/bank/$level/$subject'
       path: '/bank/$level/$subject'
       fullPath: '/bank/$level/$subject'
-      preLoaderRoute: typeof BankLevelSubjectRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedBankLevelSubjectRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/develop/$level/$subject': {
-      id: '/develop/$level/$subject'
+    '/_authenticated/develop/$level/$subject': {
+      id: '/_authenticated/develop/$level/$subject'
       path: '/develop/$level/$subject'
       fullPath: '/develop/$level/$subject'
-      preLoaderRoute: typeof DevelopLevelSubjectRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedDevelopLevelSubjectRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/diagnostic/$level/$subject': {
-      id: '/diagnostic/$level/$subject'
+    '/_authenticated/diagnostic/$level/$subject': {
+      id: '/_authenticated/diagnostic/$level/$subject'
       path: '/diagnostic/$level/$subject'
       fullPath: '/diagnostic/$level/$subject'
-      preLoaderRoute: typeof DiagnosticLevelSubjectRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedDiagnosticLevelSubjectRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/drill/$level/$subject/$topic': {
-      id: '/drill/$level/$subject/$topic'
+    '/_authenticated/drill/$level/$subject/$topic': {
+      id: '/_authenticated/drill/$level/$subject/$topic'
       path: '/drill/$level/$subject/$topic'
       fullPath: '/drill/$level/$subject/$topic'
-      preLoaderRoute: typeof DrillLevelSubjectTopicRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedDrillLevelSubjectTopicRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/learn/$level/$subject/$strand': {
-      id: '/learn/$level/$subject/$strand'
+    '/_authenticated/learn/$level/$subject/$strand': {
+      id: '/_authenticated/learn/$level/$subject/$strand'
       path: '/learn/$level/$subject/$strand'
       fullPath: '/learn/$level/$subject/$strand'
-      preLoaderRoute: typeof LearnLevelSubjectStrandRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedLearnLevelSubjectStrandRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/preonet/$level/$subject/$round': {
-      id: '/preonet/$level/$subject/$round'
+    '/_authenticated/preonet/$level/$subject/$round': {
+      id: '/_authenticated/preonet/$level/$subject/$round'
       path: '/preonet/$level/$subject/$round'
       fullPath: '/preonet/$level/$subject/$round'
-      preLoaderRoute: typeof PreonetLevelSubjectRoundRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedPreonetLevelSubjectRoundRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedExamKeyRoute: typeof AuthenticatedExamKeyRoute
+  AuthenticatedResultIdRoute: typeof AuthenticatedResultIdRoute
+  AuthenticatedAnalysisLevelSubjectRoute: typeof AuthenticatedAnalysisLevelSubjectRoute
+  AuthenticatedBankLevelSubjectRoute: typeof AuthenticatedBankLevelSubjectRoute
+  AuthenticatedDevelopLevelSubjectRoute: typeof AuthenticatedDevelopLevelSubjectRoute
+  AuthenticatedDiagnosticLevelSubjectRoute: typeof AuthenticatedDiagnosticLevelSubjectRoute
+  AuthenticatedDrillLevelSubjectTopicRoute: typeof AuthenticatedDrillLevelSubjectTopicRoute
+  AuthenticatedLearnLevelSubjectStrandRoute: typeof AuthenticatedLearnLevelSubjectStrandRoute
+  AuthenticatedPreonetLevelSubjectRoundRoute: typeof AuthenticatedPreonetLevelSubjectRoundRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedExamKeyRoute: AuthenticatedExamKeyRoute,
+  AuthenticatedResultIdRoute: AuthenticatedResultIdRoute,
+  AuthenticatedAnalysisLevelSubjectRoute:
+    AuthenticatedAnalysisLevelSubjectRoute,
+  AuthenticatedBankLevelSubjectRoute: AuthenticatedBankLevelSubjectRoute,
+  AuthenticatedDevelopLevelSubjectRoute: AuthenticatedDevelopLevelSubjectRoute,
+  AuthenticatedDiagnosticLevelSubjectRoute:
+    AuthenticatedDiagnosticLevelSubjectRoute,
+  AuthenticatedDrillLevelSubjectTopicRoute:
+    AuthenticatedDrillLevelSubjectTopicRoute,
+  AuthenticatedLearnLevelSubjectStrandRoute:
+    AuthenticatedLearnLevelSubjectStrandRoute,
+  AuthenticatedPreonetLevelSubjectRoundRoute:
+    AuthenticatedPreonetLevelSubjectRoundRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AdminRoute: AdminRoute,
-  DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   M3Route: M3Route,
   P6Route: P6Route,
   RegisterRoute: RegisterRoute,
   TeacherRoute: TeacherRoute,
-  ExamKeyRoute: ExamKeyRoute,
-  ResultIdRoute: ResultIdRoute,
   TeacherStudentIdRoute: TeacherStudentIdRoute,
-  AnalysisLevelSubjectRoute: AnalysisLevelSubjectRoute,
-  BankLevelSubjectRoute: BankLevelSubjectRoute,
-  DevelopLevelSubjectRoute: DevelopLevelSubjectRoute,
-  DiagnosticLevelSubjectRoute: DiagnosticLevelSubjectRoute,
-  DrillLevelSubjectTopicRoute: DrillLevelSubjectTopicRoute,
-  LearnLevelSubjectStrandRoute: LearnLevelSubjectStrandRoute,
-  PreonetLevelSubjectRoundRoute: PreonetLevelSubjectRoundRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
