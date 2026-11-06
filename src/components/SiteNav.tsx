@@ -32,7 +32,7 @@ export function SiteNav({ level }: { level?: Level }) {
           </nav>
         )}
         <div className="flex min-w-0 items-center justify-end gap-2">
-          {canShowDashboard(account) && <Link to="/dashboard" search={{ level: level ?? "p6", subject: "math" }} aria-label="แดชบอร์ดของฉัน"
+          {signedIn && <Link to="/dashboard" search={{ level: level ?? "p6", subject: "math" }} aria-label="แดชบอร์ดของฉัน"
             title="แดชบอร์ดของฉัน" className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-2 text-sm font-semibold text-nav-muted transition-colors hover:bg-nav-hover hover:text-nav-text">
             <BarChart3 className="h-4 w-4" /><span className="hidden md:inline">แดชบอร์ดของฉัน</span>
           </Link>}
