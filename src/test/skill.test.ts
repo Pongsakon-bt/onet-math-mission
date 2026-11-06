@@ -48,3 +48,30 @@ describe("skill 0-100", () => {
     expect(topicSkill(a, "p6", "math", "ร้อยละ").skill).toBe(100);
   });
 });
+
+import { topicStatus, nextTopic, subjectReady } from "@/lib/skill";
+describe("topic status after drill", () => {
+  it("uses 50/75/100 thresholds", () => {
+    expect(topicStatus(null)).toBe("none");
+    expect(topicStatus(49)).toBe("needs");
+    expect(topicStatus(50)).toBe("fair");
+    expect(topicStatus(74)).toBe("fair");
+    expect(topicStatus(75)).toBe("pass");
+    expect(topicStatus(99)).toBe("pass");
+    expect(topicStatus(100)).toBe("mastered");
+  });
+  it("next topic skips passed and picks lowest skill, then most frequent", () => {
+    const rows = [
+      { topic: "a", skill: 80, years: [1] },
+      { topic: "b", skill: 40, years: [1] },
+      { topic: "c", skill: 40, years: [1, 2] },
+    ];
+    expect(nextTopic(rows)?.topic).toBe("c");
+    expect(nextTopic(rows, "c")?.topic).toBe("b");
+    expect(nextTopic([{ topic: "a", skill: 75, years: [] }])).toBeNull();
+  });
+  it("subject ready only when every topic ≥ 75", () => {
+    expect(subjectReady([{ skill: 75 }, { skill: 100 }])).toBe(true);
+    expect(subjectReady([{ skill: 75 }, { skill: null }])).toBe(false);
+  });
+});
