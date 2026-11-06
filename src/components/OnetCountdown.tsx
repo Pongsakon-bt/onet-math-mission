@@ -3,8 +3,8 @@ import { CalendarClock } from "lucide-react";
 
 // วันสอบโดยประมาณ (ปีการศึกษา 2569) — แก้ตามประกาศ สทศ.
 const EXAMS = [
-  { level: "ป.6", date: new Date("2027-02-13T09:00:00+07:00"), label: "13 ก.พ. 2570" },
-  { level: "ม.3", date: new Date("2027-02-14T09:00:00+07:00"), label: "14 ก.พ. 2570" },
+  { level: "ป.6", date: new Date("2027-02-13T09:00:00+07:00"), label: "13 ก.พ. 2570", tone: "var(--primary)" },
+  { level: "ม.3", date: new Date("2027-02-14T09:00:00+07:00"), label: "14 ก.พ. 2570", tone: "var(--nav-active)" },
 ];
 
 function parts(ms: number) {
@@ -32,7 +32,7 @@ export function OnetCountdown() {
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {EXAMS.map((e) => (
-          <div key={e.level} className="rounded-xl bg-secondary p-3">
+          <div key={e.level} className="rounded-xl bg-secondary p-3" style={{ ...(e.level === "ม.3" ? { ["--primary" as string]: e.tone } : {}), borderTop: `4px solid ${e.tone}` }}>
             <div className="flex items-baseline justify-between">
               <span className="font-display text-2xl text-primary">{e.level}</span>
               <span className="text-sm text-muted-foreground">{e.label}</span>
@@ -40,7 +40,7 @@ export function OnetCountdown() {
             <div className="mt-2 grid grid-cols-4 gap-2 text-center">
               {parts(now === null ? 0 : e.date.getTime() - now).map((p) => (
                 <div key={p.l} className="rounded-lg bg-background py-2">
-                  <div className="font-display text-xl tabular-nums sm:text-2xl">{now === null ? "–" : p.v}</div>
+                  <div className="font-display text-xl tabular-nums text-primary sm:text-2xl">{now === null ? "–" : p.v}</div>
                   <div className="text-xs text-muted-foreground">{p.l}</div>
                 </div>
               ))}
