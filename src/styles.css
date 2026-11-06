@@ -275,7 +275,7 @@ div.min-h-screen {
   body[data-report="school"] .rep-subject, body[data-report="subject"] .rep-school { display: none !important; }
   tr, .print-keep { break-inside: avoid; }
   body, body * { background-image: none !important; }
-  header, nav { display: none !important; }
+  header.sticky { display: none !important; }
   .shadow-paper { box-shadow: none !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
