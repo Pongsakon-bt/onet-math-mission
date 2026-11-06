@@ -219,7 +219,7 @@ function UserRow({ p, role, school, attempts, onChanged }: {
 }
 
 function EssayCard({ e, who, school, onSaved }: {
-  e: Data["essays"][number]; who?: Data["profiles"][number]; school?: string; onSaved: () => void;
+  e: Data["essays"][number]; who: Data["profiles"][number] | undefined; school: string | undefined; onSaved: () => void;
 }) {
   const grade = useServerFn(adminGradeEssay);
   const [score, setScore] = useState(e.score == null ? "" : String(e.score));
