@@ -10,7 +10,7 @@ import { loadAttempts, levelOf, type Attempt } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 const LEVEL_NAMES = { p6: "ป.6", m3: "ม.3" } as const;
-const KIND = { diagnostic: "วัดความรู้พื้นฐาน", practice: "ฝึกทำ", retest: "ทดสอบหลังเรียน", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย" } as const;
+const KIND = { diagnostic: "วัดความรู้พื้นฐาน", practice: "ฝึกทำ", retest: "ทดสอบหลังเรียน", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย", pre1: "PRE O-NET ครั้งที่ 1", pre2: "PRE O-NET ครั้งที่ 2" } as const;
 
 export const Route = createFileRoute("/result/$id")({
   head: () => {
@@ -66,7 +66,7 @@ function ResultPage() {
   const mins = a.ms ? `${Math.floor(a.ms / 60000)} นาที ${Math.round((a.ms % 60000) / 1000)} วินาที` : null;
 
   return (
-    <PageShell title="สรุปผล" sub={name}>
+    <PageShell title="สรุปผล" sub={name} subject={a.subject}>
       <main className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl space-y-4 px-3 py-4 sm:px-4 sm:py-6">
           <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">

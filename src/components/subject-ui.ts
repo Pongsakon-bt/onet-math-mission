@@ -1,3 +1,4 @@
+import type React from "react";
 import { Calculator, BookOpen, Languages, FlaskConical } from "lucide-react";
 import type { Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
@@ -27,3 +28,7 @@ export function pageHead(title: string, description: string) {
     ],
   };
 }
+
+/** CSS variables that recolour buttons/highlights (primary) to the subject colour inside exam screens. */
+export const subjectVars = (s: Subject) =>
+  ({ "--primary": `var(--subj-${s})`, "--ring": `var(--subj-${s})` }) as React.CSSProperties;

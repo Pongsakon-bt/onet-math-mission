@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { SiteNav } from "@/components/SiteNav";
 import { SUBJECTS, LEVEL_BG } from "@/components/subject-ui";
 import { loadAttempts } from "@/lib/progress";
-import { answeredCount, UNLOCK_COUNT } from "@/lib/skill";
+import { attemptPct, preRound1 } from "@/lib/skill";
 import bannerP6 from "@/assets/banner-p6.jpg";
 import bannerM3 from "@/assets/banner-m3.jpg";
 
@@ -20,12 +20,12 @@ const INFO: Record<Level, { short: string; full: string; banner: string; tag: st
 export function LevelPage({ level }: { level: Level }) {
   const router = useRouter();
   const [subject, setSubject] = useState<Subject | null>(null);
-  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [pre, setPre] = useState<Record<string, number | null>>({});
   const info = INFO[level];
 
   useEffect(() => {
     const all = loadAttempts();
-    setCounts(Object.fromEntries(SUBJECTS.map((s) => [s.key, answeredCount(all, level, s.key)])));
+    setPre(Object.fromEntries(SUBJECTS.map((s) => { const a = preRound1(all, level, s.key); return [s.key, a ? attemptPct(a) : null]; })));
     for (const s of SUBJECTS) for (const e of yearsFor(level, s.key)) {
       const key = examKey(e);
       router.preloadRoute({ to: "/exam/$key", params: { key } }).catch(() => {});
@@ -53,8 +53,8 @@ export function LevelPage({ level }: { level: Level }) {
             const I = s.icon;
             const sets = yearsFor(level, s.key);
             const open = subject === s.key;
-            const done = counts[s.key] ?? 0;
-            const unlocked = done >= UNLOCK_COUNT;
+            const score = pre[s.key] ?? null;
+            const unlocked = score !== null;
             return (
               <div key={s.key} className={cn("rounded-2xl border-2 bg-card shadow-paper transition", open ? "border-current" : "border-border", s.text)}>
                 <button onClick={() => setSubject(open ? null : s.key)} disabled={sets.length === 0}
@@ -72,11 +72,8 @@ export function LevelPage({ level }: { level: Level }) {
                       className={cn("flex min-h-36 flex-col justify-between rounded-xl p-3 text-primary-foreground transition hover:opacity-90", s.color)}>
                       <Library className="h-7 w-7" />
                       <div>
-                        <p className="font-display text-lg leading-tight">เรียนรู้จากคลังข้อสอบ</p>
-                        <p className="mt-1 text-xs opacity-90">ทำแล้ว {Math.min(done, UNLOCK_COUNT)}/{UNLOCK_COUNT} ข้อ</p>
-                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-primary-foreground/30">
-                          <div className="h-full bg-primary-foreground" style={{ width: `${Math.min(100, (done / UNLOCK_COUNT) * 100)}%` }} />
-                        </div>
+                        <p className="font-display text-lg leading-tight">PRE O-NET</p>
+                        <p className="mt-1 text-xs opacity-90">{unlocked ? `ครั้งที่ 1 ได้ ${score}% · ทำรายปี/ครั้งที่ 2 ได้แล้ว` : "เริ่มที่ครั้งที่ 1 (40 ข้อ)"}</p>
                       </div>
                     </Link>
                     {unlocked ? (
@@ -93,7 +90,7 @@ export function LevelPage({ level }: { level: Level }) {
                         <Lock className="h-7 w-7" />
                         <div>
                           <p className="font-display text-lg leading-tight">วิเคราะห์และพัฒนา</p>
-                          <p className="mt-1 text-xs">ทำอีก {UNLOCK_COUNT - done} ข้อเพื่อปลดล็อก</p>
+                          <p className="mt-1 text-xs">ทำ PRE O-NET ครั้งที่ 1 เพื่อปลดล็อก</p>
                         </div>
                       </div>
                     )}

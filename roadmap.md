@@ -14,3 +14,6 @@
 - [x] Diagnostic test, per-strand learning pages, retest, personal dashboard (stored on device)
 - [x] Lesson summaries for all 4 subjects
 - [x] Past-exam analysis page per level+subject (topics per question, most frequent topics, what to tutor); diagnostic favours frequent topics
+- [x] PRE O-NET: round 1 (40 stand-alone questions, once) unlocks yearly sets, analysis and round 2 (save or retry)
+- [x] Picture zoom in exams; subject colours inside exam screens; dashboard overview per level
+- [ ] ม.3 English PRE O-NET has only 8 stand-alone questions (all others share passages) — waiting on user decision

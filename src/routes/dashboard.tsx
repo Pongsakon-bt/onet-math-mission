@@ -5,6 +5,7 @@ import { ClipboardCheck, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { PageShell } from "@/components/PageShell";
+import { LevelOverview } from "@/components/LevelOverview";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
 import { strandsFor } from "@/data/strands";
@@ -16,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 const LEVELS: Level[] = ["p6", "m3"];
 const LEVEL_NAMES: Record<Level, string> = { p6: "ป.6", m3: "ม.3" };
 const SUBJECTS: Subject[] = ["math", "thai", "eng", "sci"];
-const KIND: Record<Attempt["kind"], string> = { diagnostic: "วัดพื้นฐาน", retest: "สอบซ้ำ", practice: "ฝึก", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย" };
+const KIND: Record<Attempt["kind"], string> = { diagnostic: "วัดพื้นฐาน", retest: "สอบซ้ำ", practice: "ฝึก", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย", pre1: "PRE O-NET ครั้งที่ 1", pre2: "PRE O-NET ครั้งที่ 2" };
 
 export const Route = createFileRoute("/dashboard")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -79,9 +80,12 @@ function Dashboard() {
         <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:px-4">
           <div className="flex flex-wrap gap-2">
             {LEVELS.map((l) => (
-              <Link key={l} to="/dashboard" search={{ level: l, subject }} className={cn("rounded-full border px-3 py-1 text-sm", l === level ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{LEVEL_NAMES[l]}</Link>
+              <Link key={l} to="/dashboard" search={{ level: l, subject }} className={cn("rounded-full border px-5 py-2 font-display text-lg", l === level ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{LEVEL_NAMES[l]}</Link>
             ))}
-            <span className="w-2" />
+          </div>
+          {all && <LevelOverview level={level} all={all} />}
+          <h2 className="pt-2 font-display text-xl">รายละเอียดรายวิชา</h2>
+          <div className="flex flex-wrap gap-2">
             {SUBJECTS.map((s) => (
               <Link key={s} to="/dashboard" search={{ level, subject: s }} className={cn("rounded-full border px-3 py-1 text-sm", s === subject ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{SUBJECT_NAMES[s]}</Link>
             ))}
@@ -91,7 +95,7 @@ function Dashboard() {
             <section className="rounded-2xl border border-border bg-card p-6 text-center shadow-paper">
               <p className="font-display text-xl">ยังไม่ได้วัดความรู้พื้นฐาน {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</p>
               <p className="mt-1 text-muted-foreground">ทำแบบวัดสั้น ๆ เพื่อดูว่าแต่ละสาระรู้แค่ไหน</p>
-              <Button className="mt-4" asChild><Link to="/diagnostic/$level/$subject" params={{ level, subject }} search={{ strand: undefined }}><ClipboardCheck /> เริ่มวัดความรู้พื้นฐาน</Link></Button>
+              <Button className="mt-4" asChild><Link to="/bank/$level/$subject" params={{ level, subject }}><ClipboardCheck /> ไปทำ PRE O-NET ครั้งที่ 1</Link></Button>
             </section>
           ) : (
             <>

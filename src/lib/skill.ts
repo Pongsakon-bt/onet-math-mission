@@ -17,6 +17,20 @@ export function answeredCount(all: Attempt[], level: Level, subject: Subject): n
 
 export const isUnlocked = (count: number) => count >= UNLOCK_COUNT;
 
+/** Questions in one PRE O-NET round. */
+export const PRE_SIZE = 40;
+
+/** PRE O-NET round 1 attempt for this level+subject, if finished. Finishing it unlocks yearly sets, round 2 and analysis. */
+export const preRound1 = (all: Attempt[], level: Level, subject: Subject) =>
+  mine(all, level, subject).find((a) => a.kind === "pre1");
+export const isPreUnlocked = (all: Attempt[], level: Level, subject: Subject) => !!preRound1(all, level, subject);
+
+/** Percent of points earned in one attempt. */
+export const attemptPct = (a: Attempt) => {
+  const total = a.items.reduce((s, i) => s + i.points, 0);
+  return total ? Math.round((a.items.reduce((s, i) => s + (i.correct ? i.points : 0), 0) / total) * 100) : 0;
+};
+
 export type TopicSkill = { skill: number | null; realCorrect: number; realTotal: number; drillPct: number | null; drills: number };
 
 /** Skill 0–100 for one topic: latest result per real question + latest drill, drill weighted 60%. */

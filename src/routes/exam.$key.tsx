@@ -1,11 +1,13 @@
+import { isPreUnlocked } from "@/lib/skill";
+import { subjectVars } from "@/components/subject-ui";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { catalog } from "@/data/catalog";
 import { ExamRunner } from "@/components/exam/ExamRunner";
 import { preloadExamImages } from "@/lib/preload-exam";
 import { ExamIntro } from "@/components/exam/ExamIntro";
 import { useEffect, useState } from "react";
-import { Timer } from "lucide-react";
-import { saveAttempt } from "@/lib/progress";
+import { Timer, Lock } from "lucide-react";
+import { loadAttempts, saveAttempt } from "@/lib/progress";
 
 export const Route = createFileRoute("/exam/$key")({
   loader: async ({ params }) => {
@@ -54,6 +56,8 @@ function ExamPage() {
   const [time, setTime] = useState<{ start: number; end?: number } | null>(null);
   const [started, setStarted] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  const [open, setOpen] = useState<boolean | null>(null);
+  useEffect(() => setOpen(isPreUnlocked(loadAttempts(), exam.level, exam.subject)), [exam]);
 
   useEffect(() => {
     try {
@@ -92,7 +96,7 @@ function ExamPage() {
   const mmss = (n: number) => `${Math.floor(Math.abs(n) / 60)}:${String(Math.abs(n) % 60).padStart(2, "0")}`;
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background" style={subjectVars(exam.subject)}>
       <div className="shrink-0 border-b border-border bg-background [@media(max-height:500px)]:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-1.5 sm:px-4">
           <Link to="/" className="font-display text-lg text-primary">PRE O-NET<span className="text-highlight-strong">.</span></Link>
@@ -109,7 +113,13 @@ function ExamPage() {
           </div>
         </div>
       </div>
-      {started ? (
+      {open === false ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+          <Lock className="h-8 w-8 text-muted-foreground" />
+          <p className="font-display text-xl">ทำ PRE O-NET ครั้งที่ 1 ก่อน จึงจะทำข้อสอบรายปีได้</p>
+          <Link to="/bank/$level/$subject" params={{ level: exam.level, subject: exam.subject }} className="font-semibold text-primary underline">ไปที่ PRE O-NET</Link>
+        </div>
+      ) : started ? (
         <ExamRunner exam={exam} storageKey={key} onStatus={onStatus} />
       ) : (
         <ExamIntro exam={exam} onStart={start} resumable={!!time && !time.end} />

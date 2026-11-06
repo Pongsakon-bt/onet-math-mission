@@ -6,7 +6,7 @@ import { LEVEL_BG, LEVEL_SHORT, isLevel, isSubject, pageHead, subjectUi } from "
 import { SUBJECT_NAMES } from "@/data/catalog";
 import { analyzeSubject } from "@/data/analysis";
 import { loadAttempts, type Attempt } from "@/lib/progress";
-import { answeredCount, topicSkill, UNLOCK_COUNT } from "@/lib/skill";
+import { isPreUnlocked, topicSkill } from "@/lib/skill";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/develop/$level/$subject")({
@@ -36,7 +36,7 @@ function DevelopPage() {
   }), [an, attempts, level, subject]);
 
   if (!attempts) return <div className={cn("min-h-dvh", LEVEL_BG[level])}><SiteNav level={level} /></div>;
-  const done = answeredCount(attempts, level, subject);
+  const unlocked = isPreUnlocked(attempts, level, subject);
   const top = [...rows].sort((a, b) => b.need - a.need).slice(0, 3);
   const scored = rows.filter((r) => r.skill !== null);
   const overall = scored.length ? Math.round(scored.reduce((x, r) => x + r.skill!, 0) / scored.length) : null;
@@ -49,9 +49,9 @@ function DevelopPage() {
         <section className="rounded-3xl border border-border bg-card p-5 shadow-paper">
           <p className={cn("text-sm font-semibold", s.text)}>{s.name} {LEVEL_SHORT[level]}</p>
           <h1 className="font-display text-3xl">วิเคราะห์และพัฒนา</h1>
-          {done < UNLOCK_COUNT ? (
-            <div className="mt-3 flex items-center gap-2 text-muted-foreground"><Lock className="h-5 w-5" /> ทำข้อสอบจากคลังอีก {UNLOCK_COUNT - done} ข้อเพื่อปลดล็อก
-              <Link to="/bank/$level/$subject" params={{ level, subject }} className="ml-2 font-semibold text-foreground underline">ไปที่คลังข้อสอบ</Link></div>
+          {!unlocked ? (
+            <div className="mt-3 flex items-center gap-2 text-muted-foreground"><Lock className="h-5 w-5" /> ทำ PRE O-NET ครั้งที่ 1 ให้เสร็จเพื่อปลดล็อก
+              <Link to="/bank/$level/$subject" params={{ level, subject }} className="ml-2 font-semibold text-foreground underline">ไปที่ PRE O-NET</Link></div>
           ) : (
             <div className="mt-3 grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
               <div className="text-center">
@@ -73,7 +73,7 @@ function DevelopPage() {
           )}
         </section>
 
-        {done >= UNLOCK_COUNT && an.strands.map((z) => {
+        {unlocked && an.strands.map((z) => {
           const list = rows.filter((r) => r.strand === z.name).sort((a, b) => b.need - a.need);
           if (!list.length) return null;
           return (

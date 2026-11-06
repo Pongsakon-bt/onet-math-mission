@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { BarChart3, Clock, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExamRunner } from "./ExamRunner";
-import { buildExam, pickIds, poolFor, withPassageGroups } from "@/data/pool";
+import { buildExam, pickIds, pickPreOnet, poolFor, withPassageGroups } from "@/data/pool";
 import { topicFrequency } from "@/data/analysis";
 import { strandsFor } from "@/data/strands";
 import type { Level } from "@/data/catalog";
@@ -21,17 +21,21 @@ type Props = {
   strand?: string | undefined;
   /** Use every question of the strand (practice mode). */
   all?: boolean;
+  /** PRE O-NET: this many stand-alone questions (no linked passages). */
+  preSize?: number;
+  /** Ask before saving the result (PRE O-NET round 2: save or retry without saving). */
+  askSave?: boolean;
 };
 
 /** A generated question set (diagnostic / retest / practice). The chosen ids persist so a reload keeps the same set. */
-export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, strand, all }: Props) {
+export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, strand, all, preSize, askSave }: Props) {
   const pool = useMemo(() => poolFor(level, subject), [level, subject]);
   const setKey = `preonet-set-${sid}`;
   const [state, setState] = useState<{ ids: string[]; round: number; saved: boolean; start?: number } | null>(null);
 
   const newSet = (round: number) => {
     const seen = new Set(loadAttempts().filter((a) => a.level === level && a.subject === subject).flatMap((a) => a.items.map((i) => i.qid)));
-    const ids = all ? withPassageGroups(pool, pool.filter((q) => q.strand === strand).map((q) => q.id)) : pickIds(pool, subject, perStrand, strand, seen, topicFrequency(level, subject));
+    const ids = preSize ? pickPreOnet(pool, subject, preSize, seen, topicFrequency(level, subject)) : all ? withPassageGroups(pool, pool.filter((q) => q.strand === strand).map((q) => q.id)) : pickIds(pool, subject, perStrand, strand, seen, topicFrequency(level, subject));
     const s = { ids, round, saved: false, start: Date.now() };
     localStorage.setItem(setKey, JSON.stringify(s));
     localStorage.removeItem(`exam-answers-${sid}-${round}`);
@@ -41,35 +45,52 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
   useEffect(() => {
     try {
       const raw = localStorage.getItem(setKey);
-      if (raw) return setState(JSON.parse(raw));
+      const prev = raw ? JSON.parse(raw) : null;
+      // Round 2 can be retaken: a saved set starts fresh next time.
+      if (prev && !(askSave && prev.saved)) return setState(prev);
+      if (prev) return newSet(prev.round + 1);
     } catch { /* ignore */ }
     newSet(1);
   }, [setKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const exam = useMemo(() => (state ? buildExam(pool, state.ids, { level, subject, title }) : null), [state, pool, level, subject, title]);
   const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState<Record<string, unknown> | null>(null);
   const navigate = useNavigate();
 
   if (!state || !exam) return <div className="flex flex-1 items-center justify-center text-muted-foreground">กำลังสุ่มข้อสอบ...</div>;
   if (!exam.questions.length) return <div className="flex flex-1 items-center justify-center p-6 text-center text-muted-foreground">ยังไม่มีข้อสอบในเรื่องนี้</div>;
 
-  const onStatus = (sub: boolean, answers: Record<string, unknown>) => {
-    setSubmitted(sub);
-    if (sub && !state.saved) {
+  const save = (answers: Record<string, unknown>) => {
       const id = `${sid}-${state.round}-${Date.now()}`;
       saveAttempt(kind, id, exam, answers, title, { back: window.location.pathname + window.location.search, ...(state.start ? { ms: Date.now() - state.start } : {}) });
       const s = { ...state, saved: true };
       localStorage.setItem(setKey, JSON.stringify(s));
       setState(s);
       void navigate({ to: "/result/$id", params: { id } });
-    }
+  };
+  const onStatus = (sub: boolean, answers: Record<string, unknown>) => {
+    setSubmitted(sub);
+    if (sub && askSave) { setPending(answers); return; }
+    if (sub && !state.saved) save(answers);
   };
 
   const last = submitted ? loadAttempts().filter((a) => a.id.startsWith(`${sid}-${state.round}-`)).pop() : undefined;
 
   return (
     <>
-      {submitted && last && (
+      {submitted && askSave && pending && !state.saved && (
+        <div className="shrink-0 border-b border-border bg-secondary/60">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-3 py-2 text-sm sm:px-4">
+            <span className="font-semibold">ต้องการบันทึกผลครั้งนี้ไว้วิเคราะห์ไหม?</span>
+            <div className="ml-auto flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => { setSubmitted(false); setPending(null); newSet(state.round + 1); }}><Shuffle /> สอบใหม่ (ไม่บันทึก)</Button>
+              <Button size="sm" onClick={() => save(pending)}><BarChart3 /> บันทึกผลเพื่อวิเคราะห์</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {submitted && last && !preSize && (
         <div className="shrink-0 border-b border-border bg-secondary/60">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-3 py-2 text-sm sm:px-4">
             {[...strandScores(last.items)].map(([n, v]) => (

@@ -35,7 +35,7 @@ function DiagnosticPage() {
   const name = `${SUBJECT_NAMES[subject]} ${LEVEL_NAMES[level]}`;
   const title = strandName ? `สอบซ้ำ: ${strandName}` : `วัดความรู้พื้นฐาน ${name}`;
   return (
-    <PageShell title={title} sub={strandName ? name : "สุ่มสาระละ 4 ข้อจากข้อสอบจริง"}>
+    <PageShell subject={subject} title={title} sub={strandName ? name : "สุ่มสาระละ 4 ข้อจากข้อสอบจริง"}>
       <QuizSession
         key={`${level}-${subject}-${strand ?? "all"}`}
         sid={`${strandName ? "retest" : "diag"}-${level}-${subject}${strand !== undefined ? `-${strand}` : ""}`}

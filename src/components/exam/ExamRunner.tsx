@@ -1,3 +1,4 @@
+import { subjectVars } from "@/components/subject-ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Lightbulb, RotateCcw, Check, X, Delete, SkipForward, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,7 @@ export function ExamRunner({ exam, storageKey, onStatus }: { exam: Exam; storage
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col" style={subjectVars(exam.subject)}>
       <QuestionStrip exam={exam} idx={idx} setIdx={setIdx} answers={answers} submitted={submitted} answeredCount={answeredCount} result={result} />
 
       <article key={q.id} className="animate-in fade-in mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col px-3 py-2 sm:px-4">

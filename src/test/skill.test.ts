@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { answeredCount, isUnlocked, topicSkill } from "@/lib/skill";
+import { answeredCount, isPreUnlocked, isUnlocked, topicSkill } from "@/lib/skill";
 import type { Attempt } from "@/lib/progress";
 
 const item = (qid: string, topic: string, correct: boolean) => ({ qid, strand: "s", topic, correct, points: 1 });
@@ -17,6 +17,20 @@ describe("unlock rule", () => {
       att("c", "drill", [item("d1", "ร้อยละ", true)]),
     ];
     expect(answeredCount(a, "p6", "math")).toBe(2);
+  });
+});
+
+describe("PRE O-NET round 1 unlocks everything", () => {
+  it("locked until round 1 is finished", () => {
+    expect(isPreUnlocked([att("a", "diagnostic", [item("q1", "x", true)])], "p6", "math")).toBe(false);
+    expect(isPreUnlocked([att("p", "pre1", [item("q1", "x", true)])], "p6", "math")).toBe(true);
+  });
+  it("round 2 alone does not unlock", () => {
+    expect(isPreUnlocked([att("p", "pre2", [item("q1", "x", true)])], "p6", "math")).toBe(false);
+  });
+  it("only counts the same level and subject", () => {
+    const a: Attempt = { ...att("p", "pre1", [item("q1", "x", true)]), subject: "thai" };
+    expect(isPreUnlocked([a], "p6", "math")).toBe(false);
   });
 });
 

@@ -1,3 +1,4 @@
+import { pickPreOnet, standaloneIds } from "@/data/pool";
 import { describe, it, expect } from "vitest";
 import { poolFor, pickIds, withPassageGroups } from "@/data/pool";
 
@@ -23,5 +24,18 @@ describe("mixed practice keeps passage sets together", () => {
     const pool = poolFor("p6", "thai");
     const ids = withPassageGroups(pool, pool.map((q) => q.id));
     expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+describe("PRE O-NET set", () => {
+  it("has 40 questions and never uses linked (shared passage/picture) questions", () => {
+    for (const [level, subject] of [["p6", "math"], ["p6", "thai"], ["m3", "sci"], ["m3", "thai"]] as const) {
+      const pool = poolFor(level, subject);
+      const ids = pickPreOnet(pool, subject, 40);
+      const alone = standaloneIds(pool);
+      expect(ids.length).toBe(40);
+      expect(new Set(ids).size).toBe(40);
+      expect(ids.every((id) => alone.has(id))).toBe(true);
+    }
   });
 });

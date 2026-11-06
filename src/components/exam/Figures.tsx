@@ -1,18 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { X, ZoomIn } from "lucide-react";
 import type { Choice, Figure } from "@/data/exams";
 
 export function FigureView({ figure }: { figure: Figure }) {
   switch (figure.kind) {
     case "image":
-      return (
-        <img
-          src={figure.src}
-          alt={figure.alt}
-          loading="lazy"
-          className="mx-auto max-h-[34dvh] w-auto max-w-full rounded-md border border-border bg-card object-contain mix-blend-multiply md:max-h-[52dvh] landscape:max-h-[60dvh]"
-          style={{ maxWidth: figure.maxWidth ?? 420 }}
-        />
-      );
+      return <ZoomImage figure={figure} />;
     case "lineVisitors":
       return <LineVisitors />;
     case "pieDrinks":
@@ -273,5 +266,39 @@ export function PyramidFigure() {
         <line x1="100" y1="10" x2="70" y2="80" strokeDasharray="5 4" />
       </g>
     </svg>
+  );
+}
+
+/** Exam picture: tap to view it large; tap anywhere (or press Esc) to go back to the question. */
+function ZoomImage({ figure }: { figure: Extract<Figure, { kind: "image" }> }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [open]);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)} className="group relative mx-auto block cursor-zoom-in" aria-label="ดูภาพขนาดใหญ่">
+        <img
+          src={figure.src}
+          alt={figure.alt}
+          loading="lazy"
+          className="mx-auto max-h-[34dvh] w-auto max-w-full rounded-md border border-border bg-card object-contain mix-blend-multiply md:max-h-[52dvh] landscape:max-h-[60dvh]"
+          style={{ maxWidth: figure.maxWidth ?? 420 }}
+        />
+        <span className="absolute bottom-1.5 right-1.5 flex items-center gap-1 rounded-md bg-foreground/75 px-1.5 py-0.5 text-xs text-background">
+          <ZoomIn className="h-3.5 w-3.5" /> แตะเพื่อขยาย
+        </span>
+      </button>
+      {open && (
+        <div role="dialog" aria-modal="true" aria-label={figure.alt} onClick={() => setOpen(false)}
+          className="animate-in fade-in fixed inset-0 z-50 flex cursor-zoom-out flex-col items-center justify-center gap-3 bg-foreground/85 p-3">
+          <img src={figure.src} alt={figure.alt} className="max-h-[88dvh] max-w-full rounded-lg bg-card object-contain" />
+          <span className="flex items-center gap-1 rounded-full bg-background px-3 py-1 text-sm font-semibold"><X className="h-4 w-4" /> แตะที่ใดก็ได้เพื่อกลับไปที่ข้อสอบ</span>
+        </div>
+      )}
+    </>
   );
 }

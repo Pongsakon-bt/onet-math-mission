@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import type { Subject } from "@/data/exam-types";
+import { subjectVars } from "@/components/subject-ui";
 
-/** Full-height shell with the PRE O-NET header; children fill the rest. */
-export function PageShell({ title, sub, children }: { title: string; sub?: string; children: ReactNode }) {
+/** Full-height shell with the PRE O-NET header; children fill the rest. With `subject`, accents use the subject colour. */
+export function PageShell({ title, sub, subject, children }: { title: string; sub?: string; subject?: Subject; children: ReactNode }) {
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background" style={subject ? subjectVars(subject) : undefined}>
       <div className="shrink-0 border-b border-border bg-background [@media(max-height:500px)]:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-1.5 sm:px-4">
           <Link to="/" className="font-display text-lg text-primary">PRE O-NET<span className="text-highlight-strong">.</span></Link>
