@@ -116,6 +116,11 @@ function Index() {
           <Link to="/p6" className="mt-4 inline-block rounded-full bg-primary px-5 py-2 font-semibold text-primary-foreground">เริ่มใช้งาน</Link>
         </section>
       </main>
+      <footer className="border-t bg-card/80 px-4 py-6 text-center text-sm text-muted-foreground">
+        <p>ผู้ออกแบบระบบและพัฒนา COOL QUIZ : O-NET <span className="font-semibold text-foreground">นายพงศกร บูรณเทศ</span></p>
+        <p className="mt-1">ICT Talent มูลนิธิสานอนาคตการศึกษา CONNEXT ED</p>
+        <p className="mt-1">โรงเรียนบ้านตอง สำนักงานเขตพื้นที่การศึกษาน่าน เขต 1</p>
+      </footer>
     </div>
   );
 }
