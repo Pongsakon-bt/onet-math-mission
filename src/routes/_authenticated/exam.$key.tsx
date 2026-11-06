@@ -89,7 +89,7 @@ function ExamPage() {
       saveAttempt("full", id, exam, answers, `${exam.title} ปี ${exam.year}${time.mock ? " (สอบจริง)" : ""}`, { back: `/exam/${key}`, ms: Math.min(Date.now() - time.start, time.mock ? exam.minutes * 60000 : Infinity) });
       void navigate({ to: "/result/$id", params: { id } });
     }
-    if (!submitted && time?.end) save({ start: Date.now(), mock: time.mock });
+    if (!submitted && time?.end) save({ start: Date.now(), mock: !!time.mock });
   };
   const limit = exam.minutes * 60;
   const used = time ? Math.max(0, Math.floor(((time.end ?? now) - time.start) / 1000)) : 0;
