@@ -23,7 +23,7 @@ const SUBJECTS: Subject[] = ["math", "thai", "eng", "sci"];
 const KIND: Record<Attempt["kind"], string> = { diagnostic: "วัดพื้นฐาน", retest: "สอบซ้ำ", practice: "ฝึก", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย", pre1: "PRE O-NET ครั้งที่ 1", pre2: "PRE O-NET ครั้งที่ 2" };
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  validateSearch: (s: Record<string, unknown>): { level: Level; subject: Subject; tab?: "practice" } => ({
+  validateSearch: (s: Record<string, unknown>): { level: Level; subject: Subject; tab?: "practice" | undefined } => ({
     level: (LEVELS.includes(s['level'] as Level) ? s['level'] : "p6") as Level,
     subject: (SUBJECTS.includes(s['subject'] as Subject) ? s['subject'] : "math") as Subject,
     ...(s['tab'] === "practice" ? { tab: "practice" as const } : {}),
