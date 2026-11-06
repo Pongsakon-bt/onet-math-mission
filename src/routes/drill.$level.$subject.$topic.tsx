@@ -31,7 +31,9 @@ function DrillPage() {
   const { level, subject, topic } = Route.useLoaderData();
   const { topic: idx } = Route.useParams();
   const s = subjectUi(subject);
-  const { account, loading } = useAccount() as { account: unknown; loading: boolean };
+  const acc = useAccount();
+  const account = acc ?? null;
+  const loading = acc === undefined;
   const fetchSet = useServerFn(getDrillSet);
   const [items, setItems] = useState<Question[] | null>(null);
   const [error, setError] = useState<string | null>(null);
