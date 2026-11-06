@@ -17,11 +17,11 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as M3RouteImport } from './routes/m3'
 import { Route as P6RouteImport } from './routes/p6'
 import { Route as RegisterRouteImport } from './routes/register'
-import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as TeacherStudentIdRouteImport } from './routes/teacher_.$studentId'
+import { Route as AuthenticatedTeacherRouteImport } from './routes/_authenticated/teacher'
 import { Route as AuthenticatedExamKeyRouteImport } from './routes/_authenticated/exam.$key'
 import { Route as AuthenticatedResultIdRouteImport } from './routes/_authenticated/result.$id'
+import { Route as AuthenticatedTeacherStudentIdRouteImport } from './routes/_authenticated/teacher_.$studentId'
 import { Route as AuthenticatedAnalysisLevelSubjectRouteImport } from './routes/_authenticated/analysis.$level.$subject'
 import { Route as AuthenticatedBankLevelSubjectRouteImport } from './routes/_authenticated/bank.$level.$subject'
 import { Route as AuthenticatedDevelopLevelSubjectRouteImport } from './routes/_authenticated/develop.$level.$subject'
@@ -69,20 +69,15 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TeacherRoute = TeacherRouteImport.update({
-  id: '/teacher',
-  path: '/teacher',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const TeacherStudentIdRoute = TeacherStudentIdRouteImport.update({
-  id: '/teacher_/$studentId',
-  path: '/teacher/$studentId',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedTeacherRoute = AuthenticatedTeacherRouteImport.update({
+  id: '/teacher',
+  path: '/teacher',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedExamKeyRoute = AuthenticatedExamKeyRouteImport.update({
   id: '/exam/$key',
@@ -94,6 +89,12 @@ const AuthenticatedResultIdRoute = AuthenticatedResultIdRouteImport.update({
   path: '/result/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeacherStudentIdRoute =
+  AuthenticatedTeacherStudentIdRouteImport.update({
+    id: '/teacher_/$studentId',
+    path: '/teacher/$studentId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAnalysisLevelSubjectRoute =
   AuthenticatedAnalysisLevelSubjectRouteImport.update({
     id: '/analysis/$level/$subject',
@@ -145,11 +146,11 @@ export interface FileRoutesByFullPath {
   '/m3': typeof M3Route
   '/p6': typeof P6Route
   '/register': typeof RegisterRoute
-  '/teacher': typeof TeacherRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/teacher/$studentId': typeof TeacherStudentIdRoute
+  '/teacher': typeof AuthenticatedTeacherRoute
   '/exam/$key': typeof AuthenticatedExamKeyRoute
   '/result/$id': typeof AuthenticatedResultIdRoute
+  '/teacher/$studentId': typeof AuthenticatedTeacherStudentIdRoute
   '/analysis/$level/$subject': typeof AuthenticatedAnalysisLevelSubjectRoute
   '/bank/$level/$subject': typeof AuthenticatedBankLevelSubjectRoute
   '/develop/$level/$subject': typeof AuthenticatedDevelopLevelSubjectRoute
@@ -166,11 +167,11 @@ export interface FileRoutesByTo {
   '/m3': typeof M3Route
   '/p6': typeof P6Route
   '/register': typeof RegisterRoute
-  '/teacher': typeof TeacherRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/teacher/$studentId': typeof TeacherStudentIdRoute
+  '/teacher': typeof AuthenticatedTeacherRoute
   '/exam/$key': typeof AuthenticatedExamKeyRoute
   '/result/$id': typeof AuthenticatedResultIdRoute
+  '/teacher/$studentId': typeof AuthenticatedTeacherStudentIdRoute
   '/analysis/$level/$subject': typeof AuthenticatedAnalysisLevelSubjectRoute
   '/bank/$level/$subject': typeof AuthenticatedBankLevelSubjectRoute
   '/develop/$level/$subject': typeof AuthenticatedDevelopLevelSubjectRoute
@@ -189,11 +190,11 @@ export interface FileRoutesById {
   '/m3': typeof M3Route
   '/p6': typeof P6Route
   '/register': typeof RegisterRoute
-  '/teacher': typeof TeacherRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/teacher_/$studentId': typeof TeacherStudentIdRoute
+  '/_authenticated/teacher': typeof AuthenticatedTeacherRoute
   '/_authenticated/exam/$key': typeof AuthenticatedExamKeyRoute
   '/_authenticated/result/$id': typeof AuthenticatedResultIdRoute
+  '/_authenticated/teacher_/$studentId': typeof AuthenticatedTeacherStudentIdRoute
   '/_authenticated/analysis/$level/$subject': typeof AuthenticatedAnalysisLevelSubjectRoute
   '/_authenticated/bank/$level/$subject': typeof AuthenticatedBankLevelSubjectRoute
   '/_authenticated/develop/$level/$subject': typeof AuthenticatedDevelopLevelSubjectRoute
@@ -212,11 +213,11 @@ export interface FileRouteTypes {
     | '/m3'
     | '/p6'
     | '/register'
-    | '/teacher'
     | '/dashboard'
-    | '/teacher/$studentId'
+    | '/teacher'
     | '/exam/$key'
     | '/result/$id'
+    | '/teacher/$studentId'
     | '/analysis/$level/$subject'
     | '/bank/$level/$subject'
     | '/develop/$level/$subject'
@@ -233,11 +234,11 @@ export interface FileRouteTypes {
     | '/m3'
     | '/p6'
     | '/register'
-    | '/teacher'
     | '/dashboard'
-    | '/teacher/$studentId'
+    | '/teacher'
     | '/exam/$key'
     | '/result/$id'
+    | '/teacher/$studentId'
     | '/analysis/$level/$subject'
     | '/bank/$level/$subject'
     | '/develop/$level/$subject'
@@ -255,11 +256,11 @@ export interface FileRouteTypes {
     | '/m3'
     | '/p6'
     | '/register'
-    | '/teacher'
     | '/_authenticated/dashboard'
-    | '/teacher_/$studentId'
+    | '/_authenticated/teacher'
     | '/_authenticated/exam/$key'
     | '/_authenticated/result/$id'
+    | '/_authenticated/teacher_/$studentId'
     | '/_authenticated/analysis/$level/$subject'
     | '/_authenticated/bank/$level/$subject'
     | '/_authenticated/develop/$level/$subject'
@@ -278,8 +279,6 @@ export interface RootRouteChildren {
   M3Route: typeof M3Route
   P6Route: typeof P6Route
   RegisterRoute: typeof RegisterRoute
-  TeacherRoute: typeof TeacherRoute
-  TeacherStudentIdRoute: typeof TeacherStudentIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -340,13 +339,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/teacher': {
-      id: '/teacher'
-      path: '/teacher'
-      fullPath: '/teacher'
-      preLoaderRoute: typeof TeacherRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -354,12 +346,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/teacher_/$studentId': {
-      id: '/teacher_/$studentId'
-      path: '/teacher/$studentId'
-      fullPath: '/teacher/$studentId'
-      preLoaderRoute: typeof TeacherStudentIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/teacher': {
+      id: '/_authenticated/teacher'
+      path: '/teacher'
+      fullPath: '/teacher'
+      preLoaderRoute: typeof AuthenticatedTeacherRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/exam/$key': {
       id: '/_authenticated/exam/$key'
@@ -373,6 +365,13 @@ declare module '@tanstack/react-router' {
       path: '/result/$id'
       fullPath: '/result/$id'
       preLoaderRoute: typeof AuthenticatedResultIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/teacher_/$studentId': {
+      id: '/_authenticated/teacher_/$studentId'
+      path: '/teacher/$studentId'
+      fullPath: '/teacher/$studentId'
+      preLoaderRoute: typeof AuthenticatedTeacherStudentIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/analysis/$level/$subject': {
@@ -429,8 +428,10 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedTeacherRoute: typeof AuthenticatedTeacherRoute
   AuthenticatedExamKeyRoute: typeof AuthenticatedExamKeyRoute
   AuthenticatedResultIdRoute: typeof AuthenticatedResultIdRoute
+  AuthenticatedTeacherStudentIdRoute: typeof AuthenticatedTeacherStudentIdRoute
   AuthenticatedAnalysisLevelSubjectRoute: typeof AuthenticatedAnalysisLevelSubjectRoute
   AuthenticatedBankLevelSubjectRoute: typeof AuthenticatedBankLevelSubjectRoute
   AuthenticatedDevelopLevelSubjectRoute: typeof AuthenticatedDevelopLevelSubjectRoute
@@ -442,8 +443,10 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedTeacherRoute: AuthenticatedTeacherRoute,
   AuthenticatedExamKeyRoute: AuthenticatedExamKeyRoute,
   AuthenticatedResultIdRoute: AuthenticatedResultIdRoute,
+  AuthenticatedTeacherStudentIdRoute: AuthenticatedTeacherStudentIdRoute,
   AuthenticatedAnalysisLevelSubjectRoute:
     AuthenticatedAnalysisLevelSubjectRoute,
   AuthenticatedBankLevelSubjectRoute: AuthenticatedBankLevelSubjectRoute,
@@ -470,8 +473,6 @@ const rootRouteChildren: RootRouteChildren = {
   M3Route: M3Route,
   P6Route: P6Route,
   RegisterRoute: RegisterRoute,
-  TeacherRoute: TeacherRoute,
-  TeacherStudentIdRoute: TeacherStudentIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
