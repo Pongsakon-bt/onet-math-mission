@@ -2,12 +2,12 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { KeyRound, LogOut, ShieldCheck, Trash2 } from "lucide-react";
+import { Eye, KeyRound, LogOut, ShieldCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageShell } from "@/components/PageShell";
 import { supabase } from "@/integrations/supabase/client";
-import { adminDeleteUser, adminGradeEssay, adminOverview, adminResetPassword, amIAdmin } from "@/lib/admin.functions";
+import { adminViewAs, adminDeleteUser, adminGradeEssay, adminOverview, adminResetPassword, amIAdmin } from "@/lib/admin.functions";
 import { SUBJECT_NAMES } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
 
@@ -179,6 +179,8 @@ function UserRow({ p, role, school, attempts, onChanged }: {
 }) {
   const reset = useServerFn(adminResetPassword);
   const del = useServerFn(adminDeleteUser);
+  const viewAs = useServerFn(adminViewAs);
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [pw, setPw] = useState("");
   const [msg, setMsg] = useState("");
@@ -190,6 +192,13 @@ function UserRow({ p, role, school, attempts, onChanged }: {
           <div className="text-xs text-muted-foreground">{school} · ทำข้อสอบ {attempts.length} ครั้ง</div>
         </button>
         <div className="ml-auto flex flex-wrap items-center gap-2">
+          <Button size="sm" onClick={async () => {
+            if (!confirm(`เข้าดูในมุมมองของ ${p.first_name} ${p.last_name}? (จะออกจากบัญชีแอดมิน ต้องเข้าแอดมินใหม่ภายหลัง)`)) return;
+            const r = await viewAs({ data: { userId: p.id } });
+            if (!r.ok) return setMsg(r.error);
+            await supabase.auth.setSession({ access_token: r.access_token, refresh_token: r.refresh_token });
+            navigate({ to: role === "teacher" ? "/teacher" : "/dashboard", search: role === "teacher" ? undefined : { level: "p6", subject: "math" } } as never);
+          }}><Eye className="mr-1 h-4 w-4" />ดูมุมมอง{role === "teacher" ? "ครู" : "นักเรียน"}</Button>
           <Input type="text" placeholder="รหัสผ่านใหม่" value={pw} onChange={(e) => setPw(e.target.value)} className="h-8 w-36" />
           <Button size="sm" variant="outline" onClick={async () => {
             const r = await reset({ data: { userId: p.id, password: pw } });
