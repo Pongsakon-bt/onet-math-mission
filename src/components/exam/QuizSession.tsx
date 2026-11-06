@@ -45,7 +45,10 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
   useEffect(() => {
     try {
       const raw = localStorage.getItem(setKey);
-      if (raw) return setState(JSON.parse(raw));
+      const prev = raw ? JSON.parse(raw) : null;
+      // Round 2 can be retaken: a saved set starts fresh next time.
+      if (prev && !(askSave && prev.saved)) return setState(prev);
+      if (prev) return newSet(prev.round + 1);
     } catch { /* ignore */ }
     newSet(1);
   }, [setKey]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -69,14 +72,7 @@ export function QuizSession({ sid, kind, level, subject, title, perStrand = 4, s
   const onStatus = (sub: boolean, answers: Record<string, unknown>) => {
     setSubmitted(sub);
     if (sub && askSave) { setPending(answers); return; }
-    if (sub && !state.saved) {
-      const id = `${sid}-${state.round}-${Date.now()}`;
-      saveAttempt(kind, id, exam, answers, title, { back: window.location.pathname + window.location.search, ...(state.start ? { ms: Date.now() - state.start } : {}) });
-      const s = { ...state, saved: true };
-      localStorage.setItem(setKey, JSON.stringify(s));
-      setState(s);
-      void navigate({ to: "/result/$id", params: { id } });
-    }
+    if (sub && !state.saved) save(answers);
   };
 
   const last = submitted ? loadAttempts().filter((a) => a.id.startsWith(`${sid}-${state.round}-`)).pop() : undefined;
