@@ -53,7 +53,7 @@ function ExamPage() {
   const exam = catalog[key]!;
   const navigate = useNavigate();
   const sKey = `exam-time-${key}`;
-  const [time, setTime] = useState<{ start: number; end?: number } | null>(null);
+  const [time, setTime] = useState<{ start: number; end?: number; mock?: boolean } | null>(null);
   const [started, setStarted] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const [open, setOpen] = useState<boolean | null>(null);
@@ -66,7 +66,7 @@ function ExamPage() {
     } catch { /* ignore */ }
     setStarted(false);
   }, [sKey]);
-  const save = (t: { start: number; end?: number } | null) => {
+  const save = (t: { start: number; end?: number; mock?: boolean } | null) => {
     setTime(t);
     if (t) localStorage.setItem(sKey, JSON.stringify(t)); else localStorage.removeItem(sKey);
   };
@@ -76,8 +76,8 @@ function ExamPage() {
     return () => clearInterval(id);
   }, [started, time]);
 
-  const start = () => {
-    if (!time || time.end) save({ start: Date.now() });
+  const start = (mock: boolean) => {
+    if (!time || time.end) save({ start: Date.now(), mock });
     setNow(Date.now());
     setStarted(true);
   };
@@ -85,10 +85,10 @@ function ExamPage() {
     if (submitted && time && !time.end) {
       save({ ...time, end: Date.now() });
       const id = `full-${key}-${time.start}`;
-      saveAttempt("full", id, exam, answers, `${exam.title} ปี ${exam.year}`, { back: `/exam/${key}`, ms: Date.now() - time.start });
+      saveAttempt("full", id, exam, answers, `${exam.title} ปี ${exam.year}${time.mock ? " (สอบจริง)" : ""}`, { back: `/exam/${key}`, ms: Math.min(Date.now() - time.start, time.mock ? exam.minutes * 60000 : Infinity) });
       void navigate({ to: "/result/$id", params: { id } });
     }
-    if (!submitted && time?.end) save({ start: Date.now() });
+    if (!submitted && time?.end) save({ start: Date.now(), mock: time.mock });
   };
   const limit = exam.minutes * 60;
   const used = time ? Math.max(0, Math.floor(((time.end ?? now) - time.start) / 1000)) : 0;
@@ -101,10 +101,10 @@ function ExamPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-1.5 sm:px-4">
           <Link to="/" className="font-display text-lg text-primary">PRE O-NET<span className="text-highlight-strong">.</span></Link>
           {started && time && (
-            <div className={`flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 font-display tabular-nums ${time.end ? "bg-secondary" : remain <= 300 ? "bg-destructive text-destructive-foreground" : "bg-secondary"}`}
+            <div className={`flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 font-display tabular-nums ${time.end ? "bg-secondary" : remain <= 600 && time.mock ? "bg-destructive text-destructive-foreground animate-pulse" : remain <= 300 ? "bg-destructive text-destructive-foreground" : "bg-secondary"}`}
               title={time.end ? "เวลาที่ใช้" : "เวลาที่เหลือ"}>
               <Timer className="h-4 w-4" />
-              {time.end ? `ใช้ ${mmss(used)}` : remain >= 0 ? mmss(remain) : `เกิน ${mmss(remain)}`}
+              {time.mock && !time.end && <span className="mr-1 text-xs">สอบจริง</span>}{time.end ? `ใช้ ${mmss(used)}` : remain >= 0 ? mmss(remain) : time.mock ? "หมดเวลา" : `เกิน ${mmss(remain)}`}
             </div>
           )}
           <div className="min-w-0 text-right">
@@ -120,9 +120,9 @@ function ExamPage() {
           <Link to="/bank/$level/$subject" params={{ level: exam.level, subject: exam.subject }} className="font-semibold text-primary underline">ไปที่ PRE O-NET</Link>
         </div>
       ) : started ? (
-        <ExamRunner exam={exam} storageKey={key} onStatus={onStatus} />
+        <ExamRunner exam={exam} storageKey={key} onStatus={onStatus} mock={!!time?.mock && !time.end} timeUp={!!time?.mock && !time.end && remain <= 0} />
       ) : (
-        <ExamIntro exam={exam} onStart={start} resumable={!!time && !time.end} />
+        <ExamIntro exam={exam} onStart={start} resumable={!!time && !time.end} resumeMock={!!time?.mock} />
       )}
     </div>
   );
