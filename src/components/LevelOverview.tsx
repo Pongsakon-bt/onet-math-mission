@@ -9,7 +9,7 @@ import { attemptPct } from "@/lib/skill";
 import { cn } from "@/lib/utils";
 
 /** All four subjects of one level: PRE O-NET round 1 / latest round 2 / best yearly set, plus a short analysis. */
-export function LevelOverview({ level, all, subject, tab }: { level: Level; all: Attempt[]; subject?: Subject; tab?: "practice" }) {
+export function LevelOverview({ level, all, subject, tab }: { level: Level; all: Attempt[]; subject?: Subject; tab?: "practice" | undefined }) {
   const rows = SUBJECTS.map((s) => {
     const mine = all.filter((a) => a.level === level && a.subject === s.key).sort((a, b) => a.at - b.at);
     const pre1 = mine.find((a) => a.kind === "pre1");
@@ -45,6 +45,7 @@ export function LevelOverview({ level, all, subject, tab }: { level: Level; all:
           return (
             <Link key={s.key} to="/dashboard" search={{ level, subject: s.key, tab }}
               aria-current={subject === s.key ? "true" : undefined}
+              data-selected={subject === s.key}
               className={cn("rounded-2xl border bg-card p-4 shadow-paper transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary", subject === s.key ? "border-primary ring-2 ring-primary" : "border-border")}>
               <div className="flex items-center gap-2">
                 <span className={cn("flex h-9 w-9 items-center justify-center rounded-lg text-primary-foreground", s.color)}><I className="h-5 w-5" /></span>
