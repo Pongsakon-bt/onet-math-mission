@@ -235,10 +235,16 @@ div.min-h-screen {
   padding: 0 0.15em;
 }
 
-/* Blue surroundings and a white login panel are isolated from other pages. */
+/* Blue surroundings and a white login panel are isolated from other pages.
+   The faint grey grid from the rest of the site carries over here too. */
 .login-blue-background {
   --login-surface: oklch(0.27 0.095 265);
+  --login-grid: oklch(0.95 0.01 265 / 14%);
   background-color: var(--login-surface);
+  background-image:
+    linear-gradient(to right, var(--login-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--login-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 .auth-blue {
   --card: oklch(1 0 0);
