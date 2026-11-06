@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { ClipboardCheck, BookOpen, Library, PenLine, GraduationCap, School, UserRound } from "lucide-react";
+import { Cloud, CloudOff, ClipboardCheck, BookOpen, Library, PenLine, GraduationCap, School, UserRound } from "lucide-react";
 import { classLabel } from "@/lib/assignments";
 import { subjectUi, subjectVars } from "@/components/subject-ui";
 import { Button } from "@/components/ui/button";
@@ -80,7 +80,7 @@ function Dashboard() {
   const todo = strands.map((n, i) => ({ n, i, pct: latest.get(n) })).sort((a, b) => (a.pct ?? -1) - (b.pct ?? -1));
 
   return (
-    <PageShell navigation level={level} title="แดชบอร์ดของฉัน" sub={synced ? "ผลจากบัญชีของคุณ (ทุกเครื่อง)" : "ผลเก็บไว้ในเครื่องนี้"}>
+    <PageShell navigation level={level} title="แดชบอร์ดของฉัน" sub={synced ? "ซิงก์ข้อมูลแล้ว" : "ยังไม่ซิงก์"}>
       <main className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:px-4">
           <section className="relative overflow-hidden rounded-2xl border border-border bg-primary p-5 text-primary-foreground shadow-paper sm:p-6">
@@ -100,7 +100,7 @@ function Dashboard() {
               </div>
               {account && account.role !== "admin" && <EditProfileDialog account={account} />}
             </div>
-            <p className="relative mt-3 text-xs opacity-75">{synced ? "ผลจากบัญชีของคุณ (ทุกเครื่อง)" : "ผลเก็บไว้ในเครื่องนี้"}</p>
+            <p className="relative mt-3 inline-flex items-center gap-1.5 rounded-full bg-background/15 px-2.5 py-1 text-xs">{synced ? <><Cloud className="size-4 text-success" aria-hidden />ซิงก์ข้อมูลแล้ว</> : <><CloudOff className="size-4 opacity-75" aria-hidden />ยังไม่ซิงก์</>}</p>
           </section>
           <div className="flex flex-wrap gap-2">
             {LEVELS.map((l) => (
