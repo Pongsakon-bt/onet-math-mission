@@ -3,7 +3,7 @@ import { useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Role } from "./account-id";
-import { loadAttempts, mergeAttempts, type Attempt, type EssayAnswer } from "./progress";
+import { clearLocalProgress, loadAttempts, mergeAttempts, type Attempt, type EssayAnswer } from "./progress";
 
 export type Account = { id: string; first: string; last: string; school: string; schoolName: string; role: Role; grade: string | null; room: string | null };
 
@@ -33,12 +33,12 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     const load = async () => {
       const current = ++revision;
       const account = await fetchAccount().catch(() => null);
-      if (alive && current === revision) setAcc(account);
+      if (alive && current === revision) { if (!account) clearLocalProgress(); setAcc(account); }
     };
     void load();
     const { data } = supabase.auth.onAuthStateChange((ev) => {
       if (ev !== "SIGNED_IN" && ev !== "SIGNED_OUT" && ev !== "USER_UPDATED") return;
-      if (ev === "SIGNED_OUT") { revision++; setAcc(null); }
+      if (ev === "SIGNED_OUT") { revision++; clearLocalProgress(); setAcc(null); void queryClient.cancelQueries(); queryClient.clear(); }
       // Leave the auth callback before making further auth requests.
       setTimeout(() => {
         if (!alive) return;
