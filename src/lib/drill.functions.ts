@@ -66,15 +66,15 @@ export const getDrillSet = createServerFn({ method: "POST" })
 
     const { generateResponse, GatewayError } = await import("@lovable.dev/ai-gateway");
     let raw: Raw[] = [];
-    try {
+    // Two parallel halves of 10 with a fast model: one 20-item call took longer than the request window.
+    const half = async (part: 1 | 2): Promise<Raw[]> => {
       const res = await generateResponse({
-        model: "openai/gpt-6-astra",
-        reasoning: { effort: "low" },
+        model: "google/gemini-3-flash-preview",
         input: [{
           role: "user",
-          content: `แต่งข้อสอบฝึกใหม่ 20 ข้อ วิชา${subjName} ชั้น${lvName} เรื่อง "${topic}" ให้สอดคล้องแนวข้อสอบ O-NET ของ สทศ. ระดับความยากจากง่ายไปยาก
+          content: `แต่งข้อสอบฝึกใหม่ 10 ข้อ (ชุดที่ ${part} จาก 2 ${part === 1 ? "เน้นง่าย-ปานกลาง" : "เน้นปานกลาง-ยาก"}) วิชา${subjName} ชั้น${lvName} เรื่อง "${topic}" ให้สอดคล้องแนวข้อสอบ O-NET ของ สทศ. ระดับความยากจากง่ายไปยาก
 ${sj === "eng" ? "โจทย์และตัวเลือกเขียนเป็นภาษาอังกฤษ ส่วน hint และ explanation เป็นภาษาไทย" : "เขียนเป็นภาษาไทย"}
-คละรูปแบบ: mcq (4 ตัวเลือก, answer = เลขตัวเลือก 1-4) ประมาณ 11 ข้อ, multi (5 ตัวเลือก เลือก 2 คำตอบ, answers = เลขตัวเลือก) 3 ข้อ, ${sj === "math" || sj === "sci" ? "numeric (คำตอบเป็นตัวเลข, ใส่ unit ถ้ามี) 3 ข้อ" : "mcq เพิ่ม 3 ข้อ"}, truefalse (tf 3-4 ข้อความ ถูก/ผิด) 3 ข้อ
+คละรูปแบบ: mcq (4 ตัวเลือก, answer = เลขตัวเลือก 1-4) ประมาณ 5 ข้อ, multi (5 ตัวเลือก เลือก 2 คำตอบ, answers = เลขตัวเลือก) 2 ข้อ, ${sj === "math" || sj === "sci" ? "numeric (คำตอบเป็นตัวเลข, ใส่ unit ถ้ามี) 2 ข้อ" : "mcq เพิ่ม 2 ข้อ"}, truefalse (tf 3-4 ข้อความ ถูก/ผิด) 1-2 ข้อ
 ฟิลด์ที่ไม่ใช้ให้ใส่ค่าว่าง ([] / 0 / "") ห้ามอ้างถึงรูปภาพ ทุกข้อต้องมีคำตอบที่ถูกต้องแน่นอนเพียงชุดเดียว ตรวจคำนวณซ้ำก่อนตอบ
 hint = คำใบ้ที่ไม่บอกคำตอบ, explanation = วิธีคิดสั้น ๆ พร้อมคำตอบ
 ใช้สัญลักษณ์เศษส่วนแบบ {a/b} และยกกำลังแบบ ^{n}
@@ -84,7 +84,12 @@ hint = คำใบ้ที่ไม่บอกคำตอบ, explanation = 
       });
       const out = (res as unknown as { output?: { type: string; content?: { type: string; text?: string }[] }[] }).output ?? [];
       const text = out.flatMap((o) => o.content ?? []).filter((c) => c.type === "output_text").map((c) => c.text ?? "").join("");
-      raw = (JSON.parse(text) as { items: Raw[] }).items;
+      return (JSON.parse(text) as { items: Raw[] }).items;
+    };
+    try {
+      const parts = await Promise.allSettled([half(1), half(2)]);
+      raw = parts.flatMap((p) => (p.status === "fulfilled" ? p.value : []));
+      if (!raw.length) throw (parts[0] as PromiseRejectedResult).reason;
     } catch (e) {
       console.error("drill generation failed", e instanceof GatewayError ? e.code : e);
       return { items: [], error: "ระบบแต่งข้อสอบไม่สำเร็จ ลองใหม่อีกครั้ง" };
