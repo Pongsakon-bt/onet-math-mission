@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, PenLine } from "lucide-react";
+import { ArrowLeft, FileDown, PenLine } from "lucide-react";
+import { printReport } from "@/lib/print-report";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,10 @@ export const Route = createFileRoute("/teacher_/$studentId")({
       { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
     ] };
   },
+  validateSearch: (s: Record<string, unknown>): { level?: string | undefined; subject?: string | undefined } => ({
+    level: typeof s["level"] === "string" ? s["level"] : undefined,
+    subject: typeof s["subject"] === "string" ? s["subject"] : undefined,
+  }),
   component: StudentPage,
 });
 
@@ -36,6 +41,8 @@ const pctOf = (items: Attempt["items"]) => (items.length ? Math.round((items.fil
 
 function StudentPage() {
   const { studentId } = Route.useParams();
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
   const acc = useAccount();
   const [name, setName] = useState<string | null>(null);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
@@ -80,6 +87,12 @@ function StudentPage() {
     });
   }, [attempts]);
 
+  // Subject/level the teacher came from (or picks here); default to the first one with data.
+  const level: Level = search.level === "m3" || search.level === "p6" ? search.level : (groups[0]?.level ?? "p6");
+  const subject: Subject = (Object.keys(SUBJECT_NAMES) as string[]).includes(search.subject ?? "") ? (search.subject as Subject) : (groups[0]?.subject ?? "math");
+  const pick = (l: Level, s: Subject) => navigate({ search: { level: l, subject: s }, replace: true });
+  const shown = groups.filter((g) => g.level === level && g.subject === subject);
+
   if (acc === undefined) return <PageShell title="ผลรายคน"><div className="flex flex-1 items-center justify-center text-muted-foreground">กำลังโหลด...</div></PageShell>;
   if (!acc || acc.role !== "teacher") return (
     <PageShell title="ผลรายคน">
@@ -94,17 +107,25 @@ function StudentPage() {
     <PageShell title="ผลรายคน" sub={`โรงเรียน${acc.schoolName}`}>
       <main className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:px-4 sm:py-6">
-          <Button variant="ghost" size="sm" asChild><Link to="/teacher"><ArrowLeft /> กลับหน้าครู</Link></Button>
+          <Button variant="ghost" size="sm" asChild className="no-print"><Link to="/teacher"><ArrowLeft /> กลับหน้าครู</Link></Button>
           {loaded && !name ? <p>ไม่พบนักเรียนคนนี้ในโรงเรียนของคุณ</p> : (
             <>
               <div>
                 <p className="text-sm text-muted-foreground">นักเรียน</p>
                 <h1 className="font-display text-2xl sm:text-3xl">{name ?? "..."}</h1>
-                <p className="text-sm text-muted-foreground">ทำทั้งหมด {attempts.length} ครั้ง · ข้อเขียนรอตรวจ {essays.filter((e) => e.score === null).length} ข้อ</p>
+                <p className="text-sm text-muted-foreground">โรงเรียน{acc.schoolName} · ทำทั้งหมด {attempts.length} ครั้ง · ข้อเขียนรอตรวจ {essays.filter((e) => e.score === null).length} ข้อ</p>
+                <p className="print-only text-xs text-muted-foreground">รายงานรายบุคคล {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]} · พิมพ์เมื่อ {new Date().toLocaleString("th-TH", { dateStyle: "long", timeStyle: "short" })}</p>
+              </div>
+
+              <div className="no-print flex flex-wrap items-center gap-2">
+                {(["p6", "m3"] as Level[]).map((l) => <Chip key={l} on={l === level} onClick={() => pick(l, subject)}>{LEVEL_NAMES[l]}</Chip>)}
+                <span className="mx-1 h-6 w-px bg-border" />
+                {(Object.keys(SUBJECT_NAMES) as Subject[]).map((s) => <Chip key={s} on={s === subject} onClick={() => pick(level, s)}>{SUBJECT_NAMES[s]}</Chip>)}
+                <Button size="sm" className="ml-auto" onClick={() => printReport("student", `รายงาน ${name ?? ""} ${SUBJECT_NAMES[subject]} ${LEVEL_NAMES[level]}`)}><FileDown /> PDF รายบุคคล</Button>
               </div>
 
               {essays.length > 0 && (
-                <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
+                <section className="no-print rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
                   <h2 className="flex items-center gap-2 font-display text-xl"><PenLine className="h-5 w-5" /> ตรวจข้อเขียน</h2>
                   <div className="mt-3 space-y-4">
                     {essays.map((e) => <EssayCard key={e.attempt_id + e.qid} e={e} onSaved={(n) => setEssays((l) => l.map((x) => (x.attempt_id === n.attempt_id && x.qid === n.qid ? n : x)))} />)}
@@ -112,8 +133,8 @@ function StudentPage() {
                 </section>
               )}
 
-              {loaded && !groups.length && <p className="text-muted-foreground">นักเรียนยังไม่ได้ทำแบบทดสอบ</p>}
-              {groups.map((g) => (
+              {loaded && !shown.length && <p className="text-muted-foreground">นักเรียนยังไม่ได้ทำแบบทดสอบ{SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</p>}
+              {shown.map((g) => (
                 <section key={g.level + g.subject} className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
                   <h2 className="font-display text-xl">{SUBJECT_NAMES[g.subject]} {LEVEL_NAMES[g.level]}</h2>
                   <p className="text-sm text-muted-foreground">ครั้งแรก → ล่าสุด (ร้อยละตอบถูก ไม่รวมการฝึก)</p>
@@ -154,6 +175,10 @@ function StudentPage() {
       </main>
     </PageShell>
   );
+}
+
+function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+  return <button type="button" onClick={onClick} className={cn("rounded-full border px-3 py-1 text-sm", on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card")}>{children}</button>;
 }
 
 function EssayCard({ e, onSaved }: { e: Essay; onSaved: (e: Essay) => void }) {
