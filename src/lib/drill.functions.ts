@@ -69,7 +69,8 @@ export const getDrillSet = createServerFn({ method: "POST" })
     // Two parallel halves of 10 with a fast model: one 20-item call took longer than the request window.
     const half = async (part: 1 | 2): Promise<Raw[]> => {
       const res = await generateResponse({
-        model: "google/gemini-3-flash-preview",
+        model: "openai/gpt-6-astra",
+        reasoning: { effort: "low" },
         input: [{
           role: "user",
           content: `แต่งข้อสอบฝึกใหม่ 10 ข้อ (ชุดที่ ${part} จาก 2 ${part === 1 ? "เน้นง่าย-ปานกลาง" : "เน้นปานกลาง-ยาก"}) วิชา${subjName} ชั้น${lvName} เรื่อง "${topic}" ให้สอดคล้องแนวข้อสอบ O-NET ของ สทศ. ระดับความยากจากง่ายไปยาก
