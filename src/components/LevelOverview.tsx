@@ -1,4 +1,7 @@
 import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
+import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart } from "recharts";
+import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { TrendingDown, TrendingUp, Trophy, AlertTriangle } from "lucide-react";
 import type { Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
@@ -9,7 +12,7 @@ import { attemptPct } from "@/lib/skill";
 import { cn } from "@/lib/utils";
 
 /** All four subjects of one level: PRE O-NET round 1 / latest round 2 / best yearly set, plus a short analysis. */
-export function LevelOverview({ level, all, subject, tab }: { level: Level; all: Attempt[]; subject?: Subject; tab?: "practice" | undefined }) {
+export function LevelOverview({ level, all, subject, tab, children }: { level: Level; all: Attempt[]; subject?: Subject; tab?: "practice" | undefined; children?: ReactNode }) {
   const rows = SUBJECTS.map((s) => {
     const mine = all.filter((a) => a.level === level && a.subject === s.key).sort((a, b) => a.at - b.at);
     const pre1 = mine.find((a) => a.kind === "pre1");
@@ -64,6 +67,8 @@ export function LevelOverview({ level, all, subject, tab }: { level: Level; all:
         })}
       </div>
 
+      {children}
+
       <div className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-5">
         <h2 className="font-display text-xl">วิเคราะห์ภาพรวม</h2>
         {!scored.length ? (
@@ -99,6 +104,33 @@ export function LevelOverview({ level, all, subject, tab }: { level: Level; all:
           </div>
         )}
       </div>
+    </section>
+  );
+}
+
+export function FourSubjectRadar({ level, attempts }: { level: Level; attempts: Attempt[] }) {
+  const data = SUBJECTS.map((s) => {
+    const exams = attempts.filter((a) => a.level === level && a.subject === s.key && a.kind !== "practice" && a.kind !== "drill").sort((a, b) => a.at - b.at);
+    const first = exams[0];
+    const latest = exams.at(-1);
+    return { subject: s.name, first: first ? attemptPct(first) : null, latest: latest ? attemptPct(latest) : null };
+  });
+  return (
+    <section className="min-w-0 rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
+      <h2 className="font-display text-xl">ภาพรวมทั้ง 4 วิชา</h2>
+      <p className="text-sm text-muted-foreground">ผลสอบครั้งแรก เทียบกับผลสอบล่าสุด</p>
+      <ChartContainer className="mx-auto mt-3 h-80 w-full" config={{ first: { label: "ครั้งแรก", color: "var(--muted-foreground)" }, latest: { label: "ล่าสุด", color: "var(--primary)" } }}>
+        <RadarChart data={data} outerRadius="62%">
+          <PolarGrid />
+          <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11 }} />
+          <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <ChartLegend content={<ChartLegendContent />} />
+          <Radar dataKey="first" stroke="var(--color-first)" fill="var(--color-first)" fillOpacity={0.15} />
+          <Radar dataKey="latest" stroke="var(--color-latest)" fill="var(--color-latest)" fillOpacity={0.35} />
+        </RadarChart>
+      </ChartContainer>
+      {data.some((d) => d.latest === null) && <p className="text-xs text-muted-foreground">วิชาที่ยังไม่มีผลสอบจะยังไม่แสดงคะแนน</p>}
     </section>
   );
 }
