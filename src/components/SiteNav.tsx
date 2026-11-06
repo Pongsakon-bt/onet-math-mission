@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { BarChart3 } from "lucide-react";
 import { AccountChip } from "@/components/AccountChip";
+import { BrandHomeLink } from "@/components/BrandHomeLink";
 import type { Level } from "@/data/catalog";
 
 const TABS: { to: "/p6" | "/m3"; short: string; full: string }[] = [
@@ -12,7 +13,7 @@ export function SiteNav({ level }: { level?: Level }) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
       <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-2 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-4">
-        <Link to="/" className="font-display text-xl text-primary sm:text-2xl">COOL QUIZ<span className="text-highlight-strong"> : </span>O-NET</Link>
+        <BrandHomeLink />
         <nav className="col-span-2 row-start-2 flex min-w-0 justify-center gap-1 sm:col-span-1 sm:row-start-auto">
           {TABS.map((t) => (
             <Link key={t.to} to={t.to}
