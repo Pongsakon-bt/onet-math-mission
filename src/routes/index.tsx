@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { ArrowRight, BarChart3, ClipboardList, FileText, GraduationCap, LogIn, School, Sparkles } from "lucide-react";
 import { SiteNav } from "@/components/SiteNav";
 import { SUBJECTS } from "@/components/subject-ui";
+import type { Subject } from "@/data/exam-types";
 import { useAccount } from "@/lib/session";
 import { canShowDashboard } from "@/lib/access";
 
@@ -34,7 +35,7 @@ const STATS = [
   { n: "439", label: "หวัขอวเิคราะห" },
 ];
 
-const SUBJECT_QUIZ: Record<string, { q: number; t: number; blurb: string }> = {
+const SUBJECT_QUIZ: Record<Subject, { q: number; t: number; blurb: string }> = {
   math: { q: 140, t: 59, blurb: "พนืฐาน คณิต บัญญัตตรไิยางศ เรขาคณิต สถิต" },
   thai: { q: 208, t: 136, blurb: "อานเขยียน หลักภาษา วรรณคดี" },
   eng: { q: 256, t: 105, blurb: "ไวยากรณ ศัพท์ อานเขาใจ" },
