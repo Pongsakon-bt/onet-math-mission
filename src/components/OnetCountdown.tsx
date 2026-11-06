@@ -32,7 +32,7 @@ export function OnetCountdown() {
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {EXAMS.map((e) => (
-          <div key={e.level} className="rounded-xl bg-secondary p-3" style={{ ["--primary" as string]: e.tone, borderTop: `4px solid ${e.tone}` }}>
+          <div key={e.level} className="rounded-xl bg-secondary p-3" style={{ ...(e.level === "ม.3" ? { ["--primary" as string]: e.tone } : {}), borderTop: `4px solid ${e.tone}` }}>
             <div className="flex items-baseline justify-between">
               <span className="font-display text-2xl text-primary">{e.level}</span>
               <span className="text-sm text-muted-foreground">{e.label}</span>
