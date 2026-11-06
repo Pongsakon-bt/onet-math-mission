@@ -73,3 +73,23 @@ export const adminGradeEssay = createServerFn({ method: "POST" })
       .eq("attempt_id", data.attemptId).eq("qid", data.qid);
     return error ? { ok: false as const, error: "บันทึกคะแนนไม่สำเร็จ (ตรวจช่วงคะแนน)" } : { ok: true as const };
   });
+
+/** Admin only: get a session for another account so the admin can see the app through that user's eyes. */
+export const adminViewAs = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { userId: string }) => ({ userId: String(d.userId) }))
+  .handler(async ({ data, context }) => {
+    const db = await adminClient(context);
+    const { data: u } = await db.auth.admin.getUserById(data.userId);
+    const email = u?.user?.email;
+    if (!email) return { ok: false as const, error: "ไม่พบบัญชีนี้" };
+    const { data: link, error } = await db.auth.admin.generateLink({ type: "magiclink", email });
+    if (error || !link.properties?.hashed_token) return { ok: false as const, error: "เปิดมุมมองไม่สำเร็จ" };
+    const { createClient } = await import("@supabase/supabase-js");
+    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+    const c = createClient(process.env["SUPABASE_URL"]!, key, { auth: { persistSession: false, autoRefreshToken: false },
+      global: { fetch: (i, init) => { const h = new Headers(init?.headers); if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization"); h.set("apikey", key); return fetch(i, { ...init, headers: h }); } } });
+    const { data: v } = await c.auth.verifyOtp({ token_hash: link.properties.hashed_token, type: "magiclink" });
+    if (!v.session) return { ok: false as const, error: "เปิดมุมมองไม่สำเร็จ" };
+    return { ok: true as const, access_token: v.session.access_token, refresh_token: v.session.refresh_token };
+  });
