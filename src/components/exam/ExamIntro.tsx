@@ -70,7 +70,7 @@ const ranges = (nos: number[]) => {
   return out.join(", ");
 };
 
-export function ExamIntro({ exam, onStart, resumable }: { exam: Exam; onStart: () => void; resumable: boolean }) {
+export function ExamIntro({ exam, onStart, resumable, resumeMock }: { exam: Exam; onStart: (mock: boolean) => void; resumable: boolean; resumeMock?: boolean }) {
   const a = analyzeExam(exam);
   return (
     <main className="min-h-0 flex-1 overflow-y-auto">
@@ -87,9 +87,22 @@ export function ExamIntro({ exam, onStart, resumable }: { exam: Exam; onStart: (
           <p className="mt-3 text-sm text-muted-foreground">
             เฉลี่ยคะแนนละ {fmtDuration(a.secPerPoint)} — ข้อที่คะแนนสูงควรให้เวลามากกว่า
           </p>
-          <Button size="lg" className="mt-4 w-full sm:w-auto" onClick={onStart}>
-            <Play /> {resumable ? "ทำต่อ (เวลาเดินต่อ)" : "เริ่มทำข้อสอบ · เริ่มจับเวลา"}
-          </Button>
+          {resumable ? (
+            <Button size="lg" className="mt-4 w-full sm:w-auto" onClick={() => onStart(resumeMock ?? false)}>
+              <Play /> ทำต่อ (เวลาเดินต่อ){resumeMock ? " · โหมดสอบจริง" : ""}
+            </Button>
+          ) : (
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <Button size="lg" variant="outline" className="h-auto flex-col items-start py-3 text-left" onClick={() => onStart(false)}>
+                <span className="flex items-center gap-2"><Play /> ฝึกทำ</span>
+                <span className="whitespace-normal text-xs font-normal text-muted-foreground">มีคำใบ้ระหว่างทำ จับเวลาไว้ดูเฉย ๆ</span>
+              </Button>
+              <Button size="lg" className="h-auto flex-col items-start py-3 text-left" onClick={() => onStart(true)}>
+                <span className="flex items-center gap-2"><Timer /> สอบจริงจับเวลา {exam.minutes} นาที</span>
+                <span className="whitespace-normal text-xs font-normal opacity-90">ไม่มีคำใบ้ ไม่เฉลยระหว่างทำ หมดเวลาส่งอัตโนมัติ</span>
+              </Button>
+            </div>
+          )}
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
