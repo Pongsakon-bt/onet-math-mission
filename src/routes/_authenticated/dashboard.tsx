@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { ClipboardCheck, BookOpen, Library, PenLine } from "lucide-react";
+import { ClipboardCheck, BookOpen, Library, PenLine, GraduationCap, School, UserRound } from "lucide-react";
+import { classLabel } from "@/lib/assignments";
 import { subjectUi, subjectVars } from "@/components/subject-ui";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
@@ -14,7 +15,7 @@ import type { Subject } from "@/data/exam-types";
 import { strandsFor } from "@/data/strands";
 import { loadAttempts, loadStudied, strandScores, levelOf, type Attempt } from "@/lib/progress";
 import { cn } from "@/lib/utils";
-import { syncMyAttempts } from "@/lib/session";
+import { syncMyAttempts, useAccount } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
 
 const LEVELS: Level[] = ["p6", "m3"];
@@ -44,6 +45,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function Dashboard() {
   const { level, subject, tab: tabParam } = Route.useSearch();
   const tab = tabParam ?? "learn";
+  const account = useAccount();
   const [all, setAll] = useState<Attempt[] | null>(null);
   const [studied, setStudied] = useState<string[]>([]);
   const [synced, setSynced] = useState(false);
@@ -80,10 +82,24 @@ function Dashboard() {
     <PageShell navigation level={level} title="แดชบอร์ดของฉัน" sub={synced ? "ผลจากบัญชีของคุณ (ทุกเครื่อง)" : "ผลเก็บไว้ในเครื่องนี้"}>
       <main className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:px-4">
-          <div>
-            <h1 className="font-display text-2xl">แดชบอร์ดของฉัน</h1>
-            <p className="text-sm text-muted-foreground">{synced ? "ผลจากบัญชีของคุณ (ทุกเครื่อง)" : "ผลเก็บไว้ในเครื่องนี้"}</p>
-          </div>
+          <section className="relative overflow-hidden rounded-2xl border border-border bg-primary p-5 text-primary-foreground shadow-paper sm:p-6">
+            <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-primary-foreground/10" />
+            <div aria-hidden className="pointer-events-none absolute -bottom-12 right-24 size-28 rounded-full bg-primary-foreground/10" />
+            <div className="relative flex items-center gap-4">
+              <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-foreground/15 font-display text-2xl">
+                {account?.first?.[0] ?? <UserRound className="size-7" />}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs opacity-80">แดชบอร์ดของฉัน</p>
+                <h1 className="truncate font-display text-2xl">{account ? `${account.first} ${account.last}`.trim() : "นักเรียน"}</h1>
+                <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm opacity-90">
+                  <span className="inline-flex items-center gap-1"><GraduationCap className="size-4" />{account?.role === "admin" ? "ผู้ดูแลระบบ" : classLabel(account?.grade ?? null, account?.room ?? null)}</span>
+                  {account?.schoolName && <span className="inline-flex min-w-0 items-center gap-1"><School className="size-4 shrink-0" /><span className="truncate">{account.schoolName}</span></span>}
+                </div>
+              </div>
+            </div>
+            <p className="relative mt-3 text-xs opacity-75">{synced ? "ผลจากบัญชีของคุณ (ทุกเครื่อง)" : "ผลเก็บไว้ในเครื่องนี้"}</p>
+          </section>
           <div className="flex flex-wrap gap-2">
             {LEVELS.map((l) => (
               <Link key={l} to="/dashboard" search={{ level: l, subject, tab: tabParam }} className={cn("rounded-full border px-5 py-2 font-display text-lg", l === level ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{LEVEL_NAMES[l]}</Link>
