@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { isSchoolCode, type Role } from "@/lib/account-id";
 import { lookupSchool } from "@/lib/accounts.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: ReactNode }) {
   return (
@@ -48,6 +49,7 @@ export function SchoolCodeField({ value, onChange, confirmed, onConfirm }: { val
     <Field label="รหัสโรงเรียน 10 หลัก" hint={hint}>
       <Input inputMode="numeric" maxLength={10} value={value} placeholder="เช่น 1055250290"
         onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 10))} />
+      <SchoolSearch onPick={onChange} />
       {school && school !== "loading" && (
         <div className={cn("rounded-xl border-2 p-3 text-sm", confirmed ? "border-success bg-success/10" : "border-primary bg-secondary")}>
           <p className="text-xs text-muted-foreground">ใช่โรงเรียนนี้ไหม?</p>
@@ -80,5 +82,47 @@ export function AuthCard({ title, children, appearance = "default" }: { title: s
         </div>
       </div>
     </main>
+  );
+}
+
+type Hit = { code: string; name: string; amphoe: string | null; province: string | null };
+/** Find the OBEC code by typing the school name and (optionally) province. */
+function SchoolSearch({ onPick }: { onPick: (code: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [prov, setProv] = useState("");
+  const [hits, setHits] = useState<Hit[] | null>(null);
+  useEffect(() => {
+    const n = name.trim().replace(/^โรงเรียน/, "").replace(/[%,()]/g, ""), p = prov.trim().replace(/^จังหวัด/, "").replace(/[%,()]/g, "");
+    if (n.length < 2) { setHits(null); return; }
+    let alive = true;
+    const t = setTimeout(async () => {
+      let q = supabase.from("schools").select("code, name, amphoe, province").ilike("name", `%${n}%`).order("name").limit(20);
+      if (p) q = q.ilike("province", `%${p}%`);
+      const { data } = await q;
+      if (alive) setHits((data ?? []) as Hit[]);
+    }, 300);
+    return () => { alive = false; clearTimeout(t); };
+  }, [name, prov]);
+  if (!open) return <button type="button" onClick={() => setOpen(true)} className="text-sm font-semibold text-primary underline">🔍 ไม่รู้รหัส? ค้นหาจากชื่อโรงเรียน</button>;
+  return (
+    <div className="space-y-2 rounded-xl border border-border bg-secondary/50 p-3">
+      <div className="flex items-center justify-between"><p className="text-sm font-semibold">ค้นหารหัสโรงเรียน</p>
+        <button type="button" onClick={() => setOpen(false)} className="text-xs text-muted-foreground underline">ปิด</button></div>
+      <div className="grid grid-cols-2 gap-2">
+        <Input placeholder="ชื่อโรงเรียน" value={name} onChange={(e) => setName(e.target.value)} />
+        <Input placeholder="จังหวัด (ไม่บังคับ)" value={prov} onChange={(e) => setProv(e.target.value)} />
+      </div>
+      {hits === null ? <p className="text-xs text-muted-foreground">พิมพ์ชื่อโรงเรียนอย่างน้อย 2 ตัวอักษร</p>
+        : !hits.length ? <p className="text-xs text-destructive">ไม่พบโรงเรียน ลองพิมพ์ชื่อสั้นลง หรือตรวจชื่อจังหวัด</p>
+        : <ul className="max-h-56 divide-y divide-border overflow-y-auto rounded-lg bg-card">
+            {hits.map((h) => (
+              <li key={h.code}><button type="button" onClick={() => { onPick(h.code); setOpen(false); }} className="w-full px-3 py-2 text-left text-sm hover:bg-secondary">
+                <b>โรงเรียน{h.name}</b> <span className="text-muted-foreground">· {h.amphoe ?? ""} จ.{h.province ?? ""}</span>
+                <span className="block font-mono text-xs">{h.code}</span>
+              </button></li>
+            ))}
+          </ul>}
+    </div>
   );
 }
