@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Target } from "lucide-react";
+import { ArrowRight, BookOpen, Loader2, Target } from "lucide-react";
+import { StatusPill } from "@/components/StatusPill";
 import { PageShell } from "@/components/PageShell";
 import { ExamRunner } from "@/components/exam/ExamRunner";
 import { LEVEL_SHORT, isLevel, isSubject, pageHead, subjectUi } from "@/components/subject-ui";
@@ -11,7 +12,7 @@ import type { Exam, Question } from "@/data/exam-types";
 import { getDrillSet } from "@/lib/drill.functions";
 import { useAccount } from "@/lib/session";
 import { loadAttempts, saveAttempt } from "@/lib/progress";
-import { topicSkill } from "@/lib/skill";
+import { nextTopic, topicSkill, topicStatus } from "@/lib/skill";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/drill/$level/$subject/$topic")({
@@ -37,8 +38,9 @@ function DrillPage() {
   const fetchSet = useServerFn(getDrillSet);
   const [items, setItems] = useState<Question[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ correct: number; total: number; skill: number | null } | null>(null);
+  const [result, setResult] = useState<{ correct: number; total: number; skill: number | null; next: { topic: string; index: number } | null } | null>(null);
   const [round, setRound] = useState(0);
+  const [strand, setStrand] = useState(-1);
 
   const load = () => {
     setError(null); setItems(null);
@@ -55,7 +57,13 @@ function DrillPage() {
     if (!sub || !exam || result) return;
     const a = saveAttempt("drill", `${sid}-${Date.now()}`, exam, answers, `ข้อสอบย่อย: ${topic}`, { back: window.location.pathname });
     const correct = a.items.filter((i) => i.correct).length;
-    setResult({ correct, total: a.items.length, skill: topicSkill(loadAttempts(), level, subject, topic).skill });
+    const all = loadAttempts();
+    const an = analyzeSubject(level, subject);
+    const rows = an.topics.map((t, index) => ({ topic: t.topic, years: t.years, index, skill: topicSkill(all, level, subject, t.topic).skill }));
+    const nx = nextTopic(rows, topic);
+    const strandIdx = an.strands.findIndex((z) => z.name === an.topics[Number(idx)]?.strand);
+    setStrand(strandIdx);
+    setResult({ correct, total: a.items.length, skill: rows.find((r) => r.topic === topic)?.skill ?? null, next: nx && { topic: nx.topic, index: nx.index } });
   };
 
   let body;
@@ -73,9 +81,17 @@ function DrillPage() {
               <div className="flex justify-between text-sm font-semibold"><span>คะแนน</span><span>{result.correct}/{result.total}</span></div>
               <div className="mt-1 h-3 overflow-hidden rounded-full bg-secondary"><div className={cn("h-full", s.color)} style={{ width: `${(result.correct / Math.max(1, result.total)) * 100}%` }} /></div>
             </div>
-            <span className="rounded-full bg-secondary px-3 py-1 text-sm font-semibold">สกิลเรื่องนี้ {result.skill ?? "–"}/100</span>
+            <span className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-sm font-semibold">สกิลเรื่องนี้ {result.skill ?? "–"}/100 <StatusPill skill={result.skill} /></span>
+            <p className="w-full text-sm text-muted-foreground order-last">{advice(topicStatus(result.skill))}</p>
+            {(topicStatus(result.skill) === "needs" || topicStatus(result.skill) === "fair") && strand >= 0 && (
+              <Link to="/learn/$level/$subject/$strand" params={{ level, subject, strand: String(strand) }} className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-1.5 text-sm font-semibold"><BookOpen className="h-4 w-4" /> ทบทวนเนื้อหา</Link>
+            )}
             <button onClick={() => { localStorage.removeItem(`exam-answers-${sid}-${round}`); setResult(null); setRound(round + 1); }} className="rounded-xl border border-border px-3 py-1.5 text-sm font-semibold">ทำใหม่</button>
-            <Link to="/develop/$level/$subject" params={{ level, subject }} className={cn("inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-semibold text-primary-foreground", s.color)}><Target className="h-4 w-4" /> กลับหน้าวิเคราะห์</Link>
+            {result.next && (topicStatus(result.skill) === "pass" || topicStatus(result.skill) === "mastered") ? (
+              <Link to="/drill/$level/$subject/$topic" params={{ level, subject, topic: String(result.next.index) }} className={cn("inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-semibold text-primary-foreground", s.color)}>เรื่องถัดไป: {result.next.topic} <ArrowRight className="h-4 w-4" /></Link>
+            ) : (
+              <Link to="/develop/$level/$subject" params={{ level, subject }} className={cn("inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-semibold text-primary-foreground", s.color)}><Target className="h-4 w-4" /> {result.next ? "กลับหน้าวิเคราะห์" : "ผ่านครบทุกเรื่องแล้ว — ดูภาพรวม"}</Link>
+            )}
           </div>
         </div>
       )}
@@ -84,6 +100,14 @@ function DrillPage() {
   );
 
   return <PageShell subject={subject} title={`ข้อสอบย่อย: ${topic}`} sub={`${s.name} ${LEVEL_SHORT[level]}`}>{body}</PageShell>;
+}
+
+function advice(st: ReturnType<typeof topicStatus>) {
+  if (st === "needs") return "ยังไม่ถึงเกณฑ์ (ต้องได้ 75 ขึ้นไป) — ทบทวนเนื้อหา ดูวิธีคิดข้อที่ผิดด้านล่าง แล้วลองทำใหม่";
+  if (st === "fair") return "เกือบผ่านแล้ว — ดูข้อที่ผิดแล้วทำซ้ำอีกครั้งให้ถึง 75";
+  if (st === "mastered") return "เยี่ยมมาก! เชี่ยวชาญเรื่องนี้แล้ว ไปเรื่องถัดไปที่ควรติวได้เลย";
+  if (st === "pass") return "ผ่านเกณฑ์แล้ว! ไปเรื่องถัดไปที่ควรติว หรือทำซ้ำเพื่อให้ได้ 100";
+  return "";
 }
 
 function Center({ children }: { children: React.ReactNode }) {

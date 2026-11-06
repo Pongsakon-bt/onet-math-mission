@@ -20,7 +20,7 @@ export function TutorChecklist({ level, subject, attempts }: { level: Level; sub
     syncMyAttempts().then((r) => { if (r) setLocal(r); }).catch(() => {});
   }, [attempts]);
   const list = attempts ?? local;
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<Set<string>>(new Set());
   const pre1 = list.find((x) => x.kind === "pre1" && x.level === level && x.subject === subject);
 
   const score = useMemo(() => {
@@ -59,7 +59,11 @@ export function TutorChecklist({ level, subject, attempts }: { level: Level; sub
       </div>
       {!pre1 && <p className="mt-2 text-sm text-muted-foreground">ยังไม่ได้ทำ PRE O-NET ครั้งที่ 1 ทำแล้วจะเห็นระดับของแต่ละเรื่อง</p>}
 
-      <div className="mt-4 space-y-2">
+      <div className="mt-4 flex justify-end gap-2">
+        <button type="button" onClick={() => setOpen(new Set(a.strands.map((x) => x.name)))} className="rounded-lg border border-border px-3 py-1 text-sm font-semibold hover:bg-secondary">ขยายทั้งหมด</button>
+        <button type="button" onClick={() => setOpen(new Set())} className="rounded-lg border border-border px-3 py-1 text-sm font-semibold hover:bg-secondary">ยุบทั้งหมด</button>
+      </div>
+      <div className="mt-2 space-y-2">
         {a.strands.map((s) => {
           const ts = rated.filter((t) => t.strand === s.name)
             .sort((x, y) => (x.pct ?? 101) - (y.pct ?? 101) || y.years.length - x.years.length);
@@ -67,10 +71,10 @@ export function TutorChecklist({ level, subject, attempts }: { level: Level; sub
           const m = ts.filter((t) => t.pct !== undefined);
           const ok = m.reduce((n, t) => n + ((t.pct ?? 0) * t.n) / 100, 0), tot = m.reduce((n, t) => n + t.n, 0);
           const pct = tot ? Math.round((ok / tot) * 100) : undefined;
-          const isOpen = open === s.name;
+          const isOpen = open.has(s.name);
           return (
             <div key={s.name} className="overflow-hidden rounded-xl border border-border">
-              <button type="button" onClick={() => setOpen(isOpen ? null : s.name)} aria-expanded={isOpen}
+              <button type="button" onClick={() => setOpen((o) => { const n = new Set(o); if (n.has(s.name)) n.delete(s.name); else n.add(s.name); return n; })} aria-expanded={isOpen}
                 className="flex w-full items-center gap-3 bg-secondary/60 px-3 py-3 text-left transition hover:bg-secondary">
                 <ChevronRight className={cn("h-5 w-5 shrink-0 text-primary transition-transform", isOpen && "rotate-90")} />
                 <div className="min-w-0 flex-1">
