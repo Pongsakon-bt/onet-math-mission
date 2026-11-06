@@ -76,8 +76,7 @@ Return JSON.`,
       return { ok: true, score, feedback };
     } catch (err) {
       console.error("suggestEssayGrade", err);
-      if (err instanceof GatewayError && err.status === 402) return { ok: false, error: "เครดิต AI หมด" };
-      if (err instanceof GatewayError && err.status === 429) return { ok: false, error: "ใช้งานถี่เกินไป ลองใหม่อีกครั้ง" };
+      if (err instanceof GatewayError && /402|credit|payment/i.test(String(err.code ?? err.message))) return { ok: false, error: "เครดิต AI หมด" };
       return { ok: false, error: "AI ตรวจไม่สำเร็จ ลองใหม่อีกครั้ง" };
     }
   });
