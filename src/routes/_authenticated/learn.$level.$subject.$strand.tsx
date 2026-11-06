@@ -14,7 +14,7 @@ import { markStudied } from "@/lib/progress";
 
 const LEVEL_NAMES: Record<Level, string> = { p6: "ป.6", m3: "ม.3" };
 
-export const Route = createFileRoute("/learn/$level/$subject/$strand")({
+export const Route = createFileRoute("/_authenticated/learn/$level/$subject/$strand")({
   loader: ({ params }) => {
     const subject = params.subject as Subject;
     const i = Number(params.strand);

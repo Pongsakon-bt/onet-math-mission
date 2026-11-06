@@ -14,7 +14,7 @@ import { loadAttempts, saveAttempt } from "@/lib/progress";
 import { topicSkill } from "@/lib/skill";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/drill/$level/$subject/$topic")({
+export const Route = createFileRoute("/_authenticated/drill/$level/$subject/$topic")({
   loader: ({ params }) => {
     if (!isLevel(params.level) || !isSubject(params.subject)) throw notFound();
     const t = analyzeSubject(params.level, params.subject).topics[Number(params.topic)];

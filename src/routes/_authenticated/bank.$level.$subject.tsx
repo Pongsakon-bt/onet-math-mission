@@ -8,7 +8,7 @@ import { loadAttempts, type Attempt } from "@/lib/progress";
 import { attemptPct, PRE_SIZE, preRound1 } from "@/lib/skill";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/bank/$level/$subject")({
+export const Route = createFileRoute("/_authenticated/bank/$level/$subject")({
   loader: ({ params }) => {
     if (!isLevel(params.level) || !isSubject(params.subject)) throw notFound();
     return { level: params.level, subject: params.subject };
