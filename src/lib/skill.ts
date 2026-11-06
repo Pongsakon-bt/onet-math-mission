@@ -17,6 +17,9 @@ export function answeredCount(all: Attempt[], level: Level, subject: Subject): n
 
 export const isUnlocked = (count: number) => count >= UNLOCK_COUNT;
 
+/** Questions in one PRE O-NET round. */
+export const PRE_SIZE = 40;
+
 /** PRE O-NET round 1 attempt for this level+subject, if finished. Finishing it unlocks yearly sets, round 2 and analysis. */
 export const preRound1 = (all: Attempt[], level: Level, subject: Subject) =>
   mine(all, level, subject).find((a) => a.kind === "pre1");
