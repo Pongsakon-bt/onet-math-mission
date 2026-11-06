@@ -117,7 +117,8 @@ function Index() {
         </section>
       </main>
       <footer className="border-t bg-card/80 px-4 py-6 text-center text-sm text-muted-foreground">
-        <p>ผู้ออกแบบระบบและพัฒนา COOL QUIZ : O-NET <span className="font-semibold text-foreground">นายพงศกร บูรณเทศ</span></p>
+        <p>ผู้ออกแบบระบบและพัฒนา COOL QUIZ : O-NET</p>
+        <p className="mt-1 font-semibold text-foreground">นายพงศกร บูรณเทศ</p>
         <p className="mt-1">ICT Talent มูลนิธิสานอนาคตการศึกษา CONNEXT ED</p>
         <p className="mt-1">โรงเรียนบ้านตอง สำนักงานเขตพื้นที่การศึกษาน่าน เขต 1</p>
       </footer>
