@@ -41,7 +41,7 @@ function DevelopPage() {
   const unlocked = isPreUnlocked(attempts, level, subject);
   const top = [...rows].sort((a, b) => b.need - a.need).slice(0, 3);
   const scored = rows.filter((r) => r.skill !== null);
-  const zoneOpen = (name: string) => openZ ? openZ.has(name) : rows.some((r) => r.strand === name && !isPassed(r.skill));
+  const zoneOpen = (name: string) => openZ ? openZ.has(name) : false;
   const toggle = (name: string) => {
     const cur = new Set(an.strands.filter((z) => zoneOpen(z.name)).map((z) => z.name));
     if (cur.has(name)) cur.delete(name); else cur.add(name);

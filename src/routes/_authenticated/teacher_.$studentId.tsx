@@ -12,7 +12,9 @@ import { useAccount, fromRow } from "@/lib/session";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
 import { strandsFor } from "@/data/strands";
-import { baseTopic } from "@/data/analysis";
+import { analyzeSubject, baseTopic } from "@/data/analysis";
+import { isPassed, nextTopic, topicSkill } from "@/lib/skill";
+import { StatusPill } from "@/components/StatusPill";
 import { levelOf, strandScores, type Attempt } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
@@ -83,7 +85,8 @@ function StudentPage() {
       }
       const weak = [...t].map(([topic, v]) => ({ topic, ...v, pct: Math.round((v.ok / v.n) * 100) }))
         .filter((x) => x.pct < 60).sort((a, b) => a.pct - b.pct || b.n - a.n).slice(0, 8);
-      return { level, subject, list, strands, weak };
+      const topics = analyzeSubject(level, subject).topics.map((tp) => ({ topic: tp.topic, years: tp.years, skill: topicSkill(attempts, level, subject, tp.topic).skill }));
+      return { level, subject, list, strands, weak, topics };
     });
   }, [attempts]);
 
@@ -149,6 +152,24 @@ function StudentPage() {
                       </div>
                     ))}
                   </div>
+                  {(() => {
+                    const passed = g.topics.filter((x) => isPassed(x.skill));
+                    const stuck = g.topics.filter((x) => x.skill !== null && !isPassed(x.skill)).sort((a, b) => a.skill! - b.skill!);
+                    const nx = nextTopic(g.topics);
+                    return (
+                      <div className="mt-4 rounded-xl bg-secondary/60 p-3">
+                        <p className="text-sm font-semibold">ผ่านแล้ว {passed.length}/{g.topics.length} เรื่อง <span className="font-normal text-muted-foreground">(สกิล ≥ 75)</span></p>
+                        <div className="mt-1 h-2 rounded-full bg-card"><div className="h-2 rounded-full bg-primary" style={{ width: `${(passed.length / Math.max(1, g.topics.length)) * 100}%` }} /></div>
+                        {stuck.length > 0 && <>
+                          <p className="mt-2 text-sm font-semibold">ยังติดอยู่ ({stuck.length} เรื่อง)</p>
+                          <div className="mt-1 flex flex-wrap gap-1.5">
+                            {stuck.map((x) => <span key={x.topic} className="inline-flex items-center gap-1 rounded-full bg-card px-2 py-0.5 text-xs">{x.topic} · {x.skill} <StatusPill skill={x.skill} /></span>)}
+                          </div>
+                        </>}
+                        {nx && <p className="mt-2 text-xs text-muted-foreground">เรื่องถัดไปที่ควรติว: <b>{nx.topic}</b></p>}
+                      </div>
+                    );
+                  })()}
                   {g.weak.length > 0 && (
                     <div className="mt-4">
                       <p className="text-sm font-semibold">หัวข้อที่ควรเสริม</p>
