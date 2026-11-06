@@ -43,7 +43,7 @@ export function PredictionCard({ level, subject, attempts, studentId }: { level:
           </Button>
         )}
       </div>
-      <ChartContainer className="mx-auto mt-3 aspect-square max-h-80 w-full" config={{ me: { label: studentId ? "นักเรียน" : "ฉัน", color: "var(--primary)" }, school: { label: "เฉลี่ยโรงเรียน", color: "var(--muted-foreground)" } }}>
+      <ChartContainer className="mx-auto mt-3 h-72 w-full" config={{ me: { label: studentId ? "นักเรียน" : "ฉัน", color: "var(--primary)" }, school: { label: "เฉลี่ยโรงเรียน", color: "var(--muted-foreground)" } }}>
         <RadarChart data={data} outerRadius="70%">
           <PolarGrid />
           <PolarAngleAxis dataKey="strand" tick={{ fontSize: 10 }} />
