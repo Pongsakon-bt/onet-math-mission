@@ -43,6 +43,13 @@
       "when": 1793944526943,
       "tag": "0005_classes_and_assignments",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793950998628,
+      "tag": "0006_essay_ai_suggestion",
+      "breakpoints": true
     }
   ]
 }

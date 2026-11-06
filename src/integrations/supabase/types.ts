@@ -133,6 +133,8 @@ export type Database = {
       }
       essay_answers: {
         Row: {
+          ai_feedback: string | null
+          ai_score: number | null
           answer: string
           attempt_id: string
           comment: string | null
@@ -147,6 +149,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_feedback?: string | null
+          ai_score?: number | null
           answer?: string
           attempt_id: string
           comment?: string | null
@@ -161,6 +165,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_feedback?: string | null
+          ai_score?: number | null
           answer?: string
           attempt_id?: string
           comment?: string | null
