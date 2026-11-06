@@ -21,6 +21,7 @@ import { Route as ExamKeyRouteImport } from './routes/exam.$key'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as TeacherStudentIdRouteImport } from './routes/teacher_.$studentId'
 import { Route as AnalysisLevelSubjectRouteImport } from './routes/analysis.$level.$subject'
+import { Route as BankLevelSubjectRouteImport } from './routes/bank.$level.$subject'
 import { Route as DiagnosticLevelSubjectRouteImport } from './routes/diagnostic.$level.$subject'
 import { Route as LearnLevelSubjectStrandRouteImport } from './routes/learn.$level.$subject.$strand'
 
@@ -84,6 +85,11 @@ const AnalysisLevelSubjectRoute = AnalysisLevelSubjectRouteImport.update({
   path: '/analysis/$level/$subject',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BankLevelSubjectRoute = BankLevelSubjectRouteImport.update({
+  id: '/bank/$level/$subject',
+  path: '/bank/$level/$subject',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiagnosticLevelSubjectRoute = DiagnosticLevelSubjectRouteImport.update({
   id: '/diagnostic/$level/$subject',
   path: '/diagnostic/$level/$subject',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/result/$id': typeof ResultIdRoute
   '/teacher/$studentId': typeof TeacherStudentIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
+  '/bank/$level/$subject': typeof BankLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/result/$id': typeof ResultIdRoute
   '/teacher/$studentId': typeof TeacherStudentIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
+  '/bank/$level/$subject': typeof BankLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/result/$id': typeof ResultIdRoute
   '/teacher_/$studentId': typeof TeacherStudentIdRoute
   '/analysis/$level/$subject': typeof AnalysisLevelSubjectRoute
+  '/bank/$level/$subject': typeof BankLevelSubjectRoute
   '/diagnostic/$level/$subject': typeof DiagnosticLevelSubjectRoute
   '/learn/$level/$subject/$strand': typeof LearnLevelSubjectStrandRoute
 }
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/result/$id'
     | '/teacher/$studentId'
     | '/analysis/$level/$subject'
+    | '/bank/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
   fileRoutesByTo: FileRoutesByTo
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/result/$id'
     | '/teacher/$studentId'
     | '/analysis/$level/$subject'
+    | '/bank/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
   id:
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/result/$id'
     | '/teacher_/$studentId'
     | '/analysis/$level/$subject'
+    | '/bank/$level/$subject'
     | '/diagnostic/$level/$subject'
     | '/learn/$level/$subject/$strand'
   fileRoutesById: FileRoutesById
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   ResultIdRoute: typeof ResultIdRoute
   TeacherStudentIdRoute: typeof TeacherStudentIdRoute
   AnalysisLevelSubjectRoute: typeof AnalysisLevelSubjectRoute
+  BankLevelSubjectRoute: typeof BankLevelSubjectRoute
   DiagnosticLevelSubjectRoute: typeof DiagnosticLevelSubjectRoute
   LearnLevelSubjectStrandRoute: typeof LearnLevelSubjectStrandRoute
 }
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnalysisLevelSubjectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bank/$level/$subject': {
+      id: '/bank/$level/$subject'
+      path: '/bank/$level/$subject'
+      fullPath: '/bank/$level/$subject'
+      preLoaderRoute: typeof BankLevelSubjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/diagnostic/$level/$subject': {
       id: '/diagnostic/$level/$subject'
       path: '/diagnostic/$level/$subject'
@@ -328,6 +348,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResultIdRoute: ResultIdRoute,
   TeacherStudentIdRoute: TeacherStudentIdRoute,
   AnalysisLevelSubjectRoute: AnalysisLevelSubjectRoute,
+  BankLevelSubjectRoute: BankLevelSubjectRoute,
   DiagnosticLevelSubjectRoute: DiagnosticLevelSubjectRoute,
   LearnLevelSubjectStrandRoute: LearnLevelSubjectStrandRoute,
 }
