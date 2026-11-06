@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as M3RouteImport } from './routes/m3'
+import { Route as P6RouteImport } from './routes/p6'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as ExamKeyRouteImport } from './routes/exam.$key'
@@ -40,6 +42,16 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const M3Route = M3RouteImport.update({
+  id: '/m3',
+  path: '/m3',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const P6Route = P6RouteImport.update({
+  id: '/p6',
+  path: '/p6',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -88,6 +100,8 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/m3': typeof M3Route
+  '/p6': typeof P6Route
   '/register': typeof RegisterRoute
   '/teacher': typeof TeacherRoute
   '/exam/$key': typeof ExamKeyRoute
@@ -102,6 +116,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/m3': typeof M3Route
+  '/p6': typeof P6Route
   '/register': typeof RegisterRoute
   '/teacher': typeof TeacherRoute
   '/exam/$key': typeof ExamKeyRoute
@@ -117,6 +133,8 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/m3': typeof M3Route
+  '/p6': typeof P6Route
   '/register': typeof RegisterRoute
   '/teacher': typeof TeacherRoute
   '/exam/$key': typeof ExamKeyRoute
@@ -133,6 +151,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/login'
+    | '/m3'
+    | '/p6'
     | '/register'
     | '/teacher'
     | '/exam/$key'
@@ -147,6 +167,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/login'
+    | '/m3'
+    | '/p6'
     | '/register'
     | '/teacher'
     | '/exam/$key'
@@ -161,6 +183,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/login'
+    | '/m3'
+    | '/p6'
     | '/register'
     | '/teacher'
     | '/exam/$key'
@@ -176,6 +200,8 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
+  M3Route: typeof M3Route
+  P6Route: typeof P6Route
   RegisterRoute: typeof RegisterRoute
   TeacherRoute: typeof TeacherRoute
   ExamKeyRoute: typeof ExamKeyRoute
@@ -214,6 +240,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/m3': {
+      id: '/m3'
+      path: '/m3'
+      fullPath: '/m3'
+      preLoaderRoute: typeof M3RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p6': {
+      id: '/p6'
+      path: '/p6'
+      fullPath: '/p6'
+      preLoaderRoute: typeof P6RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -280,6 +320,8 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
+  M3Route: M3Route,
+  P6Route: P6Route,
   RegisterRoute: RegisterRoute,
   TeacherRoute: TeacherRoute,
   ExamKeyRoute: ExamKeyRoute,
