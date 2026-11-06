@@ -1,0 +1,99 @@
+import { useEffect, useState } from "react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { ArrowRight, BarChart3, ClipboardCheck, Calculator, BookOpen, Languages, FlaskConical, Clock } from "lucide-react";
+import { yearsFor, examKey, type Level } from "@/data/catalog";
+import type { Subject } from "@/data/exam-types";
+import { preloadExamImages } from "@/lib/preload-exam";
+import { cn } from "@/lib/utils";
+import { SiteNav } from "@/components/SiteNav";
+import bannerP6 from "@/assets/banner-p6.jpg";
+import bannerM3 from "@/assets/banner-m3.jpg";
+
+const SUBJECTS = [
+  { key: "math", name: "คณิตศาสตร์", icon: Calculator, color: "bg-subj-math", text: "text-subj-math", code: { p6: "64", m3: "94" } },
+  { key: "thai", name: "ภาษาไทย", icon: BookOpen, color: "bg-subj-thai", text: "text-subj-thai", code: { p6: "61", m3: "91" } },
+  { key: "eng", name: "ภาษาอังกฤษ", icon: Languages, color: "bg-subj-eng", text: "text-subj-eng", code: { p6: "63", m3: "93" } },
+  { key: "sci", name: "วิทยาศาสตร์", icon: FlaskConical, color: "bg-subj-sci", text: "text-subj-sci", code: { p6: "65", m3: "95" } },
+] as const;
+
+const INFO: Record<Level, { short: string; full: string; banner: string; tag: string }> = {
+  p6: { short: "ป.6", full: "ประถมศึกษาปีที่ 6", banner: bannerP6, tag: "ข้อสอบจริงย้อนหลัง ทำบนจอได้ พร้อมคำใบ้" },
+  m3: { short: "ม.3", full: "มัธยมศึกษาปีที่ 3", banner: bannerM3, tag: "เตรียมสอบ O-NET ม.3 ด้วยข้อสอบจริงหลายปี" },
+};
+
+export function LevelPage({ level }: { level: Level }) {
+  const router = useRouter();
+  const [subject, setSubject] = useState<Subject | null>(null);
+  const info = INFO[level];
+
+  useEffect(() => {
+    for (const s of SUBJECTS) for (const e of yearsFor(level, s.key)) {
+      const key = examKey(e);
+      router.preloadRoute({ to: "/exam/$key", params: { key } }).catch(() => {});
+      preloadExamImages(key, 15000);
+    }
+  }, [router, level]);
+
+  return (
+    <div className="min-h-dvh bg-background">
+      <SiteNav level={level} />
+      <main className="mx-auto max-w-5xl px-4 pb-12 pt-4">
+        <section className="relative overflow-hidden rounded-3xl border border-border shadow-paper">
+          <img src={info.banner} alt={`นักเรียนชั้น${info.full}`} width={1600} height={640} className="h-48 w-full object-cover sm:h-64" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent" />
+          <div className="absolute inset-y-0 left-0 flex max-w-md flex-col justify-center p-5 sm:p-8">
+            <span className="font-display text-5xl leading-none text-primary sm:text-6xl">{info.short}</span>
+            <h1 className="mt-1 font-display text-2xl sm:text-3xl">{info.full}</h1>
+            <p className="mt-1 text-sm text-muted-foreground sm:text-base">{info.tag}</p>
+          </div>
+        </section>
+
+        <h2 className="mb-3 mt-6 font-display text-xl">เลือกวิชา</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {SUBJECTS.map((s) => {
+            const I = s.icon;
+            const sets = yearsFor(level, s.key);
+            const open = subject === s.key;
+            return (
+              <div key={s.key} className={cn("rounded-2xl border-2 bg-card shadow-paper transition", open ? "border-current" : "border-border", s.text)}>
+                <button onClick={() => setSubject(open ? null : s.key)} disabled={sets.length === 0}
+                  className="flex w-full items-center gap-3 p-4 text-left disabled:opacity-60">
+                  <span className={cn("flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-primary-foreground", s.color)}><I className="h-7 w-7" /></span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-lg font-semibold">{s.name}</p>
+                    <p className="text-sm text-muted-foreground">รหัสวิชา {s.code[level]} · {sets.length ? `${sets.length} ปี` : "กำลังเตรียมข้อสอบ"}</p>
+                  </div>
+                  {sets.length ? <ArrowRight className={cn("h-5 w-5 shrink-0 transition", open && "rotate-90")} /> : <Clock className="h-5 w-5 shrink-0 text-muted-foreground" />}
+                </button>
+                {open && (
+                  <div className="animate-in fade-in border-t border-border p-3">
+                    <Link to="/diagnostic/$level/$subject" params={{ level, subject: s.key }} search={{ strand: undefined }}
+                      className="mb-3 flex items-center gap-2 rounded-xl border-2 border-current px-3 py-2 font-semibold transition hover:bg-secondary">
+                      <ClipboardCheck className="h-5 w-5" /> วัดความรู้พื้นฐาน
+                      <span className="ml-auto text-xs font-normal text-muted-foreground">สุ่มจากทุกปี · ดูว่าเก่งเรื่องไหน</span>
+                    </Link>
+                    <Link to="/analysis/$level/$subject" params={{ level, subject: s.key }}
+                      className="mb-3 flex items-center gap-2 rounded-xl border border-border px-3 py-2 font-semibold transition hover:bg-secondary">
+                      <BarChart3 className="h-5 w-5" /> วิเคราะห์ข้อสอบย้อนหลัง
+                      <span className="ml-auto text-xs font-normal text-muted-foreground">ข้อไหนออกเรื่องอะไร · ควรติวอะไร</span>
+                    </Link>
+                    <p className="mb-2 text-sm font-medium text-foreground">เลือกปีการศึกษา</p>
+                    <div className="flex flex-wrap gap-2">
+                      {sets.map((e) => (
+                        <Link key={e.year} to="/exam/$key" params={{ key: examKey(e) }}
+                          className={cn("rounded-xl px-4 py-2 text-primary-foreground transition hover:opacity-90", s.color)}>
+                          <span className="block font-display text-lg leading-tight">ปี {e.year}</span>
+                          <span className="block text-xs opacity-90">{e.questions.length} ข้อ · {e.minutes} นาที</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </main>
+    </div>
+  );
+}
