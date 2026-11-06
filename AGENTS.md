@@ -33,3 +33,8 @@ use the editor.
 - Accounts have no real email: src/lib/account-id.ts derives a deterministic internal email from role + name + OBEC school code; accounts are created only by the `registerAccount` server function (public sign-up is disabled) so the school code is always validated against `schools`.
 - Essay answers live in `essay_answers`; students insert only, teachers of the same school may update just score/comment (column grants + trigger resets grading fields on insert).
 - Per-topic drills (20 mixed-format questions) are AI-written once by `getDrillSet` and cached in `drill_sets` so every student gets the same set; skill/unlock rules live in src/lib/skill.ts (tested).
+
+## Project rules
+- PRE O-NET sets come from `pickPreOnet` and use only stand-alone questions (no shared passage/picture), because split linked questions lose their context.
+- Unlocking yearly sets, round 2 and analysis is gated by a finished `pre1` attempt (`isPreUnlocked` in src/lib/skill.ts), so the gate lives in one tested place.
+- Exam screens recolour `--primary` to the subject colour via `subjectVars`, so components keep using `primary` tokens.
