@@ -250,6 +250,8 @@ div.min-h-screen {
   --ring: var(--nav-action);
   --destructive: oklch(0.8 0.12 20);
   --shadow-auth: 0 12px 36px oklch(0.2 0.09 265 / 18%);
+  border-color: var(--nav-text);
+  border-width: 2px;
   box-shadow: var(--shadow-auth);
 }
 
