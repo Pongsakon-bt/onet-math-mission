@@ -22,7 +22,7 @@ export const Route = createFileRoute("/preonet/$level/$subject/$round")({
 
 function PrePage() {
   const { level, subject, round } = Route.useLoaderData();
-  const [status, setStatus] = useState<{ done1?: string } | null>(null);
+  const [status, setStatus] = useState<{ done1: string | undefined } | null>(null);
   useEffect(() => setStatus({ done1: preRound1(loadAttempts(), level, subject)?.id }), [level, subject]);
   const title = `PRE O-NET ครั้งที่ ${round} · ${subjectUi(subject).name} ${LEVEL_SHORT[level]}`;
   const back = <Link to="/bank/$level/$subject" params={{ level, subject }} className="font-semibold underline">กลับหน้า PRE O-NET</Link>;
