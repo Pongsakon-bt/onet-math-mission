@@ -182,6 +182,33 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_links: {
+        Row: {
+          level: string
+          subject: string
+          topic: string
+          updated_at: string
+          updated_by: string | null
+          url: string
+        }
+        Insert: {
+          level: string
+          subject: string
+          topic: string
+          updated_at?: string
+          updated_by?: string | null
+          url: string
+        }
+        Update: {
+          level?: string
+          subject?: string
+          topic?: string
+          updated_at?: string
+          updated_by?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           active: boolean

@@ -9,6 +9,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { PageShell } from "@/components/PageShell";
 import { TutorChecklist } from "@/components/TutorChecklist";
+import { LearningLinks } from "@/components/LearningLinks";
 import { FourSubjectRadar, LevelOverview } from "@/components/LevelOverview";
 import { PredictionCard } from "@/components/PredictionCard";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
@@ -115,7 +116,7 @@ function Dashboard() {
               </div>
             </LevelOverview>
           <div className="space-y-4 border-t border-border pt-4">
-          {all !== null && !tests.length ? (
+          {all !== null && !tests.length && account?.role !== "admin" ? (
             <section className="rounded-2xl border border-border bg-card p-6 text-center shadow-paper">
               <p className="font-display text-xl">ยังไม่ได้วัดความรู้พื้นฐาน {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</p>
               <p className="mt-1 text-muted-foreground">ทำแบบวัดสั้น ๆ เพื่อดูว่าแต่ละสาระรู้แค่ไหน</p>
@@ -155,7 +156,7 @@ function Dashboard() {
                   })}
                 </div>
               </section>
-
+              <LearningLinks level={level} subject={subject} />
 </>) : (<>
               <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
                 <h2 className="flex items-center gap-2 font-display text-xl"><PenLine className="h-5 w-5 text-primary" /> ฝึกทำข้อสอบ</h2>
