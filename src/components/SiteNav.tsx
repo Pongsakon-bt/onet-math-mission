@@ -13,6 +13,7 @@ const TABS: { to: "/p6" | "/m3"; short: string; full: string }[] = [
 
 export function SiteNav({ level }: { level?: Level }) {
   const account = useAccount();
+  const signedIn = canShowDashboard(account);
   return (
     <header className="sticky top-0 z-30 border-b border-nav-hover bg-nav-surface text-nav-text">
       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-2 sm:px-6 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-6">
