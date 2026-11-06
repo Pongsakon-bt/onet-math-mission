@@ -1,3 +1,4 @@
+import { listMissingDrills, prefillDrill } from "@/lib/drill.functions";
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -61,12 +62,53 @@ function AdminPage() {
           <div className="flex items-center gap-2 font-display text-2xl"><ShieldCheck className="h-6 w-6 text-primary" />ผู้ดูแลระบบ</div>
           <Button variant="outline" size="sm" onClick={signOut}><LogOut className="mr-1 h-4 w-4" />ออกจากระบบ</Button>
         </div>
+        <DrillPrefill />
         {q.isLoading || !d ? <p className="text-muted-foreground">กำลังโหลดข้อมูล...</p> : (
           <AdminBody d={d} tab={tab} setTab={setTab} school={school} setSchool={setSchool} search={search} setSearch={setSearch}
             refresh={() => qc.invalidateQueries({ queryKey: ["admin-overview"] })} />
         )}
       </div>
     </PageShell>
+  );
+}
+
+function DrillPrefill() {
+  const list = useServerFn(listMissingDrills);
+  const fill = useServerFn(prefillDrill);
+  const [st, setSt] = useState<{ total: number; left: number; done: number; fail: number; running: boolean } | null>(null);
+  const stop = useRef(false);
+  const refresh = async () => { const r = await list(); setSt((s) => ({ total: r.total, left: r.missing.length, done: s?.done ?? 0, fail: s?.fail ?? 0, running: false })); return r; };
+  useEffect(() => { refresh(); }, []);
+  const run = async () => {
+    stop.current = false;
+    const r = await refresh();
+    const queue = [...r.missing];
+    setSt((s) => s && { ...s, running: true });
+    const worker = async () => {
+      while (queue.length && !stop.current) {
+        const t = queue.shift()!;
+        let ok = false;
+        try { ok = (await fill({ data: t })).ok; } catch { ok = false; }
+        setSt((s) => s && { ...s, left: ok ? s.left - 1 : s.left, done: s.done + (ok ? 1 : 0), fail: s.fail + (ok ? 0 : 1) });
+      }
+    };
+    await Promise.all([worker(), worker(), worker(), worker()]);
+    await refresh();
+  };
+  if (!st) return null;
+  const ready = st.total - st.left;
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-semibold">ข้อสอบย่อยรายเรื่องที่พร้อมใช้: {ready} / {st.total} เรื่อง</p>
+          <p className="text-sm text-muted-foreground">{st.running ? `กำลังเตรียม... สำเร็จ ${st.done} · ไม่สำเร็จ ${st.fail} (เปิดหน้านี้ค้างไว้)` : st.left ? `เหลือ ${st.left} เรื่องที่ยังต้องรอโหลดครั้งแรก` : "ครบทุกเรื่องแล้ว เปิดได้ทันที"}</p>
+        </div>
+        {st.running ? <Button variant="outline" onClick={() => { stop.current = true; }}>หยุด</Button>
+          : st.left > 0 && <Button onClick={run}>เตรียมข้อสอบทุกเรื่อง</Button>}
+      </div>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary" style={{ width: `${(ready / st.total) * 100}%` }} /></div>
+    </div>
   );
 }
 
