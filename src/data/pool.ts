@@ -63,6 +63,31 @@ export function withPassageGroups(pool: PoolQuestion[], ids: string[]): string[]
   return out;
 }
 
+const groupKey = (q: PoolQuestion) =>
+  q.passage ? `${q.fromYear}|${q.passage}` : q.figure?.kind === "image" ? `${q.fromYear}|img|${q.figure.src}` : null;
+
+/** Ids of questions that stand alone: no reading passage or picture shared with another question. */
+export function standaloneIds(pool: PoolQuestion[]): Set<string> {
+  const count = new Map<string, number>();
+  for (const q of pool) { const k = groupKey(q); if (k) count.set(k, (count.get(k) ?? 0) + 1); }
+  return new Set(pool.filter((q) => { const k = groupKey(q); return !k || count.get(k) === 1; }).map((q) => q.id));
+}
+
+/** PRE O-NET set: `size` stand-alone questions spread evenly over the strands (frequent topics and unseen first).
+ *  Linked questions are never used, so a set may be shorter than `size` when a subject has too few stand-alone ones. */
+export function pickPreOnet(pool: PoolQuestion[], subject: Subject, size: number, seen: Set<string> = new Set(), freq?: Map<string, number>): string[] {
+  const alone = standaloneIds(pool);
+  const f = (q: PoolQuestion) => freq?.get(baseTopic(q.topic)) ?? 0;
+  const lists = strandsFor(subject).map((n) => {
+    const qs = pool.filter((q) => q.strand === n && alone.has(q.id));
+    return [...shuffle(qs.filter((q) => !seen.has(q.id))).sort((a, b) => f(b) - f(a)), ...shuffle(qs.filter((q) => seen.has(q.id)))];
+  });
+  const out: string[] = [];
+  for (let i = 0; out.length < size && lists.some((l) => l.length > i); i++)
+    for (const l of lists) if (l[i] && out.length < size) out.push(l[i]!.id);
+  return out;
+}
+
 /** Wrap chosen questions as a temporary exam (renumbered 1..n). Topic shows the source year. */
 export function buildExam(pool: PoolQuestion[], ids: string[], meta: { level: Level; subject: Subject; title: string; minutesPerQ?: number }): Exam {
   const byId = new Map(pool.map((q) => [q.id, q]));
