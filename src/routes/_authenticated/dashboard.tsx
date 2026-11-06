@@ -8,6 +8,7 @@ import { PageShell } from "@/components/PageShell";
 import { TutorChecklist } from "@/components/TutorChecklist";
 import { LevelOverview } from "@/components/LevelOverview";
 import { StudentAssignments } from "@/components/StudentAssignments";
+import { PredictionCard } from "@/components/PredictionCard";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
 import { strandsFor } from "@/data/strands";
@@ -166,6 +167,8 @@ function Dashboard() {
                   })}
                 </div>
               </section>
+
+              <PredictionCard level={level} subject={subject} attempts={all ?? []} />
 
               <TutorChecklist level={level} subject={subject} attempts={all ?? []} />
 
