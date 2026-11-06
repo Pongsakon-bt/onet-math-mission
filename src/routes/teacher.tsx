@@ -43,6 +43,7 @@ function TeacherPage() {
   const [pending, setPending] = useState<Map<string, number>>(new Map());
   const [level, setLevel] = useState<Level>("p6");
   const [subject, setSubject] = useState<Subject>("math");
+  const [school, setSchool] = useState<{ amphoe: string | null; province: string | null; area: string | null; opened: string | null; teachers: number } | null>(null);
 
   useEffect(() => {
     if (!acc || acc.role !== "teacher") return;
@@ -59,6 +60,14 @@ function TeacherPage() {
       const m = new Map<string, number>();
       for (const e of es ?? []) m.set(e.user_id, (m.get(e.user_id) ?? 0) + 1);
       setPending(m);
+      const [{ data: sc }, { data: site }, { data: tr }] = await Promise.all([
+        supabase.from("schools").select("amphoe, province, area").eq("code", acc.school).maybeSingle(),
+        supabase.from("school_sites").select("opened_at").eq("code", acc.school).maybeSingle(),
+        supabase.from("user_roles").select("user_id").eq("role", "teacher"),
+      ]);
+      const tids = new Set((tr ?? []).map((r) => r.user_id));
+      setSchool({ amphoe: sc?.amphoe ?? null, province: sc?.province ?? null, area: sc?.area ?? null, opened: site?.opened_at ?? null,
+        teachers: (profs ?? []).filter((p) => tids.has(p.id)).length });
     })();
   }, [acc]);
 
@@ -108,6 +117,10 @@ function TeacherPage() {
             <Button variant="outline" size="sm" onClick={signOut}><LogOut /> ออกจากระบบ</Button>
           </div>
 
+          <SchoolOverview acc={acc} school={school} students={students} rows={rows} pending={[...pending.values()].reduce((a, b) => a + b, 0)}
+            onPick={(l, sub) => { setLevel(l); setSubject(sub); }} />
+
+          <h2 className="pt-2 font-display text-xl">รายละเอียด {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</h2>
           <div className="grid grid-cols-3 gap-3">
             <Stat label="นักเรียนที่สมัคร" value={students.length} />
             <Stat label="ทำข้อสอบทั้งหมด" value={rows.length} />
@@ -167,4 +180,82 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 }
 function Pill({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return <button onClick={onClick} className={cn("rounded-full border px-3 py-1 text-sm", on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card")}>{children}</button>;
+}
+
+const SUBJ_UI: Record<Subject, { bg: string; text: string }> = {
+  math: { bg: "bg-subj-math", text: "text-subj-math" }, thai: { bg: "bg-subj-thai", text: "text-subj-thai" },
+  eng: { bg: "bg-subj-eng", text: "text-subj-eng" }, sci: { bg: "bg-subj-sci", text: "text-subj-sci" },
+};
+
+/** School back office header: identity, headline numbers and a level × subject score grid. */
+function SchoolOverview({ acc, school, students, rows, pending, onPick }: {
+  acc: { school: string; schoolName: string };
+  school: { amphoe: string | null; province: string | null; area: string | null; opened: string | null; teachers: number } | null;
+  students: Student[]; rows: Row[]; pending: number; onPick: (l: Level, s: Subject) => void;
+}) {
+  const weekAgo = Date.now() - 7 * 864e5;
+  const active = new Set(rows.filter((r) => new Date(r.at).getTime() >= weekAgo).map((r) => r.user_id)).size;
+  const pre1 = rows.filter((r) => r.kind === "pre1");
+  const avgPre1 = pre1.length ? Math.round(pre1.reduce((a, r) => a + pct(r.items), 0) / pre1.length) : null;
+  const cell = (l: Level, s: Subject) => {
+    const p1 = pre1.filter((r) => r.level === l && r.subject === s);
+    const latest = new Map<string, Row>();
+    for (const r of rows) if (r.level === l && r.subject === s && r.kind !== "practice" && r.kind !== "drill") latest.set(r.user_id, r);
+    const avg = (xs: Row[]) => (xs.length ? Math.round(xs.reduce((a, r) => a + pct(r.items), 0) / xs.length) : null);
+    return { n: p1.length, pre1: avg(p1), now: avg([...latest.values()]) };
+  };
+  return (
+    <section className="space-y-3">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-paper">
+        <div className="bg-primary p-4 text-primary-foreground sm:p-5">
+          <p className="text-xs opacity-80">แดชบอร์ดโรงเรียน · รหัส {acc.school}</p>
+          <h2 className="font-display text-2xl sm:text-3xl">โรงเรียน{acc.schoolName}</h2>
+          <p className="text-sm opacity-90">{school ? `อำเภอ${school.amphoe ?? "-"} จังหวัด${school.province ?? "-"}` : "…"}</p>
+          {school?.area && <p className="text-sm opacity-90">{school.area}</p>}
+        </div>
+        <div className="grid grid-cols-2 divide-border sm:grid-cols-5 sm:divide-x">
+          <Kpi label="ครูในระบบ" value={school?.teachers ?? "–"} />
+          <Kpi label="นักเรียนที่สมัคร" value={students.length} />
+          <Kpi label="ใช้งาน 7 วันล่าสุด" value={`${active} คน`} />
+          <Kpi label="คะแนนเฉลี่ย PRE O-NET ครั้งที่ 1" value={avgPre1 !== null ? `${avgPre1}%` : "–"} />
+          <Kpi label="ข้อเขียนรอตรวจ" value={pending} />
+        </div>
+        {school?.opened && <p className="border-t border-border px-4 py-2 text-xs text-muted-foreground">เปิดระบบโรงเรียนเมื่อ {new Date(school.opened).toLocaleDateString("th-TH", { dateStyle: "long" })}</p>}
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-5">
+        <h2 className="font-display text-xl">คะแนนรายวิชา</h2>
+        <p className="text-sm text-muted-foreground">เฉลี่ย PRE O-NET ครั้งที่ 1 และผลล่าสุดของนักเรียน · แตะช่องเพื่อดูรายละเอียด</p>
+        <div className="mt-3 space-y-3">
+          {LEVELS.map((l) => (
+            <div key={l}>
+              <p className="mb-1.5 font-semibold">{LEVEL_NAMES[l]}</p>
+              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                {SUBJECTS.map((s) => {
+                  const c = cell(l, s);
+                  return (
+                    <button key={s} type="button" onClick={() => onPick(l, s)} className="rounded-xl border border-border p-3 text-left transition hover:bg-secondary">
+                      <p className={cn("text-sm font-semibold", SUBJ_UI[s].text)}>{SUBJECT_NAMES[s]}</p>
+                      <p className="font-display text-3xl leading-tight">{c.pre1 ?? "–"}{c.pre1 !== null && <span className="text-sm">%</span>}</p>
+                      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary"><div className={cn("h-full", SUBJ_UI[s].bg)} style={{ width: `${c.pre1 ?? 0}%` }} /></div>
+                      <p className="mt-1 text-xs text-muted-foreground">ทำครั้งที่ 1 แล้ว {c.n} คน · ล่าสุด {c.now ?? "–"}{c.now !== null && "%"}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Kpi({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="p-3 sm:p-4">
+      <p className="font-display text-2xl">{value}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
+    </div>
+  );
 }
