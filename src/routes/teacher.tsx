@@ -111,8 +111,7 @@ function TeacherPage() {
         <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:px-4 sm:py-6">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
-              <p className="text-sm text-muted-foreground">ครู{acc.first} {acc.last} · รหัส {acc.school}</p>
-              <h1 className="font-display text-2xl sm:text-3xl">โรงเรียน{acc.schoolName}</h1>
+              <h1 className="font-display text-xl">สวัสดี ครู{acc.first} {acc.last}</h1>
             </div>
             <Button variant="outline" size="sm" onClick={signOut}><LogOut /> ออกจากระบบ</Button>
           </div>
