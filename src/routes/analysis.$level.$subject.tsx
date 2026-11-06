@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ClipboardCheck, BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { BookOpen } from "lucide-react";
+import { TutorChecklist } from "@/components/TutorChecklist";
 import { PageShell } from "@/components/PageShell";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
@@ -37,7 +37,6 @@ function AnalysisPage() {
   const { level, subject } = Route.useLoaderData();
   const a = useMemo(() => analyzeSubject(level, subject), [level, subject]);
   const name = `${SUBJECT_NAMES[subject]} ${LEVEL_NAMES[level]}`;
-  const top = a.topics.filter((t) => t.years.length >= Math.min(3, a.nYears)).slice(0, 12);
 
   return (
     <PageShell subject={subject} title="วิเคราะห์ข้อสอบ" sub={name}>
@@ -45,24 +44,7 @@ function AnalysisPage() {
         <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:px-4 sm:py-6">
           <h1 className="font-display text-2xl sm:text-3xl">{name} · {a.nYears} ปี ({a.years.join(", ")})</h1>
 
-          <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
-            <h2 className="font-display text-xl">เรื่องที่ควรติว</h2>
-            <p className="text-sm text-muted-foreground">ออกสอบอย่างน้อย {Math.min(3, a.nYears)} จาก {a.nYears} ปี เรียงจากออกบ่อยและคะแนนมาก</p>
-            <ol className="mt-3 grid gap-2 sm:grid-cols-2">
-              {top.map((t, i) => (
-                <li key={t.topic} className="flex items-start gap-2 rounded-xl bg-secondary/60 p-2.5">
-                  <span className="font-display text-lg text-primary">{i + 1}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold">{t.topic}</p>
-                    <p className="text-xs text-muted-foreground">ออก {t.years.length}/{a.nYears} ปี · รวม {t.count} ข้อ · เฉลี่ย {(t.points / a.nYears).toFixed(1)} คะแนน/ปี · {t.strand}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              <Button size="lg" asChild><Link to="/diagnostic/$level/$subject" params={{ level, subject }} search={{ strand: undefined }}><ClipboardCheck /> วัดความรู้พื้นฐานจากเรื่องที่ออกบ่อย</Link></Button>
-            </div>
-          </section>
+          <TutorChecklist level={level} subject={subject} />
 
           <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
             <h2 className="font-display text-xl">น้ำหนักแต่ละสาระ (เฉลี่ยต่อปี)</h2>
@@ -101,12 +83,6 @@ function AnalysisPage() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
-            <h2 className="font-display text-xl">ทุกเรื่องที่เคยออก</h2>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {a.topics.map((t) => <span key={t.topic} className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">{t.topic} · {t.years.length}/{a.nYears} ปี</span>)}
-            </div>
-          </section>
         </div>
       </main>
     </PageShell>

@@ -5,6 +5,7 @@ import { ClipboardCheck, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { PageShell } from "@/components/PageShell";
+import { TutorChecklist } from "@/components/TutorChecklist";
 import { LevelOverview } from "@/components/LevelOverview";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
@@ -159,6 +160,8 @@ function Dashboard() {
                   })}
                 </div>
               </section>
+
+              <TutorChecklist level={level} subject={subject} attempts={all ?? []} />
 
               <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
                 <h2 className="font-display text-xl">ประวัติการทำ</h2>
