@@ -184,21 +184,50 @@ export type Database = {
         }
         Relationships: []
       }
+      school_sites: {
+        Row: {
+          code: string
+          opened_at: string
+          opened_by: string | null
+        }
+        Insert: {
+          code: string
+          opened_at?: string
+          opened_by?: string | null
+        }
+        Update: {
+          code?: string
+          opened_at?: string
+          opened_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_sites_code_fkey"
+            columns: ["code"]
+            isOneToOne: true
+            referencedRelation: "schools"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       schools: {
         Row: {
           amphoe: string | null
+          area: string | null
           code: string
           name: string
           province: string | null
         }
         Insert: {
           amphoe?: string | null
+          area?: string | null
           code: string
           name: string
           province?: string | null
         }
         Update: {
           amphoe?: string | null
+          area?: string | null
           code?: string
           name?: string
           province?: string | null

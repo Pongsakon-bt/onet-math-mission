@@ -3,15 +3,16 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageShell } from "@/components/PageShell";
-import { AuthCard, Field, RolePicker, SchoolCodeField } from "@/components/AccountForm";
+import { AuthCard, Field, RolePicker } from "@/components/AccountForm";
 import { supabase } from "@/integrations/supabase/client";
-import { accountEmail, isSchoolCode, type Role } from "@/lib/account-id";
+import type { Role } from "@/lib/account-id";
+import { signInByName } from "@/lib/accounts.functions";
 import { uploadLocalAttempts } from "@/lib/session";
 
 export const Route = createFileRoute("/login")({
   head: () => {
     const title = "เข้าสู่ระบบ · PRE O-NET";
-    const description = "นักเรียนและครูเข้าสู่ระบบด้วยชื่อ นามสกุล รหัสโรงเรียน 10 หลัก และรหัสผ่าน";
+    const description = "นักเรียนและครูเข้าสู่ระบบด้วยชื่อ นามสกุล และรหัสผ่าน";
     return { meta: [
       { title }, { name: "description", content: description },
       { property: "og:title", content: title }, { property: "og:description", content: description },
@@ -24,19 +25,20 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const [role, setRole] = useState<Role>("student");
-  const [f, setF] = useState({ first: "", last: "", school: "", password: "" });
+  const [f, setF] = useState({ first: "", last: "", password: "" });
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr("");
-    if (!f.first.trim() || !f.last.trim() || !isSchoolCode(f.school) || !f.password) return setErr("กรุณากรอกข้อมูลให้ครบ");
+    if (!f.first.trim() || !f.last.trim() || !f.password) return setErr("กรุณากรอกข้อมูลให้ครบ");
     setBusy(true);
-    const email = await accountEmail(role, f.first, f.last, f.school);
-    const { error } = await supabase.auth.signInWithPassword({ email, password: f.password });
+    const res = await signInByName({ data: { role, first: f.first, last: f.last, password: f.password } }).catch(() => null);
+    if (!res || !res.ok) { setBusy(false); return setErr(res?.error ?? "เข้าสู่ระบบไม่สำเร็จ ลองใหม่อีกครั้ง"); }
+    const { error } = await supabase.auth.setSession({ access_token: res.access_token, refresh_token: res.refresh_token });
     setBusy(false);
-    if (error) return setErr("ชื่อ นามสกุล รหัสโรงเรียน หรือรหัสผ่านไม่ถูกต้อง");
+    if (error) return setErr("เข้าสู่ระบบไม่สำเร็จ ลองใหม่อีกครั้ง");
     if (role === "student") { await uploadLocalAttempts().catch(() => {}); navigate({ to: "/" }); }
     else navigate({ to: "/teacher" });
   };
@@ -50,7 +52,6 @@ function LoginPage() {
             <Field label="ชื่อ"><Input value={f.first} onChange={(e) => setF({ ...f, first: e.target.value })} /></Field>
             <Field label="นามสกุล"><Input value={f.last} onChange={(e) => setF({ ...f, last: e.target.value })} /></Field>
           </div>
-          <SchoolCodeField value={f.school} onChange={(school) => setF({ ...f, school })} />
           <Field label="รหัสผ่าน"><Input type="password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></Field>
           {err && <p className="text-sm text-destructive">{err}</p>}
           <Button type="submit" size="lg" className="w-full" disabled={busy}>{busy ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}</Button>

@@ -31,6 +31,7 @@ use the editor.
 - Exam overview groups question topics into curriculum strands via regex rules in src/data/strands.ts — new topics need no data edits, only a rule if they fall into the wrong strand.
 - Student progress is saved to localStorage (src/lib/progress.ts) and, when signed in, mirrored to the `attempts` table — teachers read it via RLS scoped by `teacher_school()`.
 - Accounts have no real email: src/lib/account-id.ts derives a deterministic internal email from role + name + OBEC school code; accounts are created only by the `registerAccount` server function (public sign-up is disabled) so the school code is always validated against `schools`.
+- Sign-in needs only role + name + password: `signInByName` finds matching profiles server-side and returns a session; sign-up confirms the school from its 10-digit code, and the first teacher of a school creates its `school_sites` row (school back office).
 - Essay answers live in `essay_answers`; students insert only, teachers of the same school may update just score/comment (column grants + trigger resets grading fields on insert).
 - Per-topic drills (20 mixed-format questions) are AI-written once by `getDrillSet` and cached in `drill_sets` so every student gets the same set; skill/unlock rules live in src/lib/skill.ts (tested).
 
