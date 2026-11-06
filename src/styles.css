@@ -161,7 +161,7 @@
 
 /* ---- โจทย์คณิต theme: paper + ink + marker ---- */
 :root {
-  --background: oklch(0.975 0.012 85);
+  --background: var(--level-page-surface);
   --foreground: oklch(0.22 0.04 260);
   --card: oklch(0.995 0.005 85);
   --card-foreground: oklch(0.22 0.04 260);
@@ -215,15 +215,19 @@
   --shadow-paper: var(--shadow-paper);
 }
 body { font-family: var(--font-sans); }
-.level-grid-background {
+.level-grid-background,
+body,
+div.min-h-dvh,
+div.h-dvh,
+div.min-h-screen {
   background-color: var(--level-page-surface);
   background-image:
     linear-gradient(to right, var(--level-page-grid) 1px, transparent 1px),
     linear-gradient(to bottom, var(--level-page-grid) 1px, transparent 1px);
   background-size: 32px 32px;
 }
-.dark .level-grid-background {
-  --level-page-surface: var(--background);
+.dark {
+  --level-page-surface: oklch(0.129 0.042 264.695);
   --level-page-grid: oklch(0.7 0 0 / 12%);
 }
 .marker {
