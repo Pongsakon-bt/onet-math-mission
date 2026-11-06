@@ -7,6 +7,9 @@ import { PageShell } from "@/components/PageShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/lib/session";
 import { resetStudentPassword } from "@/lib/accounts.functions";
+import { teacherUpdateStudent } from "@/lib/classes.functions";
+import { AssignmentsPanel, MyClasses, SchoolPeople, type TClass, type TPerson } from "@/components/teacher/ClassTools";
+import { classLabel } from "@/lib/assignments";
 import { MIN_PASSWORD } from "@/lib/account-id";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
@@ -14,7 +17,7 @@ import { strandsFor } from "@/data/strands";
 import { levelOf } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/teacher")({
+export const Route = createFileRoute("/_authenticated/teacher")({
   head: () => {
     const title = "หน้าครู · ความคืบหน้านักเรียน · PRE O-NET";
     const description = "ครูดูความคืบหน้าและผลวิเคราะห์ของนักเรียนทุกคนในโรงเรียน";
@@ -29,7 +32,7 @@ export const Route = createFileRoute("/teacher")({
 
 type Item = { strand: string; correct: boolean; points: number };
 type Row = { user_id: string; kind: string; level: string; subject: string; label: string; at: string; items: Item[] };
-type Student = { id: string; first: string; last: string; created: string };
+type Student = { id: string; first: string; last: string; created: string; grade: string | null; room: string | null; active: boolean };
 const LEVELS: Level[] = ["p6", "m3"];
 const LEVEL_NAMES: Record<Level, string> = { p6: "ป.6", m3: "ม.3" };
 const SUBJECTS = Object.keys(SUBJECT_NAMES) as Subject[];
@@ -44,18 +47,22 @@ function TeacherPage() {
   const [pending, setPending] = useState<Map<string, number>>(new Map());
   const [level, setLevel] = useState<Level>("p6");
   const [subject, setSubject] = useState<Subject>("math");
+  const [teachers, setTeachers] = useState<TPerson[]>([]);
+  const [classes, setClasses] = useState<TClass[]>([]);
+  const [room, setRoom] = useState<string>("all");
+  const [tick, setTick] = useState(0);
   const [school, setSchool] = useState<{ amphoe: string | null; province: string | null; area: string | null; opened: string | null; teachers: number } | null>(null);
 
   useEffect(() => {
     if (!acc || acc.role !== "teacher") return;
     (async () => {
       const [{ data: profs }, { data: roles }, { data: att }] = await Promise.all([
-        supabase.from("profiles").select("id, first_name, last_name, created_at").eq("school_code", acc.school),
+        supabase.from("profiles").select("id, first_name, last_name, created_at, grade, room, active").eq("school_code", acc.school),
         supabase.from("user_roles").select("user_id, role").eq("role", "student"),
         supabase.from("attempts").select("user_id, kind, level, subject, label, at, items").order("at", { ascending: true }).limit(5000),
       ]);
       const sids = new Set((roles ?? []).map((r) => r.user_id));
-      setStudents((profs ?? []).filter((p) => sids.has(p.id)).map((p) => ({ id: p.id, first: p.first_name, last: p.last_name, created: p.created_at })));
+      setStudents((profs ?? []).filter((p) => sids.has(p.id)).map((p) => ({ id: p.id, first: p.first_name, last: p.last_name, created: p.created_at, grade: p.grade, room: p.room, active: p.active })));
       setRows(((att ?? []) as unknown as Row[]).filter((r) => sids.has(r.user_id)));
       const { data: es } = await supabase.from("essay_answers").select("user_id").is("score", null);
       const m = new Map<string, number>();
@@ -67,10 +74,21 @@ function TeacherPage() {
         supabase.from("user_roles").select("user_id").eq("role", "teacher"),
       ]);
       const tids = new Set((tr ?? []).map((r) => r.user_id));
+      setTeachers((profs ?? []).filter((p) => tids.has(p.id)).map((p) => ({ id: p.id, first: p.first_name, last: p.last_name })));
+      const { data: cls } = await supabase.from("teacher_classes").select("id, teacher_id, grade, room, subject");
+      const mine = ((cls ?? []) as TClass[]);
+      setClasses(mine);
+      setRoom((cur) => {
+        if (cur !== "all") return cur;
+        const first = mine.find((c) => c.teacher_id === acc.id);
+        if (!first) return cur;
+        setLevel(first.grade as Level); setSubject(first.subject as Subject);
+        return classLabel(first.grade, first.room || null);
+      });
       setSchool({ amphoe: sc?.amphoe ?? null, province: sc?.province ?? null, area: sc?.area ?? null, opened: site?.opened_at ?? null,
         teachers: (profs ?? []).filter((p) => tids.has(p.id)).length });
     })();
-  }, [acc]);
+  }, [acc, tick]);
 
   const view = useMemo(() => {
     const sel = rows.filter((r) => r.level === level && r.subject === subject);
@@ -78,7 +96,7 @@ function TeacherPage() {
       const items = sel.flatMap((r) => r.items.filter((i) => i.strand === s));
       return { name: s, n: items.length, pct: pct(items) };
     });
-    const per = students.map((s) => {
+    const per = students.filter((s) => room === "all" || classLabel(s.grade, s.room) === room).map((s) => {
       const mine = rows.filter((r) => r.user_id === s.id);
       const mineSel = sel.filter((r) => r.user_id === s.id);
       const last = mineSel[mineSel.length - 1];
@@ -86,13 +104,29 @@ function TeacherPage() {
       return { ...s, count: mine.length, lastAt: mine[mine.length - 1]?.at, firstPct: first ? pct(first.items) : null, lastPct: last ? pct(last.items) : null, tests: mineSel.length };
     }).sort((a, b) => (a.lastPct ?? 101) - (b.lastPct ?? 101));
     return { strands, per, active: new Set(sel.map((r) => r.user_id)).size };
-  }, [rows, students, level, subject]);
+  }, [rows, students, level, subject, room]);
+  const rooms = useMemo(() => [...new Set(students.map((s) => classLabel(s.grade, s.room)))].sort((a, b) => a.localeCompare(b, "th")), [students]);
 
   const reset = async (s: Student) => {
     const pw = window.prompt(`ตั้งรหัสผ่านใหม่ให้ ${s.first} ${s.last} (อย่างน้อย ${MIN_PASSWORD} ตัว)`);
     if (!pw) return;
     const res = await resetStudentPassword({ data: { studentId: s.id, password: pw } });
     window.alert(res.ok ? "ตั้งรหัสผ่านใหม่แล้ว แจ้งนักเรียนได้เลย" : res.error);
+  };
+  const move = async (s: Student) => {
+    const v = window.prompt(`ย้ายห้อง ${s.first} ${s.last} — พิมพ์ชั้น/ห้อง เช่น ป.6/2 หรือ ม.3/1`, classLabel(s.grade, s.room));
+    if (!v) return;
+    const m = v.trim().match(/^(ป\.?6|ม\.?3)\s*\/?\s*(\S*)$/);
+    if (!m) return window.alert("รูปแบบไม่ถูกต้อง ตัวอย่าง: ป.6/2");
+    const res = await teacherUpdateStudent({ data: { studentId: s.id, grade: m[1]!.startsWith("ป") ? "p6" : "m3", room: m[2] ?? "" } });
+    if (!res.ok) return window.alert(res.error);
+    setTick((t) => t + 1);
+  };
+  const toggleActive = async (s: Student) => {
+    if (!window.confirm(s.active ? `ปิดบัญชี ${s.first} ${s.last}? นักเรียนจะเข้าสู่ระบบไม่ได้ แต่ผลสอบยังเก็บไว้` : `เปิดบัญชี ${s.first} ${s.last} อีกครั้ง?`)) return;
+    const res = await teacherUpdateStudent({ data: { studentId: s.id, active: !s.active } });
+    if (!res.ok) return window.alert(res.error);
+    setTick((t) => t + 1);
   };
   const signOut = async () => { await supabase.auth.signOut(); navigate({ to: "/login", replace: true }); };
 
@@ -127,6 +161,10 @@ function TeacherPage() {
             onPick={(l, sub) => { setLevel(l); setSubject(sub); }} />
           </div>
 
+          <SchoolPeople teachers={teachers} students={students} rows={rows} classes={classes} />
+          <MyClasses me={acc.id} classes={classes} onChange={() => setTick((t) => t + 1)} />
+          <AssignmentsPanel me={acc.id} school={acc.school} students={students} rows={rows} />
+
           <div className="rep-subject space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
             <h2 className="font-display text-xl">รายละเอียด {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</h2>
@@ -142,6 +180,11 @@ function TeacherPage() {
             {LEVELS.map((l) => <Pill key={l} on={l === level} onClick={() => setLevel(l)}>{LEVEL_NAMES[l]}</Pill>)}
             <span className="mx-1 w-px bg-border" />
             {SUBJECTS.map((s) => <Pill key={s} on={s === subject} onClick={() => setSubject(s)}>{SUBJECT_NAMES[s]}</Pill>)}
+          </div>
+          <div className="no-print flex flex-wrap items-center gap-2">
+            <span className="text-sm text-muted-foreground">ห้อง:</span>
+            <Pill on={room === "all"} onClick={() => setRoom("all")}>ทั้งโรงเรียน</Pill>
+            {rooms.map((r) => <Pill key={r} on={r === room} onClick={() => setRoom(r)}>{r}</Pill>)}
           </div>
 
           <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
@@ -162,17 +205,18 @@ function TeacherPage() {
             <p className="text-sm text-muted-foreground">กดชื่อเพื่อดูผลรายคนและตรวจข้อเขียน · เรียงจากคะแนนล่าสุดน้อยไปมาก ({SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]})</p>
             {!students.length ? <p className="mt-3">ยังไม่มีนักเรียนสมัคร ให้นักเรียนสมัครด้วยรหัสโรงเรียน <b>{acc.school}</b></p> : (
               <div className="mt-3 overflow-x-auto">
-                <table className="w-full min-w-[560px] text-sm">
-                  <thead><tr className="text-left text-muted-foreground"><th className="py-1">ชื่อ</th><th>ทำวิชานี้</th><th>ครั้งแรก</th><th>ล่าสุด</th><th>ใช้งานล่าสุด</th><th></th></tr></thead>
+                <table className="w-full min-w-[760px] text-sm">
+                  <thead><tr className="text-left text-muted-foreground"><th className="py-1">ชื่อ</th><th>ห้อง</th><th>ทำวิชานี้</th><th>ครั้งแรก</th><th>ล่าสุด</th><th>ใช้งานล่าสุด</th><th></th></tr></thead>
                   <tbody className="divide-y divide-border">
                     {view.per.map((s) => (
                       <tr key={s.id}>
                         <td className="py-2 font-semibold"><Link to="/teacher/$studentId" params={{ studentId: s.id }} search={{ level, subject }} className="text-primary underline-offset-2 hover:underline">{s.first} {s.last}</Link>{pending.get(s.id) ? <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-xs font-normal">ข้อเขียนรอตรวจ {pending.get(s.id)}</span> : null}</td>
+                        <td className="whitespace-nowrap">{classLabel(s.grade, s.room)}{!s.active && <span className="ml-1 rounded-full bg-muted px-2 text-xs">ปิดบัญชี</span>}</td>
                         <td>{s.tests} ครั้ง</td>
                         <td>{s.firstPct === null ? "–" : `${s.firstPct}%`}</td>
                         <td>{s.lastPct === null ? "–" : <b>{s.lastPct}% <span className="font-normal text-muted-foreground">({levelOf(s.lastPct)})</span></b>}</td>
                         <td className="text-muted-foreground">{s.lastAt ? new Date(s.lastAt).toLocaleDateString("th-TH") : "–"}</td>
-                        <td className="no-print text-right"><Button size="sm" variant="ghost" onClick={() => reset(s)}><KeyRound /> ตั้งรหัสใหม่</Button></td>
+                        <td className="no-print whitespace-nowrap text-right"><Button size="sm" variant="ghost" onClick={() => reset(s)}><KeyRound /> ตั้งรหัสใหม่</Button><Button size="sm" variant="ghost" onClick={() => move(s)}>ย้ายห้อง</Button><Button size="sm" variant="ghost" onClick={() => toggleActive(s)}>{s.active ? "ปิดบัญชี" : "เปิดบัญชี"}</Button></td>
                       </tr>
                     ))}
                   </tbody>

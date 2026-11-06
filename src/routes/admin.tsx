@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageShell } from "@/components/PageShell";
 import { supabase } from "@/integrations/supabase/client";
+import { adminMoveSchool } from "@/lib/classes.functions";
 import { adminViewAs, adminDeleteUser, adminGradeEssay, adminOverview, adminResetPassword, amIAdmin } from "@/lib/admin.functions";
 import { SUBJECT_NAMES } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
@@ -246,6 +247,12 @@ function UserRow({ p, role, school, attempts, onChanged }: {
             const r = await reset({ data: { userId: p.id, password: pw } });
             setMsg(r.ok ? "ตั้งรหัสผ่านใหม่แล้ว" : r.error); if (r.ok) setPw("");
           }}><KeyRound className="mr-1 h-4 w-4" />ตั้งรหัส</Button>
+          <Button size="sm" variant="outline" onClick={async () => {
+            const code = prompt(`ย้าย ${p.first_name} ${p.last_name} ไปโรงเรียนอื่น — ใส่รหัสโรงเรียน 10 หลัก`);
+            if (!code) return;
+            const r = await adminMoveSchool({ data: { userId: p.id, school: code } });
+            if (r.ok) { setMsg(`ย้ายไปโรงเรียน${r.name}แล้ว`); onChanged(); } else setMsg(r.error);
+          }}>ย้ายโรงเรียน</Button>
           <Button size="sm" variant="destructive" onClick={async () => {
             if (!confirm(`ลบบัญชี ${p.first_name} ${p.last_name} และผลสอบทั้งหมด?`)) return;
             const r = await del({ data: { userId: p.id } });

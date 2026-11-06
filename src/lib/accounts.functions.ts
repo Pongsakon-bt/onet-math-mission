@@ -28,7 +28,7 @@ export const lookupSchool = createServerFn({ method: "POST" })
     return s;
   });
 
-type RegisterInput = { role: Role; first: string; last: string; school: string; password: string };
+type RegisterInput = { role: Role; first: string; last: string; school: string; password: string; grade?: string; room?: string };
 
 const esc = (s: string) => s.replace(/[%_\\]/g, "\\$&");
 
@@ -42,6 +42,8 @@ export const registerAccount = createServerFn({ method: "POST" })
     role: (d.role === "teacher" ? "teacher" : "student") as Role,
     first: cleanName(d.first), last: cleanName(d.last),
     school: String(d.school ?? "").trim(), password: String(d.password ?? ""),
+    grade: d.grade === "p6" || d.grade === "m3" ? d.grade : null,
+    room: String(d.room ?? "").replace(/\s+/g, "").slice(0, 10) || null,
   }))
   .handler(async ({ data }) => {
     if (!data.first || !data.last) return { ok: false as const, error: "กรุณากรอกชื่อและนามสกุล" };
@@ -59,7 +61,7 @@ export const registerAccount = createServerFn({ method: "POST" })
       return { ok: false as const, error: dup ? "มีบัญชีชื่อนี้ในโรงเรียนนี้แล้ว ถ้าเป็นของคุณให้เข้าสู่ระบบ ถ้าเป็นคนละคนที่ชื่อซ้ำ ให้เติมชื่อเล่นต่อท้ายชื่อ เช่น \"สมชาย (ต้น)\"" : "สมัครไม่สำเร็จ ลองใหม่อีกครั้ง" };
     }
     const id = created.user.id;
-    const p = await supabaseAdmin.from("profiles").insert({ id, first_name: data.first, last_name: data.last, school_code: data.school });
+    const p = await supabaseAdmin.from("profiles").insert({ id, first_name: data.first, last_name: data.last, school_code: data.school, ...(data.role === "student" ? { grade: data.grade, room: data.room } : {}) });
     const r = await supabaseAdmin.from("user_roles").insert({ user_id: id, role: data.role });
     if (p.error || r.error) {
       await supabaseAdmin.auth.admin.deleteUser(id);

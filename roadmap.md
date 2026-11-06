@@ -20,3 +20,4 @@
 - [x] PRE O-NET: round 1 (40 stand-alone questions, once) unlocks yearly sets, analysis and round 2 (save or retry)
 - [x] Picture zoom in exams; subject colours inside exam screens; dashboard overview per level
 - [ ] ม.3 English PRE O-NET has only 8 stand-alone questions (all others share passages) — waiting on user decision
+- [ ] Student–teacher–school links (plan items 2–7): grade/room, teacher classes, school overview, assignments, move/deactivate students, teacher pages behind login gate. Item 1 (teacher verification) skipped by user.
