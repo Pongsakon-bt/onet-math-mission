@@ -29,6 +29,48 @@ export type Database = {
         }
         Relationships: []
       }
+      assignments: {
+        Row: {
+          created_at: string
+          due_at: string | null
+          grade: string
+          id: string
+          kind: string
+          room: string | null
+          school_code: string
+          subject: string
+          target: string
+          teacher_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          due_at?: string | null
+          grade: string
+          id?: string
+          kind: string
+          room?: string | null
+          school_code: string
+          subject: string
+          target?: string
+          teacher_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          due_at?: string | null
+          grade?: string
+          id?: string
+          kind?: string
+          room?: string | null
+          school_code?: string
+          subject?: string
+          target?: string
+          teacher_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
       attempts: {
         Row: {
           at: string
@@ -136,24 +178,33 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active: boolean
           created_at: string
           first_name: string
+          grade: string | null
           id: string
           last_name: string
+          room: string | null
           school_code: string
         }
         Insert: {
+          active?: boolean
           created_at?: string
           first_name: string
+          grade?: string | null
           id: string
           last_name: string
+          room?: string | null
           school_code: string
         }
         Update: {
+          active?: boolean
           created_at?: string
           first_name?: string
+          grade?: string | null
           id?: string
           last_name?: string
+          room?: string | null
           school_code?: string
         }
         Relationships: [
@@ -234,6 +285,33 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_classes: {
+        Row: {
+          created_at: string
+          grade: string
+          id: string
+          room: string
+          subject: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string
+          grade: string
+          id?: string
+          room?: string
+          subject: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string
+          grade?: string
+          id?: string
+          room?: string
+          subject?: string
+          teacher_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -264,6 +342,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      my_school: { Args: { _user_id: string }; Returns: string }
       teacher_school: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
