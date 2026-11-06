@@ -96,7 +96,7 @@ function TeacherPage() {
       const items = sel.flatMap((r) => r.items.filter((i) => i.strand === s));
       return { name: s, n: items.length, pct: pct(items) };
     });
-    const per = students.filter((s) => room === "all" || classLabel(s.grade, s.room) === room).map((s) => {
+    const per = students.filter((s) => room === "all" || classLabel(s.grade, s.room) === room || classLabel(s.grade, null) === room).map((s) => {
       const mine = rows.filter((r) => r.user_id === s.id);
       const mineSel = sel.filter((r) => r.user_id === s.id);
       const last = mineSel[mineSel.length - 1];
@@ -105,7 +105,7 @@ function TeacherPage() {
     }).sort((a, b) => (a.lastPct ?? 101) - (b.lastPct ?? 101));
     return { strands, per, active: new Set(sel.map((r) => r.user_id)).size };
   }, [rows, students, level, subject, room]);
-  const rooms = useMemo(() => [...new Set(students.map((s) => classLabel(s.grade, s.room)))].sort((a, b) => a.localeCompare(b, "th")), [students]);
+  const rooms = useMemo(() => [...new Set([...students.map((s) => classLabel(s.grade, s.room)), ...(room === "all" ? [] : [room])])].sort((a, b) => a.localeCompare(b, "th")), [students, room]);
 
   const reset = async (s: Student) => {
     const pw = window.prompt(`ตั้งรหัสผ่านใหม่ให้ ${s.first} ${s.last} (อย่างน้อย ${MIN_PASSWORD} ตัว)`);

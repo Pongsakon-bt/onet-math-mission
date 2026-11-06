@@ -42,3 +42,4 @@ use the editor.
 - Unlocking yearly sets, round 2 and analysis is gated by a finished `pre1` attempt (`isPreUnlocked` in src/lib/skill.ts), so the gate lives in one tested place.
 - Exam screens recolour `--primary` to the subject colour via `subjectVars`, so components keep using `primary` tokens.
 - Admin role (app_role 'admin') signs in with first name "admin"; all admin data goes through src/lib/admin.functions.ts, which checks has_role before using the service client, so RLS stays school-scoped for everyone else.
+- Classes and assignments: students carry `profiles.grade/room/active`; teachers pick classes in `teacher_classes`; assignment completion rules live in src/lib/assignments.ts (tested). Profile school/active changes go only through server functions in src/lib/classes.functions.ts (a trigger blocks direct edits), because the sign-in email is derived from the school code.
