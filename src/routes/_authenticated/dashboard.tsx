@@ -113,8 +113,6 @@ function Dashboard() {
               <div className="rounded-2xl bg-primary p-4 text-primary-foreground shadow-paper sm:p-5">
                 <p className="flex items-center gap-3 font-display text-2xl"><SubjIcon className="h-7 w-7 shrink-0" /> {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</p>
               </div>
-              <PredictionCard level={level} subject={subject} attempts={all ?? []} />
-
               <div className="grid grid-cols-2 gap-2">
                 {([["learn", "แหล่งเรียนรู้", Library], ["practice", "ฝึกทำข้อสอบ", PenLine]] as const).map(([k, label, Icon]) => (
                   <Link key={k} to="/dashboard" search={{ level, subject, tab: k === "practice" ? "practice" : undefined }} replace className={cn("flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 font-display text-lg transition-colors", tab === k ? "border-primary bg-primary text-primary-foreground" : "border-primary/40 bg-card text-primary hover:bg-primary/10")}><Icon className="h-5 w-5" /> {label}</Link>
@@ -159,7 +157,8 @@ function Dashboard() {
               <TutorChecklist level={level} subject={subject} attempts={all ?? []} />
 
 </>)}
-              <div className="grid gap-4 lg:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2">
+              <PredictionCard level={level} subject={subject} attempts={all ?? []} />
               <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 className="font-display text-xl">ความรู้แต่ละสาระ</h2>
@@ -177,6 +176,7 @@ function Dashboard() {
                   </BarChart>
                 </ChartContainer>
               </section>
+              </div>
 
               {lineData.length > 1 && (
                 <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
@@ -192,8 +192,6 @@ function Dashboard() {
                   </ChartContainer>
                 </section>
               )}
-
-              </div>
             </>
           )}
 
