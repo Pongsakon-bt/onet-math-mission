@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { ClipboardCheck, BookOpen } from "lucide-react";
+import { ClipboardCheck, BookOpen, Library, PenLine } from "lucide-react";
+import { subjectUi, subjectVars } from "@/components/subject-ui";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { PageShell } from "@/components/PageShell";
@@ -22,9 +23,10 @@ const SUBJECTS: Subject[] = ["math", "thai", "eng", "sci"];
 const KIND: Record<Attempt["kind"], string> = { diagnostic: "วัดพื้นฐาน", retest: "สอบซ้ำ", practice: "ฝึก", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย", pre1: "PRE O-NET ครั้งที่ 1", pre2: "PRE O-NET ครั้งที่ 2" };
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): { level: Level; subject: Subject; tab?: "practice" | undefined } => ({
     level: (LEVELS.includes(s['level'] as Level) ? s['level'] : "p6") as Level,
     subject: (SUBJECTS.includes(s['subject'] as Subject) ? s['subject'] : "math") as Subject,
+    ...(s['tab'] === "practice" ? { tab: "practice" as const } : {}),
   }),
   head: () => ({
     meta: [
@@ -40,7 +42,9 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
-  const { level, subject } = Route.useSearch();
+  const { level, subject, tab: tabParam } = Route.useSearch();
+  const tab = tabParam ?? "learn";
+  const SubjIcon = subjectUi(subject).icon;
   const [all, setAll] = useState<Attempt[] | null>(null);
   const [studied, setStudied] = useState<string[]>([]);
   const [synced, setSynced] = useState(false);
@@ -86,14 +90,15 @@ function Dashboard() {
           </div>
           <div className="flex flex-wrap gap-2">
             {LEVELS.map((l) => (
-              <Link key={l} to="/dashboard" search={{ level: l, subject }} className={cn("rounded-full border px-5 py-2 font-display text-lg", l === level ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{LEVEL_NAMES[l]}</Link>
+              <Link key={l} to="/dashboard" search={{ level: l, subject, tab: tabParam }} className={cn("rounded-full border px-5 py-2 font-display text-lg", l === level ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{LEVEL_NAMES[l]}</Link>
             ))}
           </div>
           {all && <LevelOverview level={level} all={all} />}
-          <h2 className="pt-2 font-display text-xl">รายละเอียดรายวิชา</h2>
+          <div className="space-y-4 rounded-3xl bg-primary/5 p-3 sm:p-4" style={subjectVars(subject)}>
+          <h2 className="font-display text-xl">รายละเอียดรายวิชา</h2>
           <div className="flex flex-wrap gap-2">
             {SUBJECTS.map((s) => (
-              <Link key={s} to="/dashboard" search={{ level, subject: s }} className={cn("rounded-full border px-3 py-1 text-sm", s === subject ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{SUBJECT_NAMES[s]}</Link>
+              <Link key={s} to="/dashboard" search={{ level, subject: s, tab: tabParam }} className={cn("flex items-center gap-2 rounded-xl border-2 px-4 py-2 font-semibold", s === subject ? cn(subjectUi(s).color, "border-transparent text-primary-foreground") : cn("border-border bg-card", subjectUi(s).text))}>{(() => { const I = subjectUi(s).icon; return <I className="h-5 w-5" />; })()} {SUBJECT_NAMES[s]}</Link>
             ))}
           </div>
 
@@ -105,10 +110,59 @@ function Dashboard() {
             </section>
           ) : (
             <>
+              <div className="rounded-2xl bg-primary p-4 text-primary-foreground shadow-paper sm:p-5">
+                <p className="flex items-center gap-3 font-display text-2xl"><SubjIcon className="h-7 w-7 shrink-0" /> {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</p>
+              </div>
+              <PredictionCard level={level} subject={subject} attempts={all ?? []} />
+
+              <div className="grid grid-cols-2 gap-2">
+                {([["learn", "แหล่งเรียนรู้", Library], ["practice", "ฝึกทำข้อสอบ", PenLine]] as const).map(([k, label, Icon]) => (
+                  <Link key={k} to="/dashboard" search={{ level, subject, tab: k === "practice" ? "practice" : undefined }} replace className={cn("flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 font-display text-lg transition-colors", tab === k ? "border-primary bg-primary text-primary-foreground" : "border-primary/40 bg-card text-primary hover:bg-primary/10")}><Icon className="h-5 w-5" /> {label}</Link>
+                ))}
+              </div>
+              {tab === "learn" ? (<>
+              <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
+                <h2 className="flex items-center gap-2 font-display text-xl"><Library className="h-5 w-5 text-primary" /> แหล่งเรียนรู้</h2>
+                <p className="text-sm text-muted-foreground">สรุปเนื้อหาแต่ละสาระ เรียงจากเรื่องที่อ่อนที่สุดก่อน</p>
+                <div className="mt-3 divide-y divide-border">
+                  {todo.map((t) => {
+                    const p = practice.get(t.n);
+                    const done = studied.includes(`${level}-${subject}-${t.n}`);
+                    return (
+                      <div key={t.n} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2.5">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold">{t.n}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {done ? "เรียนแล้ว" : "ยังไม่ได้เรียน"} · ฝึกแล้ว {p?.n ?? 0} ข้อ{p ? ` · ถูก ${Math.round((p.ok / p.n) * 100)}%` : ""}
+                          </p>
+                        </div>
+                        <span className={cn("rounded-full px-2.5 py-0.5 text-sm font-semibold", t.pct === undefined ? "bg-secondary" : t.pct < 50 ? "bg-destructive text-destructive-foreground" : t.pct < 75 ? "bg-highlight" : "bg-primary text-primary-foreground")}>
+                          {t.pct === undefined ? "ยังไม่วัด" : `${t.pct}% · ${levelOf(t.pct)}`}
+                        </span>
+                        <Button size="sm" variant="outline" asChild>
+                          <Link to="/learn/$level/$subject/$strand" params={{ level, subject, strand: String(t.i) }}><BookOpen /> เรียนรู้</Link>
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+</>) : (<>
+              <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
+                <h2 className="flex items-center gap-2 font-display text-xl"><PenLine className="h-5 w-5 text-primary" /> ฝึกทำข้อสอบ</h2>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button size="sm" asChild><Link to="/bank/$level/$subject" params={{ level, subject }}><ClipboardCheck /> PRE O-NET / ข้อสอบรายปี</Link></Button>
+                  <Button size="sm" variant="outline" asChild><Link to="/diagnostic/$level/$subject" params={{ level, subject }} search={{ strand: undefined }}><ClipboardCheck /> วัดพื้นฐานรอบใหม่</Link></Button>
+                </div>
+              </section>
+              <TutorChecklist level={level} subject={subject} attempts={all ?? []} />
+
+</>)}
+              <div className="grid gap-4 lg:grid-cols-2">
               <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 className="font-display text-xl">ความรู้แต่ละสาระ</h2>
-                  <Button size="sm" variant="outline" asChild><Link to="/diagnostic/$level/$subject" params={{ level, subject }} search={{ strand: undefined }}><ClipboardCheck /> วัดพื้นฐานรอบใหม่</Link></Button>
                 </div>
                 <p className="text-sm text-muted-foreground">ครั้งแรก เทียบกับ ผลล่าสุด (ร้อยละที่ตอบถูก)</p>
                 <ChartContainer className="mt-3 h-64 w-full" config={{ first: { label: "ครั้งแรก", color: "var(--muted-foreground)" }, latest: { label: "ล่าสุด", color: "var(--primary)" } }}>
@@ -139,55 +193,11 @@ function Dashboard() {
                 </section>
               )}
 
-              <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
-                <h2 className="font-display text-xl">เรื่องที่ควรเรียนต่อ</h2>
-                <p className="text-sm text-muted-foreground">เรียงจากเรื่องที่อ่อนที่สุด</p>
-                <div className="mt-3 divide-y divide-border">
-                  {todo.map((t) => {
-                    const p = practice.get(t.n);
-                    const done = studied.includes(`${level}-${subject}-${t.n}`);
-                    return (
-                      <div key={t.n} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2.5">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-semibold">{t.n}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {done ? "เรียนแล้ว" : "ยังไม่ได้เรียน"} · ฝึกแล้ว {p?.n ?? 0} ข้อ{p ? ` · ถูก ${Math.round((p.ok / p.n) * 100)}%` : ""}
-                          </p>
-                        </div>
-                        <span className={cn("rounded-full px-2.5 py-0.5 text-sm font-semibold", t.pct === undefined ? "bg-secondary" : t.pct < 50 ? "bg-destructive text-destructive-foreground" : t.pct < 75 ? "bg-highlight" : "bg-primary text-primary-foreground")}>
-                          {t.pct === undefined ? "ยังไม่วัด" : `${t.pct}% · ${levelOf(t.pct)}`}
-                        </span>
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to="/learn/$level/$subject/$strand" params={{ level, subject, strand: String(t.i) }}><BookOpen /> เรียนรู้</Link>
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-
-              <PredictionCard level={level} subject={subject} attempts={all ?? []} />
-
-              <TutorChecklist level={level} subject={subject} attempts={all ?? []} />
-
-              <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
-                <h2 className="font-display text-xl">ประวัติการทำ</h2>
-                <div className="mt-2 divide-y divide-border text-sm">
-                  {[...mine].reverse().map((a) => {
-                    const ok = a.items.filter((x) => x.correct).length;
-                    return (
-                      <div key={a.id} className="flex items-center gap-3 py-2">
-                        <span className="w-24 shrink-0 rounded-full bg-secondary px-2 py-0.5 text-center text-xs">{KIND[a.kind]}</span>
-                        <span className="min-w-0 flex-1 truncate">{a.label}</span>
-                        <span className="shrink-0 font-semibold">{ok}/{a.items.length}</span>
-                        <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">{new Date(a.at).toLocaleDateString("th-TH")}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
+              </div>
             </>
           )}
+
+          </div>
 
           {essays.length > 0 && (
             <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
@@ -205,6 +215,25 @@ function Dashboard() {
                   </div>
                 ))}
               </div>
+            </section>
+          )}
+          {tests.length > 0 && (
+            <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
+              <details><summary className="cursor-pointer font-display text-xl">ประวัติการทำ ({mine.length})</summary>
+              <div className="mt-2 divide-y divide-border text-sm">
+                {[...mine].reverse().map((a) => {
+                  const ok = a.items.filter((x) => x.correct).length;
+                  return (
+                    <div key={a.id} className="flex items-center gap-3 py-2">
+                      <span className="w-24 shrink-0 rounded-full bg-secondary px-2 py-0.5 text-center text-xs">{KIND[a.kind]}</span>
+                      <span className="min-w-0 flex-1 truncate">{a.label}</span>
+                      <span className="shrink-0 font-semibold">{ok}/{a.items.length}</span>
+                      <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">{new Date(a.at).toLocaleDateString("th-TH")}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              </details>
             </section>
           )}
         </div>
