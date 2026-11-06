@@ -95,7 +95,7 @@ function Dashboard() {
             <section className="rounded-2xl border border-border bg-card p-6 text-center shadow-paper">
               <p className="font-display text-xl">ยังไม่ได้วัดความรู้พื้นฐาน {SUBJECT_NAMES[subject]} {LEVEL_NAMES[level]}</p>
               <p className="mt-1 text-muted-foreground">ทำแบบวัดสั้น ๆ เพื่อดูว่าแต่ละสาระรู้แค่ไหน</p>
-              <Button className="mt-4" asChild><Link to="/diagnostic/$level/$subject" params={{ level, subject }} search={{ strand: undefined }}><ClipboardCheck /> เริ่มวัดความรู้พื้นฐาน</Link></Button>
+              <Button className="mt-4" asChild><Link to="/bank/$level/$subject" params={{ level, subject }}><ClipboardCheck /> ไปทำ PRE O-NET ครั้งที่ 1</Link></Button>
             </section>
           ) : (
             <>
