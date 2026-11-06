@@ -6,7 +6,7 @@ import type { Subject } from "@/data/exam-types";
 import { preloadExamImages } from "@/lib/preload-exam";
 import { cn } from "@/lib/utils";
 import { SiteNav } from "@/components/SiteNav";
-import { SUBJECTS, LEVEL_BG } from "@/components/subject-ui";
+import { SUBJECTS } from "@/components/subject-ui";
 import { loadAttempts } from "@/lib/progress";
 import { attemptPct, preRound1 } from "@/lib/skill";
 import bannerP6 from "@/assets/banner-p6.jpg";
@@ -34,7 +34,7 @@ export function LevelPage({ level }: { level: Level }) {
   }, [router, level]);
 
   return (
-    <div className={cn("min-h-dvh", LEVEL_BG[level])}>
+    <div className="level-grid-background min-h-dvh">
       <SiteNav level={level} />
       <main className="mx-auto max-w-5xl px-4 pb-12 pt-4">
         <section className="relative overflow-hidden rounded-3xl border border-border shadow-paper">
