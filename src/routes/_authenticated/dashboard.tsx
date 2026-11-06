@@ -7,7 +7,6 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLe
 import { PageShell } from "@/components/PageShell";
 import { TutorChecklist } from "@/components/TutorChecklist";
 import { LevelOverview } from "@/components/LevelOverview";
-import { StudentAssignments } from "@/components/StudentAssignments";
 import { PredictionCard } from "@/components/PredictionCard";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
@@ -90,7 +89,6 @@ function Dashboard() {
               <Link key={l} to="/dashboard" search={{ level: l, subject }} className={cn("rounded-full border px-5 py-2 font-display text-lg", l === level ? "border-primary bg-primary text-primary-foreground" : "border-border")}>{LEVEL_NAMES[l]}</Link>
             ))}
           </div>
-          {all && <StudentAssignments attempts={all} />}
           {all && <LevelOverview level={level} all={all} />}
           <h2 className="pt-2 font-display text-xl">รายละเอียดรายวิชา</h2>
           <div className="flex flex-wrap gap-2">
