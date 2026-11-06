@@ -4,6 +4,7 @@ import bannerP6 from "@/assets/banner-p6.webp";
 import bannerM3 from "@/assets/banner-m3.webp";
 import { FileCheck2, Smartphone, Target, School, Lightbulb, TrendingUp } from "lucide-react";
 import { SUBJECTS } from "@/components/subject-ui";
+import { OnetCountdown } from "@/components/OnetCountdown";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -58,6 +59,7 @@ function Index() {
               <span key={s.key} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold text-primary-foreground ${s.color}`}><s.icon className="h-4 w-4" />{s.name}</span>
             ))}
           </div>
+          <OnetCountdown />
         </section>
 
         <section className="mt-6 grid gap-4 sm:grid-cols-2">
