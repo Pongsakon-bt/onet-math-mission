@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, FileDown, PenLine } from "lucide-react";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
-import { z } from "zod";
 import { printReport } from "@/lib/print-report";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -28,7 +26,10 @@ export const Route = createFileRoute("/teacher_/$studentId")({
       { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
     ] };
   },
-  validateSearch: zodValidator(z.object({ level: fallback(z.string(), "").default(""), subject: fallback(z.string(), "").default("") })),
+  validateSearch: (s: Record<string, unknown>): { level?: string; subject?: string } => ({
+    level: typeof s["level"] === "string" ? s["level"] : undefined,
+    subject: typeof s["subject"] === "string" ? s["subject"] : undefined,
+  }),
   component: StudentPage,
 });
 
@@ -88,7 +89,7 @@ function StudentPage() {
 
   // Subject/level the teacher came from (or picks here); default to the first one with data.
   const level: Level = search.level === "m3" || search.level === "p6" ? search.level : (groups[0]?.level ?? "p6");
-  const subject: Subject = (Object.keys(SUBJECT_NAMES) as string[]).includes(search.subject) ? (search.subject as Subject) : (groups[0]?.subject ?? "math");
+  const subject: Subject = (Object.keys(SUBJECT_NAMES) as string[]).includes(search.subject ?? "") ? (search.subject as Subject) : (groups[0]?.subject ?? "math");
   const pick = (l: Level, s: Subject) => navigate({ search: { level: l, subject: s }, replace: true });
   const shown = groups.filter((g) => g.level === level && g.subject === subject);
 
