@@ -1,12 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart } from "recharts";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { TrendingDown, TrendingUp, Trophy, AlertTriangle } from "lucide-react";
 import type { Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
 import { SUBJECTS } from "@/components/subject-ui";
-import { baseTopic } from "@/data/analysis";
+import { analyzeSubject, baseTopic } from "@/data/analysis";
+import { getSchoolSubjectAverage } from "@/lib/insights.functions";
+import { BAND_FAIR, BAND_GOOD, latestExamPct, progressSteps, subjectBand, topicCoverage } from "@/lib/overview";
 import type { Attempt } from "@/lib/progress";
 import { attemptPct } from "@/lib/skill";
 import { cn } from "@/lib/utils";
@@ -108,29 +110,82 @@ export function LevelOverview({ level, all, subject, tab, children }: { level: L
   );
 }
 
+type RadarMode = "school" | "bands" | "growth" | "coverage";
+const MODES: { key: RadarMode; label: string; hint: string }[] = [
+  { key: "school", label: "เทียบโรงเรียน", hint: "ฉัน เทียบกับค่าเฉลี่ยนักเรียนชั้นเดียวกันในโรงเรียน" },
+  { key: "bands", label: "เทียบเกณฑ์", hint: "ฉัน เทียบกับเกณฑ์พอใช้ 50% และดี 75%" },
+  { key: "growth", label: "พัฒนาการ", hint: "PRE O-NET ครั้งที่ 1 → การฝึก → PRE O-NET ครั้งที่ 2" },
+  { key: "coverage", label: "ความครอบคลุม", hint: "ผ่านหัวข้อไปแล้วกี่ % (ได้ ≥ 75%)" },
+];
+
 export function FourSubjectRadar({ level, attempts }: { level: Level; attempts: Attempt[] }) {
+  const [mode, setMode] = useState<RadarMode>("school");
+  const [school, setSchool] = useState<Record<string, number> | null>(null);
+  useEffect(() => {
+    if (mode !== "school" || school) return;
+    getSchoolSubjectAverage({ data: { level } }).then((r) => setSchool(r.subjects)).catch(() => setSchool({}));
+  }, [mode, level, school]);
+  useEffect(() => setSchool(null), [level]);
+
+  const coverage = useMemo(() => Object.fromEntries(SUBJECTS.map((s) => [s.key,
+    topicCoverage(attempts, level, s.key, analyzeSubject(level, s.key).topics.map((t) => t.topic))])), [attempts, level]);
+
   const data = SUBJECTS.map((s) => {
-    const exams = attempts.filter((a) => a.level === level && a.subject === s.key && a.kind !== "practice" && a.kind !== "drill").sort((a, b) => a.at - b.at);
-    const first = exams[0];
-    const latest = exams.at(-1);
-    return { subject: s.name, first: first ? attemptPct(first) : null, latest: latest ? attemptPct(latest) : null };
+    const me = latestExamPct(attempts, level, s.key);
+    const g = progressSteps(attempts, level, s.key);
+    return { subject: s.name, key: s.key, me, school: school?.[s.key] ?? null, fair: BAND_FAIR, good: BAND_GOOD, ...g, coverage: coverage[s.key] ?? 0 };
   });
+  const series: { key: string; label: string; color: string; fill: number; dash?: string }[] =
+    mode === "school" ? [{ key: "school", label: "เฉลี่ยโรงเรียน", color: "var(--muted-foreground)", fill: 0.12 }, { key: "me", label: "ฉัน", color: "var(--primary)", fill: 0.35 }]
+    : mode === "bands" ? [{ key: "fair", label: "พอใช้ 50%", color: "var(--muted-foreground)", fill: 0, dash: "4 4" }, { key: "good", label: "ดี 75%", color: "var(--accent-foreground)", fill: 0, dash: "4 4" }, { key: "me", label: "ฉัน", color: "var(--primary)", fill: 0.35 }]
+    : mode === "growth" ? [{ key: "pre1", label: "PRE ครั้งที่ 1", color: "var(--muted-foreground)", fill: 0.1 }, { key: "drill", label: "ฝึกทำข้อสอบ", color: "var(--accent-foreground)", fill: 0.1 }, { key: "pre2", label: "PRE ครั้งที่ 2", color: "var(--primary)", fill: 0.3 }]
+      .filter((x) => data.some((d) => d[x.key as "pre1"] !== null))
+    : [{ key: "coverage", label: "ผ่านหัวข้อแล้ว %", color: "var(--primary)", fill: 0.35 }];
+  const focus = mode === "coverage" ? "coverage" : mode === "growth" ? (series.at(-1)?.key ?? "pre1") : "me";
+  const vals = data.filter((d) => d[focus as "me"] !== null);
+  const best = [...vals].sort((a, b) => (b[focus as "me"] ?? 0) - (a[focus as "me"] ?? 0))[0];
+  const worst = [...vals].sort((a, b) => (a[focus as "me"] ?? 0) - (b[focus as "me"] ?? 0))[0];
+  const below = mode === "bands" ? data.filter((d) => subjectBand(d.me) === "needs").map((d) => d.subject) : [];
+  const empty = !vals.length;
+  const config = Object.fromEntries(series.map((x) => [x.key, { label: x.label, color: x.color }]));
+
   return (
     <section className="min-w-0 rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
       <h2 className="font-display text-xl">ภาพรวมทั้ง 4 วิชา</h2>
-      <p className="text-sm text-muted-foreground">ผลสอบครั้งแรก เทียบกับผลสอบล่าสุด</p>
-      <ChartContainer className="mx-auto mt-3 h-80 w-full" config={{ first: { label: "ครั้งแรก", color: "var(--muted-foreground)" }, latest: { label: "ล่าสุด", color: "var(--primary)" } }}>
-        <RadarChart data={data} outerRadius="62%">
-          <PolarGrid />
-          <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11 }} />
-          <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <ChartLegend content={<ChartLegendContent />} />
-          <Radar dataKey="first" stroke="var(--color-first)" fill="var(--color-first)" fillOpacity={0.15} />
-          <Radar dataKey="latest" stroke="var(--color-latest)" fill="var(--color-latest)" fillOpacity={0.35} />
-        </RadarChart>
-      </ChartContainer>
-      {data.some((d) => d.latest === null) && <p className="text-xs text-muted-foreground">วิชาที่ยังไม่มีผลสอบจะยังไม่แสดงคะแนน</p>}
+      <div className="-mx-1 mt-2 flex gap-1 overflow-x-auto px-1 pb-1">
+        {MODES.map((m) => (
+          <button key={m.key} type="button" onClick={() => setMode(m.key)}
+            className={cn("shrink-0 rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
+              mode === m.key ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground")}>
+            {m.label}
+          </button>
+        ))}
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">{MODES.find((m) => m.key === mode)!.hint}</p>
+      {empty ? (
+        <p className="mt-10 mb-10 text-center text-sm text-muted-foreground">ยังไม่มีข้อมูล ลองทำ PRE O-NET หรือฝึกทำข้อสอบก่อนนะ</p>
+      ) : (
+        <ChartContainer className="mx-auto mt-3 h-72 w-full" config={config}>
+          <RadarChart data={data} outerRadius="62%">
+            <PolarGrid />
+            <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11 }} />
+            <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <ChartLegend content={<ChartLegendContent />} />
+            {series.map((x) => (
+              <Radar key={x.key} dataKey={x.key} stroke={`var(--color-${x.key})`} fill={`var(--color-${x.key})`} fillOpacity={x.fill} strokeDasharray={x.dash} />
+            ))}
+          </RadarChart>
+        </ChartContainer>
+      )}
+      {!empty && (
+        <p className="text-sm">
+          {mode === "school" && school && !Object.keys(school).length ? <span className="text-muted-foreground">ยังไม่มีค่าเฉลี่ยของโรงเรียน · </span> : null}
+          {best && <>จุดแข็ง: <b>{best.subject}</b></>}
+          {worst && worst !== best && <> · ควรติว: <b>{worst.subject}</b></>}
+          {below.length > 0 && <> · ต่ำกว่า 50%: {below.join(", ")}</>}
+        </p>
+      )}
     </section>
   );
 }
