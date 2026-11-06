@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { ClipboardCheck, BookOpen, Library, PenLine } from "lucide-react";
 import { subjectUi, subjectVars } from "@/components/subject-ui";
 import { Button } from "@/components/ui/button";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { PageShell } from "@/components/PageShell";
 import { TutorChecklist } from "@/components/TutorChecklist";
-import { LevelOverview } from "@/components/LevelOverview";
+import { FourSubjectRadar, LevelOverview } from "@/components/LevelOverview";
 import { PredictionCard } from "@/components/PredictionCard";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
 import type { Subject } from "@/data/exam-types";
@@ -59,14 +59,11 @@ function Dashboard() {
   const strands = strandsFor(subject);
   const mine = useMemo(() => (all ?? []).filter((a) => a.level === level && a.subject === subject).sort((a, b) => a.at - b.at), [all, level, subject]);
   const tests = mine.filter((a) => a.kind !== "practice");
-  const first = tests[0];
 
   // Latest known score per strand: most recent test that covered it.
   const latest = new Map<string, number>();
-  const firstMap = first ? strandScores(first.items) : new Map();
   for (const a of tests) for (const [n, v] of strandScores(a.items)) latest.set(n, v.pct);
 
-  const barData = strands.map((n) => ({ strand: n, first: firstMap.get(n)?.pct ?? 0, latest: latest.get(n) ?? 0 }));
   const lineData = tests.map((a, i) => {
     const ok = a.items.filter((x) => x.correct).length;
     return { n: `ครั้งที่ ${i + 1}`, pct: Math.round((ok / (a.items.length || 1)) * 100) };
@@ -93,28 +90,12 @@ function Dashboard() {
             ))}
           </div>
           <div className="space-y-4" style={subjectVars(subject)}>
-              <div className="grid gap-4 md:grid-cols-2">
+            <LevelOverview level={level} all={all ?? []} subject={subject} tab={tabParam}>
+              <div className="grid gap-4 md:grid-cols-2 [&>*]:min-w-0">
               <PredictionCard level={level} subject={subject} attempts={all ?? []} />
-              <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h2 className="font-display text-xl">ความรู้แต่ละสาระ</h2>
-                </div>
-                <p className="text-sm text-muted-foreground">ครั้งแรก เทียบกับ ผลล่าสุด (ร้อยละที่ตอบถูก)</p>
-                <ChartContainer className="mt-3 h-64 w-full" config={{ first: { label: "ครั้งแรก", color: "var(--muted-foreground)" }, latest: { label: "ล่าสุด", color: "var(--primary)" } }}>
-                  <BarChart data={barData} layout="vertical" margin={{ left: 8, right: 8 }}>
-                    <CartesianGrid horizontal={false} />
-                    <XAxis type="number" domain={[0, 100]} />
-                    <YAxis type="category" dataKey="strand" width={150} tick={{ fontSize: 11 }} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <ChartLegend content={<ChartLegendContent />} />
-                    <Bar dataKey="first" fill="var(--color-first)" radius={4} />
-                    <Bar dataKey="latest" fill="var(--color-latest)" radius={4} />
-                  </BarChart>
-                </ChartContainer>
-              </section>
+              <FourSubjectRadar level={level} attempts={all ?? []} />
               </div>
-
-          {all && <LevelOverview level={level} all={all} subject={subject} tab={tabParam} />}
+            </LevelOverview>
           <div className="space-y-4 border-t border-border pt-4">
           {all !== null && !tests.length ? (
             <section className="rounded-2xl border border-border bg-card p-6 text-center shadow-paper">
