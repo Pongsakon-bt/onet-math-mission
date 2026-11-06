@@ -1,3 +1,5 @@
+import { isPreUnlocked } from "@/lib/skill";
+import { Lock } from "lucide-react";
 import { subjectVars } from "@/components/subject-ui";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { catalog } from "@/data/catalog";
@@ -55,6 +57,8 @@ function ExamPage() {
   const [time, setTime] = useState<{ start: number; end?: number } | null>(null);
   const [started, setStarted] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  const [open, setOpen] = useState<boolean | null>(null);
+  useEffect(() => setOpen(isPreUnlocked(loadAttempts(), exam.level, exam.subject)), [exam]);
 
   useEffect(() => {
     try {
@@ -110,7 +114,13 @@ function ExamPage() {
           </div>
         </div>
       </div>
-      {started ? (
+      {open === false ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+          <Lock className="h-8 w-8 text-muted-foreground" />
+          <p className="font-display text-xl">ทำ PRE O-NET ครั้งที่ 1 ก่อน จึงจะทำข้อสอบรายปีได้</p>
+          <Link to="/bank/$level/$subject" params={{ level: exam.level, subject: exam.subject }} className="font-semibold text-primary underline">ไปที่ PRE O-NET</Link>
+        </div>
+      ) : started ? (
         <ExamRunner exam={exam} storageKey={key} onStatus={onStatus} />
       ) : (
         <ExamIntro exam={exam} onStart={start} resumable={!!time && !time.end} />
