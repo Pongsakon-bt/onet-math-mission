@@ -24,7 +24,7 @@ export const lookupSchool = createServerFn({ method: "POST" })
   .inputValidator((d: { code: string }) => ({ code: String(d.code ?? "").trim() }))
   .handler(async ({ data }) => {
     if (!isSchoolCode(data.code)) return null;
-    const { data: s } = await publicClient().from("schools").select("code, name, amphoe, province").eq("code", data.code).maybeSingle();
+    const { data: s } = await publicClient().from("schools").select("code, name, amphoe, province, area").eq("code", data.code).maybeSingle();
     return s;
   });
 
@@ -64,11 +64,15 @@ export const registerAccount = createServerFn({ method: "POST" })
       return { ok: false as const, error: "สมัครไม่สำเร็จ ลองใหม่อีกครั้ง" };
     }
     let recovery: string | null = null;
+    let opened = false;
     if (data.role === "teacher") {
+      // First teacher of a school opens the school's back office.
+      const { data: site } = await supabaseAdmin.from("school_sites").insert({ code: data.school, opened_by: id }).select("code").maybeSingle();
+      opened = !!site;
       recovery = String(crypto.getRandomValues(new Uint32Array(1))[0]! % 100000000).padStart(8, "0");
       await supabaseAdmin.from("account_recovery").insert({ user_id: id, code_hash: await sha256Hex(`${id}:${recovery}`) });
     }
-    return { ok: true as const, recovery };
+    return { ok: true as const, recovery, opened };
   });
 
 /** Public: teacher sets a new password with name + school code + the recovery code shown at sign-up. */
@@ -117,4 +121,32 @@ export const resetStudentPassword = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.studentId, { password: data.password });
     return error ? { ok: false as const, error: "ตั้งรหัสผ่านใหม่ไม่สำเร็จ" } : { ok: true as const };
+  });
+
+/** Public: sign in with role + first name + last name + password only (school code not needed).
+ *  Finds accounts with that name, then checks the password; returns a session for the browser. */
+export const signInByName = createServerFn({ method: "POST" })
+  .inputValidator((d: { role: Role; first: string; last: string; password: string }) => ({
+    role: (d.role === "teacher" ? "teacher" : "student") as Role,
+    first: cleanName(d.first), last: cleanName(d.last), password: String(d.password ?? "").slice(0, 200),
+  }))
+  .handler(async ({ data }) => {
+    const fail = { ok: false as const, error: "ชื่อ นามสกุล หรือรหัสผ่านไม่ถูกต้อง" };
+    if (!data.first || !data.last || !data.password) return fail;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // At most 10 tries per name in 15 minutes.
+    const key = `login:${data.role}:${data.first.toLowerCase()}|${data.last.toLowerCase()}`;
+    const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const { count } = await supabaseAdmin.from("reset_attempts").select("id", { count: "exact", head: true }).eq("key", key).gte("at", since);
+    if ((count ?? 0) >= 10) return { ok: false as const, error: "ลองผิดหลายครั้งเกินไป กรุณารอ 15 นาทีแล้วลองใหม่" };
+    const { data: prof } = await supabaseAdmin.from("profiles").select("id, first_name, last_name, school_code")
+      .ilike("first_name", data.first).ilike("last_name", data.last).limit(20);
+    const client = publicClient();
+    for (const p of prof ?? []) {
+      const email = await accountEmail(data.role, p.first_name, p.last_name, p.school_code);
+      const { data: res } = await client.auth.signInWithPassword({ email, password: data.password });
+      if (res.session) return { ok: true as const, access_token: res.session.access_token, refresh_token: res.session.refresh_token };
+    }
+    await supabaseAdmin.from("reset_attempts").insert({ key });
+    return fail;
   });
