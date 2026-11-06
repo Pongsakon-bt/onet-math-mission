@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Generate 50 additional missing drill topics and verify 20 saved questions per topic (current request).
+- [x] Generate 50 additional missing drill topics; verified 20 saved questions per topic, total ready 265/439.
 - [x] 2568 sets: all 4 subjects ป.6 + ม.3
 - [x] 2567 sets (exam Feb 2568): all 8 (answers taken from answer sheets in the files)
 - [x] 2566 sets (exam Feb 2567): all 8
