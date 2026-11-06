@@ -6,6 +6,7 @@ import { classLabel } from "@/lib/assignments";
 import { subjectUi, subjectVars } from "@/components/subject-ui";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { PageShell } from "@/components/PageShell";
 import { TutorChecklist } from "@/components/TutorChecklist";
 import { FourSubjectRadar, LevelOverview } from "@/components/LevelOverview";
@@ -89,7 +90,7 @@ function Dashboard() {
               <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-foreground/15 font-display text-2xl">
                 {account?.first?.[0] ?? <UserRound className="size-7" />}
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-xs opacity-80">แดชบอร์ดของฉัน</p>
                 <h1 className="truncate font-display text-2xl">{account ? `${account.first} ${account.last}`.trim() : "นักเรียน"}</h1>
                 <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm opacity-90">
@@ -97,6 +98,7 @@ function Dashboard() {
                   {account?.schoolName && <span className="inline-flex min-w-0 items-center gap-1"><School className="size-4 shrink-0" /><span className="truncate">{account.schoolName}</span></span>}
                 </div>
               </div>
+              {account && account.role !== "admin" && <EditProfileDialog account={account} />}
             </div>
             <p className="relative mt-3 text-xs opacity-75">{synced ? "ผลจากบัญชีของคุณ (ทุกเครื่อง)" : "ผลเก็บไว้ในเครื่องนี้"}</p>
           </section>
