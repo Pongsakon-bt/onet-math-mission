@@ -9,6 +9,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { PageShell } from "@/components/PageShell";
 import { TutorChecklist } from "@/components/TutorChecklist";
+import { LearningLinks } from "@/components/LearningLinks";
 import { FourSubjectRadar, LevelOverview } from "@/components/LevelOverview";
 import { PredictionCard } from "@/components/PredictionCard";
 import { SUBJECT_NAMES, type Level } from "@/data/catalog";
@@ -155,7 +156,7 @@ function Dashboard() {
                   })}
                 </div>
               </section>
-
+              <LearningLinks level={level} subject={subject} />
 </>) : (<>
               <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
                 <h2 className="flex items-center gap-2 font-display text-xl"><PenLine className="h-5 w-5 text-primary" /> ฝึกทำข้อสอบ</h2>
