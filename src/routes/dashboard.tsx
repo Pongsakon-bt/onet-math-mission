@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 const LEVELS: Level[] = ["p6", "m3"];
 const LEVEL_NAMES: Record<Level, string> = { p6: "ป.6", m3: "ม.3" };
 const SUBJECTS: Subject[] = ["math", "thai", "eng", "sci"];
-const KIND: Record<Attempt["kind"], string> = { diagnostic: "วัดพื้นฐาน", retest: "สอบซ้ำ", practice: "ฝึก", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย" };
+const KIND: Record<Attempt["kind"], string> = { diagnostic: "วัดพื้นฐาน", retest: "สอบซ้ำ", practice: "ฝึก", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย", pre1: "PRE O-NET ครั้งที่ 1", pre2: "PRE O-NET ครั้งที่ 2" };
 
 export const Route = createFileRoute("/dashboard")({
   validateSearch: (s: Record<string, unknown>) => ({

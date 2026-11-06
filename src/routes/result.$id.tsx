@@ -10,7 +10,7 @@ import { loadAttempts, levelOf, type Attempt } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 const LEVEL_NAMES = { p6: "ป.6", m3: "ม.3" } as const;
-const KIND = { diagnostic: "วัดความรู้พื้นฐาน", practice: "ฝึกทำ", retest: "ทดสอบหลังเรียน", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย" } as const;
+const KIND = { diagnostic: "วัดความรู้พื้นฐาน", practice: "ฝึกทำ", retest: "ทดสอบหลังเรียน", full: "ข้อสอบเต็มชุด", drill: "ข้อสอบย่อย", pre1: "PRE O-NET ครั้งที่ 1", pre2: "PRE O-NET ครั้งที่ 2" } as const;
 
 export const Route = createFileRoute("/result/$id")({
   head: () => {

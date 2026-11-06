@@ -2,7 +2,7 @@ import { isCorrect, type Exam, type Subject } from "@/data/exams";
 import type { Level } from "@/data/catalog";
 import { strandOf } from "@/data/strands";
 
-export type AttemptKind = "diagnostic" | "practice" | "retest" | "full" | "drill";
+export type AttemptKind = "diagnostic" | "practice" | "retest" | "full" | "drill" | "pre1" | "pre2";
 export type Attempt = {
   id: string;
   kind: AttemptKind;
