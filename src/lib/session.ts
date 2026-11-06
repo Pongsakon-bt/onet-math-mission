@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Role } from "./account-id";
 import { clearLocalProgress, loadAttempts, mergeAttempts, type Attempt, type EssayAnswer } from "./progress";
 
-export type Account = { id: string; first: string; last: string; school: string; schoolName: string; role: Role; grade: string | null; room: string | null };
+export type Account = { id: string; first: string; last: string; school: string; schoolName: string; role: Role | "admin"; grade: string | null; room: string | null };
 
 export async function fetchAccount(): Promise<Account | null> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -14,7 +14,12 @@ export async function fetchAccount(): Promise<Account | null> {
     supabase.from("profiles").select("first_name, last_name, school_code, grade, room").eq("id", user.id).maybeSingle(),
     supabase.from("user_roles").select("role").eq("user_id", user.id),
   ]);
-  if (!p) return null;
+  if (!p) {
+    // Admin accounts have no school profile; any other profile-less session is invalid.
+    if (r?.some((x) => x.role === "admin")) return { id: user.id, first: "ผู้ดูแลระบบ", last: "", school: "", schoolName: "", role: "admin", grade: null, room: null };
+    await supabase.auth.signOut();
+    return null;
+  }
   const { data: s } = await supabase.from("schools").select("name").eq("code", p.school_code).maybeSingle();
   const role: Role = r?.some((x) => x.role === "teacher") ? "teacher" : "student";
   return { id: user.id, first: p.first_name, last: p.last_name, school: p.school_code, schoolName: s?.name ?? "", role, grade: p.grade ?? null, room: p.room ?? null };
