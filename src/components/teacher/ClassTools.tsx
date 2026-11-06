@@ -68,7 +68,7 @@ export function MyClasses({ me, classes, onChange }: { me: string; classes: TCla
   const mine = classes.filter((c) => c.teacher_id === me);
   const add = async () => {
     const { error } = await supabase.from("teacher_classes").insert({ teacher_id: me, grade: f.grade, room: cleanRoom(f.room) ?? "", subject: f.subject });
-    if (error) return toast.error(error.code === "23505" ? "มีห้องนี้แล้ว" : "เพิ่มไม่สำเร็จ");
+    if (error) { toast.error(error.code === "23505" ? "มีห้องนี้แล้ว" : "เพิ่มไม่สำเร็จ"); return; }
     setF({ ...f, room: "" }); onChange();
   };
   const del = async (id: string) => { await supabase.from("teacher_classes").delete().eq("id", id); onChange(); };
@@ -107,12 +107,12 @@ export function AssignmentsPanel({ me, school, students, rows }: { me: string; s
   useEffect(() => { void load(); }, []);
   const topics = useMemo(() => analyzeSubject(f.grade, f.subject).topics.map((t) => t.topic), [f.grade, f.subject]);
   const add = async () => {
-    if (f.kind === "drill" && !f.target) return toast.error("เลือกเรื่องที่ต้องการให้ทำ");
+    if (f.kind === "drill" && !f.target) { toast.error("เลือกเรื่องที่ต้องการให้ทำ"); return; }
     const room = cleanRoom(f.room);
     const title = `${KIND_NAMES[f.kind]}${f.kind === "drill" ? `: ${f.target}` : ""} · ${SUBJECT_NAMES[f.subject]}`;
     const { error } = await supabase.from("assignments").insert({ school_code: school, teacher_id: me, grade: f.grade, room, subject: f.subject, kind: f.kind,
       target: f.kind === "drill" ? f.target : "", title, due_at: f.due ? new Date(`${f.due}T23:59:00`).toISOString() : null });
-    if (error) return toast.error("มอบหมายไม่สำเร็จ");
+    if (error) { toast.error("มอบหมายไม่สำเร็จ"); return; }
     toast.success("มอบหมายงานแล้ว"); setF({ ...f, target: "", due: "" }); void load();
   };
   const del = async (id: string) => { if (!window.confirm("ลบงานนี้?")) return; await supabase.from("assignments").delete().eq("id", id); void load(); };

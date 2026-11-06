@@ -28,7 +28,7 @@ export function StudentAssignments({ attempts }: { attempts: Attempt[] }) {
 
   const save = async () => {
     const res = await setMyClass({ data: f });
-    if (!res.ok) return toast.error(res.error);
+    if (!res.ok) { toast.error(res.error); return; }
     setSaved({ grade: f.grade, room: f.room.trim() || null });
     toast.success("บันทึกชั้นเรียนแล้ว");
   };
