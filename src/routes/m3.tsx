@@ -1,0 +1,16 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { LevelPage } from "@/components/LevelPage";
+
+export const Route = createFileRoute("/m3")({
+  head: () => ({
+    meta: [
+      { title: "PRE O-NET ม.3 · ข้อสอบ มัธยมศึกษาปีที่ 3" },
+      { name: "description", content: "ฝึกข้อสอบ O-NET ม.3 จริงย้อนหลัง 4 วิชา คณิต ไทย อังกฤษ วิทย์ แบบโต้ตอบ" },
+      { property: "og:title", content: "PRE O-NET มัธยมศึกษาปีที่ 3" },
+      { property: "og:description", content: "ข้อสอบ O-NET ม.3 จริง 4 วิชา ทำบนจอได้ พร้อมคำใบ้" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => <LevelPage level="m3" />,
+});

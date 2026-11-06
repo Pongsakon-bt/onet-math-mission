@@ -36,7 +36,7 @@ use the editor.
 - Per-topic drills (20 mixed-format questions) are AI-written once by `getDrillSet` and cached in `drill_sets` so every student gets the same set; skill/unlock rules live in src/lib/skill.ts (tested).
 
 ## Project rules
-- Assessment, learning, analysis, results, level pickers and personal dashboard routes live under the client-only _authenticated gate while preserving their public URL paths, so signed-out navigation cannot mount exam content. The site has no public landing page: / shows only the nav bar when signed out and sends signed-in users to the dashboard. AccountProvider owns the sole auth-change subscriber so menus and route access update together.
+- Assessment, learning, analysis, results and personal dashboard routes live under the client-only _authenticated gate while preserving their public URL paths, so signed-out navigation cannot mount exam content. AccountProvider owns the sole auth-change subscriber so menus and route access update together.
 - Shared headers use BrandHomeLink for consistent logo rendering and navigation to the home page.
 - PRE O-NET sets come from `pickPreOnet` and use only stand-alone questions (no shared passage/picture), because split linked questions lose their context.
 - Unlocking yearly sets, round 2 and analysis is gated by a finished `pre1` attempt (`isPreUnlocked` in src/lib/skill.ts), so the gate lives in one tested place.
