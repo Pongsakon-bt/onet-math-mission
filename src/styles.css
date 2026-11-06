@@ -76,6 +76,8 @@
   --nav-active: oklch(0.67 0.2 45);
   --nav-action: oklch(0.76 0.15 225);
   --nav-action-foreground: oklch(0.2 0.09 265);
+  --level-page-surface: oklch(0.99 0 0);
+  --level-page-grid: oklch(0.65 0 0 / 12%);
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
@@ -213,6 +215,17 @@
   --shadow-paper: var(--shadow-paper);
 }
 body { font-family: var(--font-sans); }
+.level-grid-background {
+  background-color: var(--level-page-surface);
+  background-image:
+    linear-gradient(to right, var(--level-page-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--level-page-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.dark .level-grid-background {
+  --level-page-surface: var(--background);
+  --level-page-grid: oklch(0.7 0 0 / 12%);
+}
 .marker {
   background: linear-gradient(transparent 55%, var(--highlight) 55%, var(--highlight) 92%, transparent 92%);
   padding: 0 0.15em;
