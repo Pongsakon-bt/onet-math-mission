@@ -21,7 +21,7 @@ export const Route = createFileRoute("/")({
 });
 
 const LEVELS = [
-  { to: "/p6" as const, short: "ป.6", full: "ประถมศึกษาปีที่ 6", img: bannerP6, tone: "var(--primary)" },
+  { to: "/p6" as const, short: "ป.6", full: "ประถมศึกษาปีที่ 6", img: bannerP6, tone: "var(--nav-surface)" },
   { to: "/m3" as const, short: "ม.3", full: "มัธยมศึกษาปีที่ 3", img: bannerM3, tone: "var(--nav-active)" },
 ];
 
