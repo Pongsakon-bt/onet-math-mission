@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Allow teachers the same full learning/exam access as admins without changing student unlocks or school editing permissions.
 - [x] School-only teacher learning links: 3-slot limit; signed-in teacher create/read verified, fourth slot and cross-school writes rejected; three button colors verified.
 - [x] Teacher weekly tutoring planner: all selected topics through shared exam deadline; signed-in create/save/reopen and ownership verified; desktop/mobile checked.
 - [ ] Verify school resource visibility through a student session — current injected session is a teacher, not a student.
