@@ -268,6 +268,47 @@ export type Database = {
         }
         Relationships: []
       }
+      school_learning_links: {
+        Row: {
+          level: string
+          school_code: string
+          slot: number
+          subject: string
+          topic: string
+          updated_at: string
+          updated_by: string
+          url: string
+        }
+        Insert: {
+          level: string
+          school_code: string
+          slot: number
+          subject: string
+          topic: string
+          updated_at?: string
+          updated_by: string
+          url: string
+        }
+        Update: {
+          level?: string
+          school_code?: string
+          slot?: number
+          subject?: string
+          topic?: string
+          updated_at?: string
+          updated_by?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_learning_links_school_code_fkey"
+            columns: ["school_code"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       school_sites: {
         Row: {
           code: string
@@ -344,6 +385,50 @@ export type Database = {
           teacher_id?: string
         }
         Relationships: []
+      }
+      tutoring_plans: {
+        Row: {
+          config: Json
+          created_at: string
+          grade: string
+          id: string
+          schedule: Json
+          school_code: string
+          teacher_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          config: Json
+          created_at?: string
+          grade: string
+          id?: string
+          schedule: Json
+          school_code: string
+          teacher_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          grade?: string
+          id?: string
+          schedule?: Json
+          school_code?: string
+          teacher_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutoring_plans_school_code_fkey"
+            columns: ["school_code"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["code"]
+          },
+        ]
       }
       user_roles: {
         Row: {
