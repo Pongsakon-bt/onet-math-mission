@@ -1,4 +1,6 @@
 # Roadmap
+- [ ] School-only teacher learning links: up to 3 per topic, separate from system resources.
+- [ ] Teacher weekly tutoring planner covering selected subjects until the countdown exam date.
 - [x] Hide signed-out dashboard navigation and gate all assessment routes; 17 tests pass and signed-out browser access redirects to login.
 - [ ] Verify signed-in assessment access in browser — requesting user has no matching app account/session; validated-user guard covered by unit test.
 - [x] Generate 50 additional missing drill topics; verified 20 saved questions per topic, total ready 265/439.
