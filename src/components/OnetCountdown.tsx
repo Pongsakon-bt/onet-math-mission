@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { CalendarClock } from "lucide-react";
+import { ONET_CALENDAR } from "@/lib/onet-calendar";
 
 // วันสอบตามประกาศ สทศ. (ปีการศึกษา 2569)
 const EXAMS = [
-  { level: "ป.6", date: new Date("2027-01-30T09:00:00+07:00"), label: "30 ม.ค. 2570 (Paper)", tone: "var(--primary)" },
-  { level: "ม.3", date: new Date("2027-02-01T09:00:00+07:00"), label: "1–5 ก.พ. 2570 (Digital)", tone: "var(--nav-active)" },
+  { level: "ป.6", date: new Date(ONET_CALENDAR.p6.date), label: ONET_CALENDAR.p6.label, tone: "var(--primary)" },
+  { level: "ม.3", date: new Date(ONET_CALENDAR.m3.date), label: ONET_CALENDAR.m3.label, tone: "var(--nav-active)" },
 ];
 
 function parts(ms: number) {

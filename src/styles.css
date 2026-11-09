@@ -181,6 +181,9 @@
   --highlight: oklch(0.88 0.16 95);
   --highlight-strong: oklch(0.72 0.17 70);
   --success: oklch(0.58 0.14 155);
+  --teacher-resource-1: oklch(0.48 0.11 180);
+  --teacher-resource-2: oklch(0.48 0.15 325);
+  --teacher-resource-3: oklch(0.5 0.13 55);
   --level-p6: oklch(0.93 0.045 250);
   --level-p6-strong: oklch(0.5 0.17 255);
   --level-m3: oklch(0.94 0.05 65);
@@ -201,6 +204,9 @@
   --color-highlight: var(--highlight);
   --color-highlight-strong: var(--highlight-strong);
   --color-success: var(--success);
+  --color-teacher-resource-1: var(--teacher-resource-1);
+  --color-teacher-resource-2: var(--teacher-resource-2);
+  --color-teacher-resource-3: var(--teacher-resource-3);
   --color-subj-math: var(--subj-math);
   --color-level-p6: var(--level-p6);
   --color-level-p6-strong: var(--level-p6-strong);
@@ -227,6 +233,9 @@ div.min-h-screen {
   background-size: 32px 32px;
 }
 .dark {
+  --teacher-resource-1: oklch(0.78 0.1 180);
+  --teacher-resource-2: oklch(0.8 0.12 325);
+  --teacher-resource-3: oklch(0.8 0.12 55);
   --level-page-surface: oklch(0.129 0.042 264.695);
   --level-page-grid: oklch(0.7 0 0 / 12%);
 }

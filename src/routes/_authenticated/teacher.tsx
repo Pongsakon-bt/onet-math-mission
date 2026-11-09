@@ -16,6 +16,8 @@ import type { Subject } from "@/data/exam-types";
 import { strandsFor } from "@/data/strands";
 import { levelOf } from "@/lib/progress";
 import { cn } from "@/lib/utils";
+import { TutoringPlanner } from "@/components/teacher/TutoringPlanner";
+import { LearningLinks } from "@/components/LearningLinks";
 
 export const Route = createFileRoute("/_authenticated/teacher")({
   head: () => {
@@ -152,6 +154,7 @@ function TeacherPage() {
           </div>
 
           <SchoolPeople teachers={teachers} students={students} rows={rows} />
+          <TutoringPlanner />
 
           <div className="rep-subject space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
@@ -187,6 +190,7 @@ function TeacherPage() {
               ))}
             </div>
           </section>
+          <div className="no-print"><LearningLinks level={level} subject={subject} /></div>
 
           <section className="rounded-2xl border border-border bg-card p-4 shadow-paper sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-xl"><Users className="h-5 w-5" /> นักเรียน</h2>
